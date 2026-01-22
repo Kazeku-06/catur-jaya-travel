@@ -3,63 +3,54 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\PaketTrip;
 use Illuminate\Http\Request;
 
 class PaketTripController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of active trips (Public access)
      */
     public function index()
     {
-        //
+        try {
+            $trips = PaketTrip::active()->get();
+
+            return response()->json([
+                'message' => 'Trips retrieved successfully',
+                'data' => $trips
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to retrieve trips',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
+     * Display the specified trip (Public access)
      */
     public function show(string $id)
     {
-        //
-    }
+        try {
+            $trip = PaketTrip::where('id', $id)->where('is_active', true)->first();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+            if (!$trip) {
+                return response()->json([
+                    'message' => 'Trip not found'
+                ], 404);
+            }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+            return response()->json([
+                'message' => 'Trip retrieved successfully',
+                'data' => $trip
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to retrieve trip',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

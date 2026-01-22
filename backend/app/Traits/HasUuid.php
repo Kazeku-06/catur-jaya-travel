@@ -24,4 +24,10 @@ trait HasUuid
     {
         return 'string';
     }
+
+    public function initializeHasUuid()
+    {
+        $this->keyType = 'string';
+        $this->incrementing = false;
+    }
 }

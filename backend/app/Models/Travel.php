@@ -10,6 +10,8 @@ class Travel extends Model
 {
     use HasFactory, HasUuid;
 
+    protected $table = 'travels';
+
     protected $fillable = [
         'origin',
         'destination',
