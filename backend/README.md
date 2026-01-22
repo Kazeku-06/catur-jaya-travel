@@ -1,59 +1,258 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Web Travel Backend API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Backend aplikasi Web Travel yang menyediakan layanan Paket Trip, Travel antar kota, dan Carter Mobil dengan integrasi payment gateway Midtrans.
 
-## About Laravel
+## 🚀 Teknologi Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Framework**: Laravel 12 (Latest Stable)
+- **Database**: MySQL
+- **Authentication**: Laravel Sanctum
+- **Payment Gateway**: Midtrans Snap API
+- **API Style**: RESTful API
+- **API Versioning**: /api/v1
+- **Architecture**: MVC + Service Layer
+- **Authorization**: Role-Based Access Control (RBAC)
+- **Primary Key**: UUID (bukan auto increment)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📋 Fitur Utama
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Untuk Guest (Belum Login)
+- Melihat katalog Paket Trip, Travel, dan Carter Mobil
+- Melihat detail setiap layanan
+- Akses WhatsApp admin untuk Carter Mobil
 
-## Learning Laravel
+### Untuk User (Sudah Login)
+- Semua fitur Guest
+- Membuat transaksi untuk Paket Trip dan Travel
+- Pembayaran melalui Midtrans Snap
+- Tracking status pembayaran
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Untuk Admin
+- Login ke sistem admin
+- CRUD Paket Trip, Travel, dan Carter Mobil
+- Melihat semua transaksi dan statistik
+- Monitoring pembayaran
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🏗️ Arsitektur Sistem
 
-## Laravel Sponsors
+### Database Schema
+```
+users (UUID)
+├── paket_trips (UUID)
+├── travels (UUID) 
+├── carter_mobiles (UUID)
+├── transactions (UUID)
+└── payments (UUID)
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Service Layer
+- **MidtransService**: Handle integrasi Midtrans
+- **TransactionService**: Logic bisnis transaksi
 
-### Premium Partners
+### Security Layer
+- **RoleMiddleware**: Role-based access control
+- **Form Requests**: Validasi input
+- **Sanctum**: API authentication
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## 🛠️ Installation & Setup
 
-## Contributing
+### Prerequisites
+- PHP 8.2+
+- Composer
+- MySQL
+- Node.js & NPM
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 1. Clone & Install Dependencies
+```bash
+cd backend
+composer install
+npm install
+```
 
-## Code of Conduct
+### 2. Environment Configuration
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 3. Database Configuration
+Edit `.env` file:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=backend
+DB_USERNAME=root
+DB_PASSWORD=
 
-## Security Vulnerabilities
+# Midtrans Configuration
+MIDTRANS_SERVER_KEY=your_server_key_here
+MIDTRANS_CLIENT_KEY=your_client_key_here
+MIDTRANS_IS_PRODUCTION=false
+MIDTRANS_IS_SANITIZED=true
+MIDTRANS_IS_3DS=true
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 4. Database Migration & Seeding
+```bash
+php artisan migrate:fresh --seed
+```
 
-## License
+### 5. Run Development Server
+```bash
+php artisan serve
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+API akan tersedia di: `http://localhost:8000/api/v1`
+
+## 📚 API Documentation
+
+Lihat file `API_DOCUMENTATION.md` untuk dokumentasi lengkap API endpoints.
+
+### Quick Test
+```bash
+# Test public endpoint
+curl http://localhost:8000/api/v1/trips
+
+# Test admin login
+curl -X POST http://localhost:8000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@travel.com","password":"password123"}'
+```
+
+## 🔐 Default Admin Account
+
+```
+Email: admin@travel.com
+Password: password123
+Role: admin
+```
+
+## 💳 Payment Flow
+
+### 1. User Flow (Trip/Travel)
+```
+User Login → Select Item → Create Transaction → Get Snap Token → Payment → Callback → Status Update
+```
+
+### 2. Carter Mobil Flow
+```
+Guest/User → Select Carter → Get WhatsApp Contact → Direct Contact Admin
+```
+
+### 3. Payment Status
+- `pending`: Menunggu pembayaran
+- `paid`: Pembayaran berhasil
+- `failed`: Pembayaran gagal
+- `expired`: Pembayaran expired
+
+## 🏛️ Struktur Folder
+
+```
+backend/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/Api/V1/
+│   │   │   ├── Auth/AuthController.php
+│   │   │   ├── PaketTripController.php
+│   │   │   ├── TravelController.php
+│   │   │   ├── CarterMobileController.php
+│   │   │   ├── TransactionController.php
+│   │   │   ├── PaymentController.php
+│   │   │   └── Admin/
+│   │   ├── Middleware/RoleMiddleware.php
+│   │   └── Requests/
+│   ├── Models/
+│   │   ├── User.php
+│   │   ├── PaketTrip.php
+│   │   ├── Travel.php
+│   │   ├── CarterMobile.php
+│   │   ├── Transaction.php
+│   │   └── Payment.php
+│   ├── Services/
+│   │   ├── MidtransService.php
+│   │   └── TransactionService.php
+│   └── Traits/HasUuid.php
+├── config/midtrans.php
+├── database/
+│   ├── migrations/
+│   └── seeders/
+└── routes/api.php
+```
+
+## 🔒 Security Features
+
+1. **Authentication**: Laravel Sanctum dengan Bearer token
+2. **Authorization**: Role-based middleware (admin/user)
+3. **Validation**: Form Request validation untuk semua input
+4. **Password Security**: Bcrypt hashing
+5. **Payment Security**: Midtrans signature verification
+6. **Price Protection**: Server-side price calculation
+7. **UUID**: Mencegah enumeration attack
+
+## 🧪 Testing
+
+### Manual Testing
+```bash
+# Test authentication
+curl -X POST http://localhost:8000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@travel.com","password":"password123"}'
+
+# Test protected endpoint
+curl -H "Authorization: Bearer YOUR_TOKEN" \
+  http://localhost:8000/api/v1/auth/me
+```
+
+### Database Testing
+```bash
+# Check sample data
+php artisan tinker
+>>> App\Models\PaketTrip::count()
+>>> App\Models\User::where('role', 'admin')->first()
+```
+
+## 🚀 Production Deployment
+
+### 1. Environment
+```env
+APP_ENV=production
+APP_DEBUG=false
+MIDTRANS_IS_PRODUCTION=true
+```
+
+### 2. Optimization
+```bash
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+composer install --optimize-autoloader --no-dev
+```
+
+### 3. Security
+- Setup SSL certificate
+- Configure firewall
+- Setup database backup
+- Monitor logs
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+1. **Migration Error**: Pastikan database sudah dibuat
+2. **UUID Error**: Pastikan trait HasUuid sudah diimport
+3. **Midtrans Error**: Periksa server key dan client key
+4. **CORS Error**: Setup CORS untuk frontend integration
+
+### Logs
+```bash
+tail -f storage/logs/laravel.log
+```
+
+## 📞 Support
+
+Untuk pertanyaan teknis atau bug report, silakan buat issue di repository ini.
+
+## 📄 License
+
+MIT License
