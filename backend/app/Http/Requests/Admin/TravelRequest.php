@@ -4,7 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class PaketTripRequest extends FormRequest
+class TravelRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,12 +22,10 @@ class PaketTripRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
-            'duration' => 'required|string|max:255',
-            'location' => 'required|string|max:255',
-            'quota' => 'required|integer|min:1',
+            'origin' => 'required|string|max:255',
+            'destination' => 'required|string|max:255',
+            'vehicle_type' => 'required|string|max:255',
+            'price_per_person' => 'required|numeric|min:0',
             'is_active' => 'boolean',
         ];
     }
