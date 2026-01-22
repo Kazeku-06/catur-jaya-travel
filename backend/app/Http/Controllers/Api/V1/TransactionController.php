@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Services\TransactionService;
 use Illuminate\Http\Request;
 
+/**
+ * @tags User Transactions
+ */
 class TransactionController extends Controller
 {
     protected $transactionService;
@@ -17,6 +20,9 @@ class TransactionController extends Controller
 
     /**
      * Create transaction for trip (Requires authentication)
+     *
+     * @summary Create trip transaction
+     * @description Create a new transaction for a trip package. Requires user authentication. Returns transaction details and Midtrans Snap token for payment.
      */
     public function createTripTransaction(Request $request, string $tripId)
     {
@@ -46,6 +52,9 @@ class TransactionController extends Controller
 
     /**
      * Create transaction for travel (Requires authentication)
+     *
+     * @summary Create travel transaction
+     * @description Create a new transaction for a travel service. Requires user authentication. Returns transaction details and Midtrans Snap token for payment.
      */
     public function createTravelTransaction(Request $request, string $travelId)
     {

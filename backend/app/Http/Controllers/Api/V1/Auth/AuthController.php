@@ -10,10 +10,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * @tags Authentication
+ */
 class AuthController extends Controller
 {
     /**
      * Register a new user
+     *
+     * @summary Register new user account
+     * @description Create a new user account with email and password. Returns user data and access token.
      */
     public function register(RegisterRequest $request)
     {
@@ -48,6 +54,9 @@ class AuthController extends Controller
 
     /**
      * Login user
+     *
+     * @summary User login
+     * @description Authenticate user with email and password. Returns user data and access token.
      */
     public function login(LoginRequest $request)
     {
@@ -82,6 +91,9 @@ class AuthController extends Controller
 
     /**
      * Get authenticated user
+     *
+     * @summary Get current user profile
+     * @description Get the profile information of the currently authenticated user.
      */
     public function me(Request $request)
     {
@@ -97,6 +109,9 @@ class AuthController extends Controller
 
     /**
      * Logout user
+     *
+     * @summary User logout
+     * @description Logout the current user by revoking the access token.
      */
     public function logout(Request $request)
     {

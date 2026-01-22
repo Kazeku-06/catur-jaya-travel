@@ -6,10 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\PaketTrip;
 use Illuminate\Http\Request;
 
+/**
+ * @tags Public Catalog - Paket Trip
+ */
 class PaketTripController extends Controller
 {
     /**
      * Display a listing of active trips (Public access)
+     *
+     * @summary Get all active trips
+     * @description Retrieve all active trip packages available for booking. No authentication required.
      */
     public function index()
     {
@@ -30,6 +36,9 @@ class PaketTripController extends Controller
 
     /**
      * Display the specified trip (Public access)
+     *
+     * @summary Get trip details
+     * @description Get detailed information about a specific trip package. No authentication required.
      */
     public function show(string $id)
     {
