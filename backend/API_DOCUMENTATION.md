@@ -101,6 +101,8 @@ GET /api/v1/trips
             "duration": "3 hari 2 malam",
             "location": "Bromo, Jawa Timur",
             "quota": 20,
+            "image": "trips/bromo.jpg",
+            "image_url": "http://localhost:8000/storage/trips/bromo.jpg",
             "is_active": true,
             "created_at": "2026-01-22T03:39:42.000000Z",
             "updated_at": "2026-01-22T03:39:42.000000Z"
@@ -191,14 +193,19 @@ Content-Type: application/json
 #### Admin Trip Management
 ```http
 GET /api/v1/admin/trips                    # Get all trips
-POST /api/v1/admin/trips                   # Create trip
+POST /api/v1/admin/trips                   # Create trip (with optional image)
 GET /api/v1/admin/trips/{id}               # Get trip detail
-PUT /api/v1/admin/trips/{id}               # Update trip
+PUT /api/v1/admin/trips/{id}               # Update trip (with optional image)
 DELETE /api/v1/admin/trips/{id}            # Delete trip
+POST /api/v1/admin/trips/{id}/upload-image # Upload trip image (separate endpoint)
 ```
 
-**Create Trip Request:**
-```json
+**Create Trip (JSON - without image):**
+```http
+POST /api/v1/admin/trips
+Content-Type: application/json
+Authorization: Bearer {admin_token}
+
 {
     "title": "Wisata Bali 4D3N",
     "description": "Paket wisata Bali lengkap dengan hotel dan transportasi",
@@ -210,17 +217,70 @@ DELETE /api/v1/admin/trips/{id}            # Delete trip
 }
 ```
 
+**Create Trip (Form Data - with image):**
+```http
+POST /api/v1/admin/trips
+Content-Type: multipart/form-data
+Authorization: Bearer {admin_token}
+
+title: "Wisata Bali 4D3N"
+description: "Paket wisata Bali lengkap dengan hotel dan transportasi"
+price: 2500000
+duration: "4 hari 3 malam"
+location: "Bali"
+quota: 25
+image: [file] (JPEG, PNG, JPG, WEBP - Max 5MB)
+is_active: true
+```
+
+**Update Trip (Form Data - with image):**
+```http
+PUT /api/v1/admin/trips/{id}
+Content-Type: multipart/form-data
+Authorization: Bearer {admin_token}
+
+title: "Wisata Bali Updated"
+image: [file] (JPEG, PNG, JPG, WEBP - Max 5MB)
+# Only include fields you want to update
+```
+
+**Response with Image:**
+```json
+{
+    "message": "Trip created successfully",
+    "data": {
+        "id": "uuid-string",
+        "title": "Wisata Bali 4D3N",
+        "description": "Paket wisata Bali lengkap dengan hotel dan transportasi",
+        "price": "2500000.00",
+        "duration": "4 hari 3 malam",
+        "location": "Bali",
+        "quota": 25,
+        "image": "trips/uuid-filename.jpg",
+        "image_url": "http://localhost:8000/storage/trips/uuid-filename.jpg",
+        "is_active": true,
+        "created_at": "2026-01-24T07:49:39.000000Z",
+        "updated_at": "2026-01-24T07:49:39.000000Z"
+    }
+}
+```
+
 #### Admin Travel Management
 ```http
 GET /api/v1/admin/travels                  # Get all travels
-POST /api/v1/admin/travels                 # Create travel
+POST /api/v1/admin/travels                 # Create travel (with optional image)
 GET /api/v1/admin/travels/{id}             # Get travel detail
-PUT /api/v1/admin/travels/{id}             # Update travel
+PUT /api/v1/admin/travels/{id}             # Update travel (with optional image)
 DELETE /api/v1/admin/travels/{id}          # Delete travel
+POST /api/v1/admin/travels/{id}/upload-image # Upload travel image (separate endpoint)
 ```
 
-**Create Travel Request:**
-```json
+**Create Travel (JSON - without image):**
+```http
+POST /api/v1/admin/travels
+Content-Type: application/json
+Authorization: Bearer {admin_token}
+
 {
     "origin": "Jakarta",
     "destination": "Bandung",
@@ -228,6 +288,31 @@ DELETE /api/v1/admin/travels/{id}          # Delete travel
     "price_per_person": 75000,
     "is_active": true
 }
+```
+
+**Create Travel (Form Data - with image):**
+```http
+POST /api/v1/admin/travels
+Content-Type: multipart/form-data
+Authorization: Bearer {admin_token}
+
+origin: "Jakarta"
+destination: "Bandung"
+vehicle_type: "Bus Executive"
+price_per_person: 75000
+image: [file] (JPEG, PNG, JPG, WEBP - Max 5MB)
+is_active: true
+```
+
+**Update Travel (Form Data - with image):**
+```http
+PUT /api/v1/admin/travels/{id}
+Content-Type: multipart/form-data
+Authorization: Bearer {admin_token}
+
+origin: "Jakarta Updated"
+image: [file] (JPEG, PNG, JPG, WEBP - Max 5MB)
+# Only include fields you want to update
 ```
 
 #### Admin Transaction Management

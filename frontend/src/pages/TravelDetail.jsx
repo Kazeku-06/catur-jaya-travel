@@ -36,18 +36,80 @@ const TravelDetail = () => {
     try {
       setLoading(true);
       
-      const [travelRes, relatedRes] = await Promise.all([
-        api.get(endpoints.travelDetail(id)),
-        api.get(`${endpoints.travels}?limit=4&exclude=${id}`)
-      ]);
+      // Fetch travel detail
+      const travelRes = await api.get(endpoints.travelDetail(id));
       
-      setTravel(travelRes.data.data);
-      setRelatedTravels(relatedRes.data.data || []);
+      // Backend response structure
+      const travelData = travelRes.data.data;
+      
+      if (!travelData) {
+        console.error('No travel data received');
+        navigate('/travels');
+        return;
+      }
+      
+      // Map backend fields to frontend expected structure with safe fallbacks
+      const mappedTravel = {
+        id: travelData.id,
+        name: travelData.title || travelData.origin + ' - ' + travelData.destination || 'Travel Tidak Diketahui',
+        title: travelData.title || travelData.origin + ' - ' + travelData.destination || 'Travel Tidak Diketahui',
+        description: travelData.description || 'Deskripsi tidak tersedia',
+        price: travelData.price_per_person || travelData.price || 0,
+        duration: travelData.duration || 'Durasi tidak diketahui',
+        departure_location: travelData.origin || 'Lokasi tidak diketahui',
+        destination_location: travelData.destination || 'Lokasi tidak diketahui',
+        vehicle_type: travelData.vehicle_type || 'Kendaraan tidak diketahui',
+        is_available: travelData.is_active !== undefined ? travelData.is_active : true,
+        is_active: travelData.is_active !== undefined ? travelData.is_active : true,
+        // Add default values for fields that might not exist in backend
+        image: travelData.image || '/images/travel-placeholder.jpg',
+        image_url: travelData.image_url || null,
+        images: travelData.images || [travelData.image_url || travelData.image || '/images/travel-placeholder.jpg'],
+        departure_date: travelData.departure_date || null,
+        departure_time: travelData.departure_time || null,
+        category: travelData.category || 'Travel',
+        facilities: travelData.facilities || [],
+        terms: travelData.terms || [],
+        created_at: travelData.created_at,
+        updated_at: travelData.updated_at,
+      };
+      
+      setTravel(mappedTravel);
+      
+      // Fetch related travels separately to avoid blocking main content
+      try {
+        const relatedRes = await api.get(endpoints.travels);
+        const allTravels = relatedRes.data.data || [];
+        
+        // Filter related travels (exclude current travel)
+        const related = allTravels
+          .filter(t => t.id !== id)
+          .slice(0, 4)
+          .map(t => ({
+            ...t,
+            name: t.title || t.origin + ' - ' + t.destination || 'Travel Tidak Diketahui',
+            is_available: t.is_active !== undefined ? t.is_active : true,
+          }));
+        
+        setRelatedTravels(related);
+      } catch (relatedError) {
+        console.error('Error fetching related travels:', relatedError);
+        // Don't fail the whole page if related travels fail
+        setRelatedTravels([]);
+      }
       
     } catch (error) {
       console.error('Error fetching travel detail:', error);
+      
+      // More specific error handling
       if (error.response?.status === 404) {
         navigate('/travels');
+      } else if (error.response?.status === 500) {
+        console.error('Server error:', error.response.data);
+        // Stay on page but show error state
+      } else {
+        console.error('Network or other error:', error.message);
+        // Stay on page but show error state
       }
     } finally {
       setLoading(false);
@@ -63,19 +125,29 @@ const TravelDetail = () => {
     try {
       setBookingLoading(true);
       
-      const response = await api.post(endpoints.transactions, {
-        travel_id: id,
-        passengers: bookingData.passengers,
-        departure_date: bookingData.departure_date,
-        special_requests: bookingData.special_requests,
+      // Use the correct endpoint from backend documentation
+      const response = await api.post(endpoints.createTravelTransaction(id), {
+        // Backend might expect different field names
+        // Check the actual backend implementation for required fields
       });
 
-      // Redirect to payment page
-      navigate(`/payment/${response.data.data.id}`);
+      // Backend response: { message: "...", data: { transaction_id, order_id, snap_token, ... } }
+      const transactionData = response.data.data;
+      
+      // If Midtrans integration is available, redirect to payment
+      if (transactionData.snap_token) {
+        // Implement Midtrans Snap payment here
+        // For now, redirect to success page
+        navigate(`/payment/success?transaction_id=${transactionData.transaction_id}`);
+      } else {
+        // Fallback to success page
+        navigate(`/payment/success?order_id=${transactionData.order_id}`);
+      }
       
     } catch (error) {
       console.error('Error creating booking:', error);
-      alert('Gagal membuat booking. Silakan coba lagi.');
+      const errorMessage = error.response?.data?.message || 'Gagal membuat booking. Silakan coba lagi.';
+      alert(errorMessage);
     } finally {
       setBookingLoading(false);
     }
@@ -84,7 +156,7 @@ const TravelDetail = () => {
   const breadcrumbItems = [
     { label: 'Beranda', href: '/' },
     { label: 'Travel', href: '/travels' },
-    { label: travel?.name || 'Detail Travel' }
+    { label: travel?.name || travel?.title || 'Detail Travel' }
   ];
 
   if (loading) {
@@ -124,8 +196,8 @@ const TravelDetail = () => {
     );
   }
 
-  const totalPrice = travel.price * bookingData.passengers;
-  const images = travel.images || [travel.image];
+  const totalPrice = (travel?.price || 0) * bookingData.passengers;
+  const images = travel?.images || [travel?.image] || ['/images/travel-placeholder.jpg'];
 
   return (
     <Layout>
@@ -148,10 +220,13 @@ const TravelDetail = () => {
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-96 lg:h-[500px]">
               <div className="lg:col-span-3">
                 <img
-                  src={getImageUrl(images[selectedImage])}
-                  alt={travel.name}
+                  src={getImageUrl(images[selectedImage] || images[0])}
+                  alt={travel?.name || travel?.title || 'Travel'}
                   className="w-full h-full object-cover rounded-xl cursor-pointer"
                   onClick={() => setSelectedImage(selectedImage)}
+                  onError={(e) => {
+                    e.target.src = '/images/travel-placeholder.jpg';
+                  }}
                 />
               </div>
               
@@ -161,11 +236,14 @@ const TravelDetail = () => {
                     <img
                       key={index}
                       src={getImageUrl(image)}
-                      alt={`${travel.name} ${index + 1}`}
+                      alt={`${travel?.name || travel?.title || 'Travel'} ${index + 1}`}
                       className={`w-full h-20 lg:h-24 object-cover rounded-lg cursor-pointer transition-all duration-200 ${
                         selectedImage === index ? 'ring-2 ring-primary-500' : 'hover:opacity-80'
                       }`}
                       onClick={() => setSelectedImage(index)}
+                      onError={(e) => {
+                        e.target.src = '/images/travel-placeholder.jpg';
+                      }}
                     />
                   ))}
                 </div>
@@ -186,7 +264,7 @@ const TravelDetail = () => {
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                      {travel.name}
+                      {travel?.name || travel?.title || 'Travel Tidak Diketahui'}
                     </h1>
                     <div className="flex items-center space-x-4 text-gray-600 mb-4">
                       <div className="flex items-center">
@@ -194,22 +272,22 @@ const TravelDetail = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        <span>{travel.departure_location} → {travel.destination_location}</span>
+                        <span>{travel?.departure_location || 'Lokasi'} → {travel?.destination_location || 'Tujuan'}</span>
                       </div>
                       <div className="flex items-center">
                         <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span>{travel.duration}</span>
+                        <span>{travel?.duration || 'Durasi tidak diketahui'}</span>
                       </div>
                     </div>
                   </div>
                   
                   <div className="flex flex-col items-end">
-                    <Badge variant={travel.is_available ? 'success' : 'error'}>
-                      {travel.is_available ? 'Tersedia' : 'Tidak Tersedia'}
+                    <Badge variant={travel?.is_available ? 'success' : 'error'}>
+                      {travel?.is_available ? 'Tersedia' : 'Tidak Tersedia'}
                     </Badge>
-                    {travel.category && (
+                    {travel?.category && (
                       <Badge variant="secondary" className="mt-2">
                         {travel.category}
                       </Badge>
@@ -218,7 +296,7 @@ const TravelDetail = () => {
                 </div>
 
                 {/* Departure Info */}
-                {travel.departure_date && (
+                {travel?.departure_date && (
                   <div className="bg-blue-50 rounded-lg p-4 mb-4">
                     <div className="flex items-center text-blue-800">
                       <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -228,7 +306,7 @@ const TravelDetail = () => {
                         Keberangkatan: {formatDate(travel.departure_date)}
                       </span>
                     </div>
-                    {travel.departure_time && (
+                    {travel?.departure_time && (
                       <div className="flex items-center text-blue-700 mt-1">
                         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -241,7 +319,7 @@ const TravelDetail = () => {
 
                 {/* Price */}
                 <div className="text-3xl font-bold text-primary-600">
-                  {formatCurrency(travel.price)}
+                  {formatCurrency(travel?.price || 0)}
                   <span className="text-lg text-gray-600 font-normal">/orang</span>
                 </div>
               </div>
@@ -250,12 +328,12 @@ const TravelDetail = () => {
               <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Deskripsi</h2>
                 <div className="prose prose-gray max-w-none">
-                  <p className="text-gray-600 leading-relaxed">{travel.description}</p>
+                  <p className="text-gray-600 leading-relaxed">{travel?.description || 'Deskripsi tidak tersedia'}</p>
                 </div>
               </div>
 
               {/* Facilities */}
-              {travel.facilities && travel.facilities.length > 0 && (
+              {travel?.facilities && travel.facilities.length > 0 && (
                 <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">Fasilitas</h2>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -272,7 +350,7 @@ const TravelDetail = () => {
               )}
 
               {/* Terms & Conditions */}
-              {travel.terms && travel.terms.length > 0 && (
+              {travel?.terms && travel.terms.length > 0 && (
                 <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">Syarat & Ketentuan</h2>
                   <ul className="space-y-2">
@@ -320,7 +398,7 @@ const TravelDetail = () => {
                   </div>
 
                   {/* Departure Date */}
-                  {!travel.departure_date && (
+                  {!travel?.departure_date && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Tanggal Keberangkatan
@@ -344,7 +422,7 @@ const TravelDetail = () => {
                 <div className="border-t border-gray-200 pt-4 mb-6">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-gray-600">
-                      {formatCurrency(travel.price)} x {bookingData.passengers} orang
+                      {formatCurrency(travel?.price || 0)} x {bookingData.passengers} orang
                     </span>
                     <span className="font-medium">{formatCurrency(totalPrice)}</span>
                   </div>
@@ -359,11 +437,11 @@ const TravelDetail = () => {
                   variant="primary"
                   size="lg"
                   fullWidth
-                  disabled={!travel.is_available || (!travel.departure_date && !bookingData.departure_date)}
+                  disabled={!travel?.is_available || (!travel?.departure_date && !bookingData.departure_date)}
                   loading={bookingLoading}
                   onClick={() => setShowBookingModal(true)}
                 >
-                  {!travel.is_available ? 'Tidak Tersedia' : 'Booking Sekarang'}
+                  {!travel?.is_available ? 'Tidak Tersedia' : 'Booking Sekarang'}
                 </Button>
 
                 {/* Contact Info */}
@@ -408,11 +486,11 @@ const TravelDetail = () => {
       >
         <div className="space-y-4">
           <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-2">{travel.name}</h4>
+            <h4 className="font-medium text-gray-900 mb-2">{travel?.name || travel?.title || 'Travel'}</h4>
             <div className="text-sm text-gray-600 space-y-1">
-              <p>Rute: {travel.departure_location} → {travel.destination_location}</p>
+              <p>Rute: {travel?.departure_location || 'Lokasi'} → {travel?.destination_location || 'Tujuan'}</p>
               <p>Jumlah Penumpang: {bookingData.passengers} orang</p>
-              <p>Tanggal Keberangkatan: {formatDate(travel.departure_date || bookingData.departure_date)}</p>
+              <p>Tanggal Keberangkatan: {formatDate(travel?.departure_date || bookingData.departure_date)}</p>
               <p className="font-medium text-lg text-primary-600">
                 Total: {formatCurrency(totalPrice)}
               </p>

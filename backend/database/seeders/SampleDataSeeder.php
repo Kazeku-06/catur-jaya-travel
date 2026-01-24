@@ -23,6 +23,7 @@ class SampleDataSeeder extends Seeder
             'duration' => '3 hari 2 malam',
             'location' => 'Bromo, Jawa Timur',
             'quota' => 20,
+            'image' => 'trips/bromo.jpg',
             'is_active' => true,
         ]);
 
@@ -34,6 +35,19 @@ class SampleDataSeeder extends Seeder
             'duration' => '2 hari 1 malam',
             'location' => 'Malang Selatan, Jawa Timur',
             'quota' => 15,
+            'image' => 'trips/malang-selatan.jpg',
+            'is_active' => true,
+        ]);
+
+        PaketTrip::create([
+            'id' => \Illuminate\Support\Str::uuid(),
+            'title' => 'Wisata Kawah Ijen',
+            'description' => 'Paket wisata 2 hari 1 malam ke Kawah Ijen dengan blue fire yang memukau',
+            'price' => 1200000,
+            'duration' => '2 hari 1 malam',
+            'location' => 'Banyuwangi, Jawa Timur',
+            'quota' => 12,
+            'image' => 'trips/kawah-ijen.jpg',
             'is_active' => true,
         ]);
 
@@ -44,6 +58,7 @@ class SampleDataSeeder extends Seeder
             'destination' => 'Malang',
             'vehicle_type' => 'Bus AC',
             'price_per_person' => 50000,
+            'image' => 'travels/surabaya-malang.jpg',
             'is_active' => true,
         ]);
 
@@ -53,6 +68,7 @@ class SampleDataSeeder extends Seeder
             'destination' => 'Batu',
             'vehicle_type' => 'Minibus',
             'price_per_person' => 25000,
+            'image' => 'travels/malang-batu.jpg',
             'is_active' => true,
         ]);
 
@@ -62,6 +78,7 @@ class SampleDataSeeder extends Seeder
             'destination' => 'Banyuwangi',
             'vehicle_type' => 'Bus Executive',
             'price_per_person' => 120000,
+            'image' => 'travels/surabaya-banyuwangi.jpg',
             'is_active' => true,
         ]);
     }

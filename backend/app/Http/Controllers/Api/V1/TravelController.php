@@ -4,17 +4,28 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Travel;
+use App\Services\FileUploadService;
 use Illuminate\Http\Request;
 
 class TravelController extends Controller
 {
+    protected $fileUploadService;
+
+    public function __construct(FileUploadService $fileUploadService)
+    {
+        $this->fileUploadService = $fileUploadService;
+    }
+
     /**
      * Display a listing of active travels (Public access)
      */
     public function index()
     {
         try {
-            $travels = Travel::active()->get();
+            $travels = Travel::active()->get()->map(function ($travel) {
+                $travel->image_url = $travel->image ? $this->fileUploadService->getImageUrl($travel->image) : null;
+                return $travel;
+            });
 
             return response()->json([
                 'message' => 'Travels retrieved successfully',
@@ -41,6 +52,8 @@ class TravelController extends Controller
                     'message' => 'Travel not found'
                 ], 404);
             }
+
+            $travel->image_url = $travel->image ? $this->fileUploadService->getImageUrl($travel->image) : null;
 
             return response()->json([
                 'message' => 'Travel retrieved successfully',

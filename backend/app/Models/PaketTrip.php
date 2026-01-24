@@ -17,6 +17,7 @@ class PaketTrip extends Model
         'duration',
         'location',
         'quota',
+        'image',
         'is_active',
     ];
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\PaketTrip;
+use App\Services\FileUploadService;
 use Illuminate\Http\Request;
 
 /**
@@ -11,6 +12,13 @@ use Illuminate\Http\Request;
  */
 class PaketTripController extends Controller
 {
+    protected $fileUploadService;
+
+    public function __construct(FileUploadService $fileUploadService)
+    {
+        $this->fileUploadService = $fileUploadService;
+    }
+
     /**
      * Display a listing of active trips (Public access)
      *
@@ -20,7 +28,10 @@ class PaketTripController extends Controller
     public function index()
     {
         try {
-            $trips = PaketTrip::active()->get();
+            $trips = PaketTrip::active()->get()->map(function ($trip) {
+                $trip->image_url = $trip->image ? $this->fileUploadService->getImageUrl($trip->image) : null;
+                return $trip;
+            });
 
             return response()->json([
                 'message' => 'Trips retrieved successfully',
@@ -50,6 +61,8 @@ class PaketTripController extends Controller
                     'message' => 'Trip not found'
                 ], 404);
             }
+
+            $trip->image_url = $trip->image ? $this->fileUploadService->getImageUrl($trip->image) : null;
 
             return response()->json([
                 'message' => 'Trip retrieved successfully',

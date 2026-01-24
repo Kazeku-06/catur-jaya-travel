@@ -36,48 +36,80 @@ const TripDetail = () => {
     try {
       setLoading(true);
       
-      const [tripRes, relatedRes] = await Promise.all([
-        api.get(endpoints.tripDetail(id)),
-        api.get(endpoints.trips) // Get all trips for related items
-      ]);
+      // Fetch trip detail
+      const tripRes = await api.get(endpoints.tripDetail(id));
       
       // Backend response structure
       const tripData = tripRes.data.data;
-      const allTrips = relatedRes.data.data || [];
       
-      // Map backend fields to frontend expected structure
+      if (!tripData) {
+        console.error('No trip data received');
+        navigate('/trips');
+        return;
+      }
+      
+      // Map backend fields to frontend expected structure with safe fallbacks
       const mappedTrip = {
-        ...tripData,
-        name: tripData.title, // Backend uses 'title', frontend expects 'name'
-        is_available: tripData.is_active, // Backend uses 'is_active'
+        id: tripData.id,
+        name: tripData.title || 'Trip Tidak Diketahui',
+        title: tripData.title || 'Trip Tidak Diketahui',
+        description: tripData.description || 'Deskripsi tidak tersedia',
+        price: tripData.price || 0,
+        duration: tripData.duration || 'Durasi tidak diketahui',
+        location: tripData.location || 'Lokasi tidak diketahui',
+        quota: tripData.quota || 0,
+        is_available: tripData.is_active !== undefined ? tripData.is_active : true,
+        is_active: tripData.is_active !== undefined ? tripData.is_active : true,
         // Add default values for fields that might not exist in backend
-        images: tripData.images || [tripData.image],
-        rating: tripData.rating || 4.5,
+        image: tripData.image || '/images/trip-placeholder.jpg',
+        image_url: tripData.image_url || null,
+        images: tripData.images || [tripData.image_url || tripData.image || '/images/trip-placeholder.jpg'],
+        rating: tripData.rating || null,
         total_reviews: tripData.total_reviews || 0,
         category: tripData.category || 'Wisata',
         itinerary: tripData.itinerary || [],
         includes: tripData.includes || [],
         excludes: tripData.excludes || [],
+        created_at: tripData.created_at,
+        updated_at: tripData.updated_at,
       };
       
       setTrip(mappedTrip);
       
-      // Filter related trips (exclude current trip)
-      const related = allTrips
-        .filter(t => t.id !== id)
-        .slice(0, 4)
-        .map(t => ({
-          ...t,
-          name: t.title,
-          is_available: t.is_active,
-        }));
-      
-      setRelatedTrips(related);
+      // Fetch related trips separately to avoid blocking main content
+      try {
+        const relatedRes = await api.get(endpoints.trips);
+        const allTrips = relatedRes.data.data || [];
+        
+        // Filter related trips (exclude current trip)
+        const related = allTrips
+          .filter(t => t.id !== id)
+          .slice(0, 4)
+          .map(t => ({
+            ...t,
+            name: t.title || 'Trip Tidak Diketahui',
+            is_available: t.is_active !== undefined ? t.is_active : true,
+          }));
+        
+        setRelatedTrips(related);
+      } catch (relatedError) {
+        console.error('Error fetching related trips:', relatedError);
+        // Don't fail the whole page if related trips fail
+        setRelatedTrips([]);
+      }
       
     } catch (error) {
       console.error('Error fetching trip detail:', error);
+      
+      // More specific error handling
       if (error.response?.status === 404) {
         navigate('/trips');
+      } else if (error.response?.status === 500) {
+        console.error('Server error:', error.response.data);
+        // Stay on page but show error state
+      } else {
+        console.error('Network or other error:', error.message);
+        // Stay on page but show error state
       }
     } finally {
       setLoading(false);
@@ -124,7 +156,7 @@ const TripDetail = () => {
   const breadcrumbItems = [
     { label: 'Beranda', href: '/' },
     { label: 'Paket Trip', href: '/trips' },
-    { label: trip?.name || 'Detail Trip' }
+    { label: trip?.name || trip?.title || 'Detail Trip' }
   ];
 
   if (loading) {
@@ -164,8 +196,8 @@ const TripDetail = () => {
     );
   }
 
-  const totalPrice = trip.price * bookingData.participants;
-  const images = trip.images || [trip.image];
+  const totalPrice = (trip?.price || 0) * bookingData.participants;
+  const images = trip?.images || [trip?.image] || ['/images/trip-placeholder.jpg'];
 
   return (
     <Layout>
@@ -188,10 +220,13 @@ const TripDetail = () => {
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-96 lg:h-[500px]">
               <div className="lg:col-span-3">
                 <img
-                  src={getImageUrl(images[selectedImage])}
-                  alt={trip.name}
+                  src={getImageUrl(images[selectedImage] || images[0])}
+                  alt={trip?.name || trip?.title || 'Trip'}
                   className="w-full h-full object-cover rounded-xl cursor-pointer"
                   onClick={() => setSelectedImage(selectedImage)}
+                  onError={(e) => {
+                    e.target.src = '/images/trip-placeholder.jpg';
+                  }}
                 />
               </div>
               
@@ -201,11 +236,14 @@ const TripDetail = () => {
                     <img
                       key={index}
                       src={getImageUrl(image)}
-                      alt={`${trip.name} ${index + 1}`}
+                      alt={`${trip?.name || trip?.title || 'Trip'} ${index + 1}`}
                       className={`w-full h-20 lg:h-24 object-cover rounded-lg cursor-pointer transition-all duration-200 ${
                         selectedImage === index ? 'ring-2 ring-primary-500' : 'hover:opacity-80'
                       }`}
                       onClick={() => setSelectedImage(index)}
+                      onError={(e) => {
+                        e.target.src = '/images/trip-placeholder.jpg';
+                      }}
                     />
                   ))}
                 </div>
@@ -226,7 +264,7 @@ const TripDetail = () => {
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                      {trip.name}
+                      {trip?.name || trip?.title || 'Trip Tidak Diketahui'}
                     </h1>
                     <div className="flex items-center space-x-4 text-gray-600 mb-4">
                       <div className="flex items-center">
@@ -234,22 +272,22 @@ const TripDetail = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        <span>{trip.location}</span>
+                        <span>{trip?.location || 'Lokasi tidak diketahui'}</span>
                       </div>
                       <div className="flex items-center">
                         <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span>{trip.duration}</span>
+                        <span>{trip?.duration || 'Durasi tidak diketahui'}</span>
                       </div>
                     </div>
                   </div>
                   
                   <div className="flex flex-col items-end">
-                    <Badge variant={trip.is_available ? 'success' : 'error'}>
-                      {trip.is_available ? 'Tersedia' : 'Tidak Tersedia'}
+                    <Badge variant={trip?.is_available ? 'success' : 'error'}>
+                      {trip?.is_available ? 'Tersedia' : 'Tidak Tersedia'}
                     </Badge>
-                    {trip.category && (
+                    {trip?.category && (
                       <Badge variant="primary" className="mt-2">
                         {trip.category}
                       </Badge>
@@ -258,7 +296,7 @@ const TripDetail = () => {
                 </div>
 
                 {/* Rating */}
-                {trip.rating && (
+                {trip?.rating && (
                   <div className="flex items-center mb-4">
                     <div className="flex items-center">
                       {[...Array(5)].map((_, i) => (
@@ -275,14 +313,14 @@ const TripDetail = () => {
                       ))}
                     </div>
                     <span className="ml-2 text-gray-600">
-                      {trip.rating.toFixed(1)} ({trip.total_reviews} ulasan)
+                      {trip.rating.toFixed(1)} ({trip?.total_reviews || 0} ulasan)
                     </span>
                   </div>
                 )}
 
                 {/* Price */}
                 <div className="text-3xl font-bold text-primary-600">
-                  {formatCurrency(trip.price)}
+                  {formatCurrency(trip?.price || 0)}
                   <span className="text-lg text-gray-600 font-normal">/orang</span>
                 </div>
               </div>
@@ -291,12 +329,12 @@ const TripDetail = () => {
               <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Deskripsi</h2>
                 <div className="prose prose-gray max-w-none">
-                  <p className="text-gray-600 leading-relaxed">{trip.description}</p>
+                  <p className="text-gray-600 leading-relaxed">{trip?.description || 'Deskripsi tidak tersedia'}</p>
                 </div>
               </div>
 
               {/* Itinerary */}
-              {trip.itinerary && trip.itinerary.length > 0 && (
+              {trip?.itinerary && trip.itinerary.length > 0 && (
                 <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">Itinerary</h2>
                   <div className="space-y-4">
@@ -320,7 +358,7 @@ const TripDetail = () => {
 
               {/* Includes & Excludes */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                {trip.includes && trip.includes.length > 0 && (
+                {trip?.includes && trip.includes.length > 0 && (
                   <div className="bg-white rounded-xl p-6 shadow-sm">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Termasuk</h3>
                     <ul className="space-y-2">
@@ -336,7 +374,7 @@ const TripDetail = () => {
                   </div>
                 )}
 
-                {trip.excludes && trip.excludes.length > 0 && (
+                {trip?.excludes && trip.excludes.length > 0 && (
                   <div className="bg-white rounded-xl p-6 shadow-sm">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Tidak Termasuk</h3>
                     <ul className="space-y-2">
@@ -409,7 +447,7 @@ const TripDetail = () => {
                 <div className="border-t border-gray-200 pt-4 mb-6">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-gray-600">
-                      {formatCurrency(trip.price)} x {bookingData.participants} orang
+                      {formatCurrency(trip?.price || 0)} x {bookingData.participants} orang
                     </span>
                     <span className="font-medium">{formatCurrency(totalPrice)}</span>
                   </div>
@@ -424,11 +462,11 @@ const TripDetail = () => {
                   variant="primary"
                   size="lg"
                   fullWidth
-                  disabled={!trip.is_available || !bookingData.departure_date}
+                  disabled={!trip?.is_available || !bookingData.departure_date}
                   loading={bookingLoading}
                   onClick={() => setShowBookingModal(true)}
                 >
-                  {!trip.is_available ? 'Tidak Tersedia' : 'Booking Sekarang'}
+                  {!trip?.is_available ? 'Tidak Tersedia' : 'Booking Sekarang'}
                 </Button>
 
                 {/* Contact Info */}
@@ -473,7 +511,7 @@ const TripDetail = () => {
       >
         <div className="space-y-4">
           <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-2">{trip.name}</h4>
+            <h4 className="font-medium text-gray-900 mb-2">{trip?.name || trip?.title || 'Trip'}</h4>
             <div className="text-sm text-gray-600 space-y-1">
               <p>Jumlah Peserta: {bookingData.participants} orang</p>
               <p>Tanggal Keberangkatan: {formatDate(bookingData.departure_date)}</p>

@@ -114,11 +114,11 @@ export const isValidPhoneNumber = (phone) => {
 export const getImageUrl = (imagePath, fallback = '/images/placeholder.jpg') => {
   if (!imagePath) return fallback;
   
-  // If it's already a full URL, return as is
+  // If it's already a full URL (from image_url field), return as is
   if (imagePath.startsWith('http')) return imagePath;
   
   // If it's a relative path, prepend base URL
-  const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || '';
+  const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace('/api/v1', '') || 'http://localhost:8000';
   return `${baseUrl}/storage/${imagePath}`;
 };
 

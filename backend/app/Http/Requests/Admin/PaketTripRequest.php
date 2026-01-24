@@ -28,6 +28,7 @@ class PaketTripRequest extends FormRequest
             'duration' => 'required|string|max:255',
             'location' => 'required|string|max:255',
             'quota' => 'required|integer|min:1',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120', // 5MB max
             'is_active' => 'boolean',
         ];
     }
