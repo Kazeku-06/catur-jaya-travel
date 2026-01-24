@@ -44,7 +44,6 @@ test_endpoint() {
 echo -e "${YELLOW}1. Testing Public Endpoints${NC}"
 test_endpoint "GET" "/trips" "200" "Get all trips"
 test_endpoint "GET" "/travels" "200" "Get all travels"
-test_endpoint "GET" "/carter-mobiles" "200" "Get all carter mobiles"
 test_endpoint "GET" "/payments/midtrans" "200" "Get Midtrans config"
 echo ""
 
@@ -87,7 +86,6 @@ echo -e "${YELLOW}5. Testing Admin Endpoints${NC}"
 if [ -n "$ADMIN_HEADERS" ]; then
     test_endpoint "GET" "/admin/trips" "200" "Get admin trips" "" "$ADMIN_HEADERS"
     test_endpoint "GET" "/admin/travels" "200" "Get admin travels" "" "$ADMIN_HEADERS"
-    test_endpoint "GET" "/admin/carter-mobiles" "200" "Get admin carter mobiles" "" "$ADMIN_HEADERS"
     test_endpoint "GET" "/admin/transactions" "200" "Get admin transactions" "" "$ADMIN_HEADERS"
     test_endpoint "GET" "/admin/transactions/statistics" "200" "Get transaction statistics" "" "$ADMIN_HEADERS"
 else
@@ -99,7 +97,6 @@ echo ""
 echo -e "${YELLOW}6. Testing Admin Endpoints (Unauthorized)${NC}"
 test_endpoint "GET" "/admin/trips" "401" "Get admin trips without auth"
 test_endpoint "GET" "/admin/travels" "401" "Get admin travels without auth"
-test_endpoint "GET" "/admin/carter-mobiles" "401" "Get admin carter mobiles without auth"
 test_endpoint "GET" "/admin/transactions" "401" "Get admin transactions without auth"
 echo ""
 

@@ -5,12 +5,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\PaketTripController;
 use App\Http\Controllers\Api\V1\TravelController;
-use App\Http\Controllers\Api\V1\CarterMobileController;
 use App\Http\Controllers\Api\V1\TransactionController;
 use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\Admin\AdminPaketTripController;
 use App\Http\Controllers\Api\V1\Admin\AdminTravelController;
-use App\Http\Controllers\Api\V1\Admin\AdminCarterMobileController;
 use App\Http\Controllers\Api\V1\Admin\AdminTransactionController;
 
 // API Version 1 Routes
@@ -34,9 +32,6 @@ Route::prefix('v1')->group(function () {
     Route::get('travels', [TravelController::class, 'index']);
     Route::get('travels/{id}', [TravelController::class, 'show']);
 
-    Route::get('carter-mobiles', [CarterMobileController::class, 'index']);
-    Route::get('carter-mobiles/{id}', [CarterMobileController::class, 'show']);
-
     // User Transaction Routes (Requires authentication)
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('transactions/trip/{id}', [TransactionController::class, 'createTripTransaction']);
@@ -57,9 +52,6 @@ Route::prefix('v1')->group(function () {
 
         // Admin Travel Management
         Route::apiResource('travels', AdminTravelController::class);
-
-        // Admin Carter Mobile Management
-        Route::apiResource('carter-mobiles', AdminCarterMobileController::class);
 
         // Admin Transaction Management
         Route::get('transactions', [AdminTransactionController::class, 'index']);

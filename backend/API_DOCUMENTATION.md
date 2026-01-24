@@ -124,34 +124,6 @@ GET /api/v1/travels
 GET /api/v1/travels/{id}
 ```
 
-#### Get All Carter Mobiles
-```http
-GET /api/v1/carter-mobiles
-```
-
-#### Get Carter Mobile Detail
-```http
-GET /api/v1/carter-mobiles/{id}
-```
-
-**Response:**
-```json
-{
-    "message": "Carter mobile retrieved successfully",
-    "data": {
-        "id": "uuid-string",
-        "vehicle_name": "Toyota Avanza",
-        "description": "Mobil keluarga dengan kapasitas 7 orang...",
-        "whatsapp_number": "6281234567890",
-        "is_active": true
-    },
-    "whatsapp_contact": {
-        "number": "6281234567890",
-        "message": "Halo, saya tertarik dengan layanan carter mobil Toyota Avanza"
-    }
-}
-```
-
 ### 3. User Transactions (Requires Authentication)
 
 #### Create Trip Transaction
@@ -254,25 +226,6 @@ DELETE /api/v1/admin/travels/{id}          # Delete travel
     "destination": "Bandung",
     "vehicle_type": "Bus Executive",
     "price_per_person": 75000,
-    "is_active": true
-}
-```
-
-#### Admin Carter Mobile Management
-```http
-GET /api/v1/admin/carter-mobiles           # Get all carter mobiles
-POST /api/v1/admin/carter-mobiles          # Create carter mobile
-GET /api/v1/admin/carter-mobiles/{id}      # Get carter mobile detail
-PUT /api/v1/admin/carter-mobiles/{id}      # Update carter mobile
-DELETE /api/v1/admin/carter-mobiles/{id}   # Delete carter mobile
-```
-
-**Create Carter Mobile Request:**
-```json
-{
-    "vehicle_name": "Toyota Innova",
-    "description": "Mobil keluarga premium dengan kapasitas 8 orang",
-    "whatsapp_number": "6281234567893",
     "is_active": true
 }
 ```
