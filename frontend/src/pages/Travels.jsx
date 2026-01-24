@@ -60,27 +60,67 @@ const Travels = () => {
     try {
       setLoading(true);
       
-      const params = {
-        page: currentPage,
-        limit: 12,
-        sort_by: sortBy,
-        sort_order: sortOrder,
-      };
-
-      if (debouncedSearchQuery) params.search = debouncedSearchQuery;
-      if (filters.category) params.category = filters.category;
-      if (filters.location) params.location = filters.location;
-      if (filters.duration) params.duration = filters.duration;
+      const response = await api.get(endpoints.travels);
+      
+      // Backend response: { message: "...", data: [...] }
+      const travelsData = response.data.data || [];
+      
+      // Filter di frontend karena backend mungkin belum support filtering
+      let filteredTravels = travelsData;
+      
+      if (debouncedSearchQuery) {
+        filteredTravels = filteredTravels.filter(travel => 
+          travel.origin?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+          travel.destination?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+          travel.vehicle_type?.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
+        );
+      }
+      
+      if (filters.location) {
+        filteredTravels = filteredTravels.filter(travel => 
+          travel.origin?.toLowerCase().includes(filters.location.toLowerCase()) ||
+          travel.destination?.toLowerCase().includes(filters.location.toLowerCase())
+        );
+      }
+      
       if (filters.priceRange) {
         const [min, max] = filters.priceRange.split('-');
-        if (min) params.min_price = min;
-        if (max && max !== '+') params.max_price = max;
+        filteredTravels = filteredTravels.filter(travel => {
+          const price = parseFloat(travel.price_per_person);
+          if (min && max && max !== '+') {
+            return price >= parseFloat(min) && price <= parseFloat(max);
+          } else if (min) {
+            return price >= parseFloat(min);
+          }
+          return true;
+        });
       }
-
-      const response = await api.get(endpoints.travels, { params });
       
-      setTravels(response.data.data || []);
-      setTotalItems(response.data.total || 0);
+      // Sorting di frontend
+      if (sortBy === 'price') {
+        filteredTravels.sort((a, b) => {
+          const priceA = parseFloat(a.price_per_person);
+          const priceB = parseFloat(b.price_per_person);
+          return sortOrder === 'asc' ? priceA - priceB : priceB - priceA;
+        });
+      } else if (sortBy === 'name') {
+        filteredTravels.sort((a, b) => {
+          const nameA = `${a.origin} - ${a.destination}`;
+          const nameB = `${b.origin} - ${b.destination}`;
+          return sortOrder === 'asc' 
+            ? nameA.localeCompare(nameB) 
+            : nameB.localeCompare(nameA);
+        });
+      }
+      
+      // Pagination di frontend
+      const itemsPerPage = 12;
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const paginatedTravels = filteredTravels.slice(startIndex, endIndex);
+      
+      setTravels(paginatedTravels);
+      setTotalItems(filteredTravels.length);
       
     } catch (error) {
       console.error('Error fetching travels:', error);

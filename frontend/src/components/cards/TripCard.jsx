@@ -6,7 +6,8 @@ import Badge from '../ui/Badge';
 const TripCard = ({ trip, className = '' }) => {
   const {
     id,
-    name,
+    title, // Backend uses 'title' instead of 'name'
+    name, // Fallback if 'name' is provided
     description,
     price,
     duration,
@@ -15,8 +16,13 @@ const TripCard = ({ trip, className = '' }) => {
     category,
     rating,
     total_reviews,
-    is_available,
+    is_active, // Backend uses 'is_active' instead of 'is_available'
+    is_available, // Fallback if 'is_available' is provided
   } = trip;
+
+  // Use title or name, and is_active or is_available
+  const displayName = title || name;
+  const available = is_active !== undefined ? is_active : is_available;
 
   return (
     <motion.div
@@ -31,15 +37,15 @@ const TripCard = ({ trip, className = '' }) => {
         <div className="relative h-48 overflow-hidden">
           <img
             src={getImageUrl(image)}
-            alt={name}
+            alt={displayName}
             className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
             loading="lazy"
           />
           
           {/* Badge */}
           <div className="absolute top-3 left-3">
-            <Badge variant={is_available ? 'success' : 'error'}>
-              {is_available ? 'Tersedia' : 'Tidak Tersedia'}
+            <Badge variant={available ? 'success' : 'error'}>
+              {available ? 'Tersedia' : 'Tidak Tersedia'}
             </Badge>
           </div>
           
@@ -62,7 +68,7 @@ const TripCard = ({ trip, className = '' }) => {
         <div className="p-4">
           {/* Title */}
           <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-            {name}
+            {displayName}
           </h3>
           
           {/* Description */}
@@ -80,12 +86,14 @@ const TripCard = ({ trip, className = '' }) => {
               <span>{location}</span>
             </div>
             
-            <div className="flex items-center">
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>{duration}</span>
-            </div>
+            {duration && (
+              <div className="flex items-center">
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{duration}</span>
+              </div>
+            )}
           </div>
           
           {/* Rating */}
@@ -107,7 +115,7 @@ const TripCard = ({ trip, className = '' }) => {
                   ))}
                 </div>
                 <span className="ml-2 text-sm text-gray-600">
-                  {rating.toFixed(1)} ({total_reviews} ulasan)
+                  {rating.toFixed(1)} ({total_reviews || 0} ulasan)
                 </span>
               </div>
             </div>

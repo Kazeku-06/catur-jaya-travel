@@ -22,18 +22,32 @@ const Register = () => {
 
   const handleRegister = async (formData) => {
     try {
-      await api.post(endpoints.register, formData);
+      const response = await api.post(endpoints.register, formData);
       
+      // Backend response structure: { message: "User registered successfully", user: {...}, access_token: "..." }
       // Redirect to login page with success message
       navigate('/login', { 
         state: { 
           from,
-          message: 'Registrasi berhasil! Silakan login dengan akun Anda.' 
+          message: response.data.message || 'Registrasi berhasil! Silakan login dengan akun Anda.' 
         } 
       });
       
     } catch (error) {
-      const message = error.response?.data?.message || 'Registrasi gagal. Silakan coba lagi.';
+      // Backend validation errors: { message: "The given data was invalid.", errors: {...} }
+      let message = 'Registrasi gagal. Silakan coba lagi.';
+      
+      if (error.response?.data?.errors) {
+        // Extract first validation error
+        const errors = error.response.data.errors;
+        const firstError = Object.values(errors)[0];
+        if (Array.isArray(firstError) && firstError.length > 0) {
+          message = firstError[0];
+        }
+      } else if (error.response?.data?.message) {
+        message = error.response.data.message;
+      }
+      
       throw new Error(message);
     }
   };

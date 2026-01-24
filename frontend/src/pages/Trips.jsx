@@ -61,26 +61,74 @@ const Trips = () => {
       setLoading(true);
       
       const params = {
-        page: currentPage,
-        limit: 12,
-        sort_by: sortBy,
-        sort_order: sortOrder,
+        // Backend mungkin tidak support pagination, filter, dll
+        // Kita coba dulu dengan endpoint sederhana
       };
 
       if (debouncedSearchQuery) params.search = debouncedSearchQuery;
-      if (filters.category) params.category = filters.category;
-      if (filters.location) params.location = filters.location;
-      if (filters.duration) params.duration = filters.duration;
-      if (filters.priceRange) {
-        const [min, max] = filters.priceRange.split('-');
-        if (min) params.min_price = min;
-        if (max && max !== '+') params.max_price = max;
-      }
+      // Note: Backend mungkin belum support filter dan sorting
+      // Implementasi filter bisa dilakukan di frontend sementara
 
       const response = await api.get(endpoints.trips, { params });
       
-      setTrips(response.data.data || []);
-      setTotalItems(response.data.total || 0);
+      // Backend response: { message: "Trips retrieved successfully", data: [...] }
+      const tripsData = response.data.data || [];
+      
+      // Filter di frontend jika backend belum support
+      let filteredTrips = tripsData;
+      
+      if (debouncedSearchQuery) {
+        filteredTrips = filteredTrips.filter(trip => 
+          trip.title?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+          trip.description?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+          trip.location?.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
+        );
+      }
+      
+      if (filters.location) {
+        filteredTrips = filteredTrips.filter(trip => 
+          trip.location?.toLowerCase().includes(filters.location.toLowerCase())
+        );
+      }
+      
+      if (filters.priceRange) {
+        const [min, max] = filters.priceRange.split('-');
+        filteredTrips = filteredTrips.filter(trip => {
+          const price = parseFloat(trip.price);
+          if (min && max && max !== '+') {
+            return price >= parseFloat(min) && price <= parseFloat(max);
+          } else if (min) {
+            return price >= parseFloat(min);
+          }
+          return true;
+        });
+      }
+      
+      // Sorting di frontend
+      if (sortBy === 'price') {
+        filteredTrips.sort((a, b) => {
+          const priceA = parseFloat(a.price);
+          const priceB = parseFloat(b.price);
+          return sortOrder === 'asc' ? priceA - priceB : priceB - priceA;
+        });
+      } else if (sortBy === 'name') {
+        filteredTrips.sort((a, b) => {
+          const nameA = a.title || '';
+          const nameB = b.title || '';
+          return sortOrder === 'asc' 
+            ? nameA.localeCompare(nameB) 
+            : nameB.localeCompare(nameA);
+        });
+      }
+      
+      // Pagination di frontend
+      const itemsPerPage = 12;
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const paginatedTrips = filteredTrips.slice(startIndex, endIndex);
+      
+      setTrips(paginatedTrips);
+      setTotalItems(filteredTrips.length);
       
     } catch (error) {
       console.error('Error fetching trips:', error);

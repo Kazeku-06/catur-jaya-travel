@@ -25,18 +25,20 @@ const Home = () => {
     try {
       setLoading(true);
       
-      // Fetch featured content
-      const [tripsRes, travelsRes, cartersRes] = await Promise.all([
-        api.get(`${endpoints.trips}?featured=true&limit=6`),
-        api.get(`${endpoints.travels}?featured=true&limit=6`),
-        api.get(`${endpoints.carterMobiles}?featured=true&limit=6`),
+      // Fetch featured content - backend hanya punya trips dan travels
+      const [tripsRes, travelsRes] = await Promise.all([
+        api.get(endpoints.trips),
+        api.get(endpoints.travels),
       ]);
 
-      setFeaturedTrips(tripsRes.data.data || []);
-      setFeaturedTravels(travelsRes.data.data || []);
-      setFeaturedCarters(cartersRes.data.data || []);
+      // Backend response structure: { message: "...", data: [...] }
+      setFeaturedTrips(tripsRes.data.data?.slice(0, 6) || []);
+      setFeaturedTravels(travelsRes.data.data?.slice(0, 6) || []);
       
-      // Mock testimonials data
+      // Carter mobiles tidak ada di backend, jadi kosongkan atau gunakan trips sebagai fallback
+      setFeaturedCarters([]);
+      
+      // Mock testimonials data (tidak ada di backend)
       setTestimonials([
         {
           id: 1,

@@ -6,19 +6,33 @@ import Badge from '../ui/Badge';
 const TravelCard = ({ travel, className = '' }) => {
   const {
     id,
+    origin, // Backend field
+    destination, // Backend field
+    vehicle_type, // Backend field
+    price_per_person, // Backend field
+    is_active, // Backend field
+    // Fallback fields if frontend structure is used
     name,
-    description,
-    price,
-    duration,
     departure_location,
     destination_location,
+    price,
+    is_available,
+    description,
     image,
     category,
     rating,
     total_reviews,
-    is_available,
     departure_date,
+    duration,
   } = travel;
+
+  // Map backend fields to frontend display
+  const displayName = name || `${origin} - ${destination}`;
+  const departureLocation = departure_location || origin;
+  const destinationLocation = destination_location || destination;
+  const displayPrice = price || price_per_person;
+  const available = is_active !== undefined ? is_active : is_available;
+  const displayDescription = description || `Perjalanan ${vehicle_type || 'travel'} dari ${origin} ke ${destination}`;
 
   return (
     <motion.div
@@ -32,30 +46,30 @@ const TravelCard = ({ travel, className = '' }) => {
         {/* Image */}
         <div className="relative h-48 overflow-hidden">
           <img
-            src={getImageUrl(image)}
-            alt={name}
+            src={getImageUrl(image) || '/images/travel-placeholder.jpg'}
+            alt={displayName}
             className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
             loading="lazy"
           />
           
           {/* Badge */}
           <div className="absolute top-3 left-3">
-            <Badge variant={is_available ? 'success' : 'error'}>
-              {is_available ? 'Tersedia' : 'Tidak Tersedia'}
+            <Badge variant={available ? 'success' : 'error'}>
+              {available ? 'Tersedia' : 'Tidak Tersedia'}
             </Badge>
           </div>
           
-          {/* Category */}
-          {category && (
+          {/* Vehicle Type */}
+          {vehicle_type && (
             <div className="absolute top-3 right-3">
-              <Badge variant="secondary">{category}</Badge>
+              <Badge variant="secondary">{vehicle_type}</Badge>
             </div>
           )}
           
           {/* Price */}
           <div className="absolute bottom-3 right-3 bg-white bg-opacity-90 backdrop-blur-sm rounded-lg px-3 py-1">
             <span className="text-lg font-bold text-primary-600">
-              {formatCurrency(price)}
+              {formatCurrency(displayPrice)}
             </span>
           </div>
         </div>
@@ -64,12 +78,12 @@ const TravelCard = ({ travel, className = '' }) => {
         <div className="p-4">
           {/* Title */}
           <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-            {name}
+            {displayName}
           </h3>
           
           {/* Description */}
           <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-            {truncateText(description, 100)}
+            {truncateText(displayDescription, 100)}
           </p>
           
           {/* Route */}
@@ -79,18 +93,20 @@ const TravelCard = ({ travel, className = '' }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
             <span className="truncate">
-              {departure_location} → {destination_location}
+              {departureLocation} → {destinationLocation}
             </span>
           </div>
           
           {/* Details */}
           <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
-            <div className="flex items-center">
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>{duration}</span>
-            </div>
+            {vehicle_type && (
+              <div className="flex items-center">
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+                <span>{vehicle_type}</span>
+              </div>
+            )}
             
             {departure_date && (
               <div className="flex items-center">
@@ -121,7 +137,7 @@ const TravelCard = ({ travel, className = '' }) => {
                   ))}
                 </div>
                 <span className="ml-2 text-sm text-gray-600">
-                  {rating.toFixed(1)} ({total_reviews} ulasan)
+                  {rating.toFixed(1)} ({total_reviews || 0} ulasan)
                 </span>
               </div>
             </div>

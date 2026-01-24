@@ -25,15 +25,17 @@ const Login = () => {
     try {
       const response = await api.post(endpoints.login, formData);
       
-      const { token, user } = response.data.data;
+      // Backend response structure: { message: "Login successful", user: {...}, access_token: "...", token_type: "Bearer" }
+      const { user, access_token } = response.data;
       
-      setAuthToken(token);
+      setAuthToken(access_token);
       setUserData(user);
       
       // Redirect to intended page or home
       navigate(from, { replace: true });
       
     } catch (error) {
+      // Backend error structure: { message: "...", errors: {...} }
       const message = error.response?.data?.message || 'Login gagal. Silakan coba lagi.';
       throw new Error(message);
     }

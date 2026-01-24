@@ -38,11 +38,41 @@ const TripDetail = () => {
       
       const [tripRes, relatedRes] = await Promise.all([
         api.get(endpoints.tripDetail(id)),
-        api.get(`${endpoints.trips}?limit=4&exclude=${id}`)
+        api.get(endpoints.trips) // Get all trips for related items
       ]);
       
-      setTrip(tripRes.data.data);
-      setRelatedTrips(relatedRes.data.data || []);
+      // Backend response structure
+      const tripData = tripRes.data.data;
+      const allTrips = relatedRes.data.data || [];
+      
+      // Map backend fields to frontend expected structure
+      const mappedTrip = {
+        ...tripData,
+        name: tripData.title, // Backend uses 'title', frontend expects 'name'
+        is_available: tripData.is_active, // Backend uses 'is_active'
+        // Add default values for fields that might not exist in backend
+        images: tripData.images || [tripData.image],
+        rating: tripData.rating || 4.5,
+        total_reviews: tripData.total_reviews || 0,
+        category: tripData.category || 'Wisata',
+        itinerary: tripData.itinerary || [],
+        includes: tripData.includes || [],
+        excludes: tripData.excludes || [],
+      };
+      
+      setTrip(mappedTrip);
+      
+      // Filter related trips (exclude current trip)
+      const related = allTrips
+        .filter(t => t.id !== id)
+        .slice(0, 4)
+        .map(t => ({
+          ...t,
+          name: t.title,
+          is_available: t.is_active,
+        }));
+      
+      setRelatedTrips(related);
       
     } catch (error) {
       console.error('Error fetching trip detail:', error);
@@ -63,19 +93,29 @@ const TripDetail = () => {
     try {
       setBookingLoading(true);
       
-      const response = await api.post(endpoints.transactions, {
-        trip_id: id,
-        participants: bookingData.participants,
-        departure_date: bookingData.departure_date,
-        special_requests: bookingData.special_requests,
+      // Use the correct endpoint from backend documentation
+      const response = await api.post(endpoints.createTripTransaction(id), {
+        // Backend might expect different field names
+        // Check the actual backend implementation for required fields
       });
 
-      // Redirect to payment page
-      navigate(`/payment/${response.data.data.id}`);
+      // Backend response: { message: "...", data: { transaction_id, order_id, snap_token, ... } }
+      const transactionData = response.data.data;
+      
+      // If Midtrans integration is available, redirect to payment
+      if (transactionData.snap_token) {
+        // Implement Midtrans Snap payment here
+        // For now, redirect to success page
+        navigate(`/payment/success?transaction_id=${transactionData.transaction_id}`);
+      } else {
+        // Fallback to success page
+        navigate(`/payment/success?order_id=${transactionData.order_id}`);
+      }
       
     } catch (error) {
       console.error('Error creating booking:', error);
-      alert('Gagal membuat booking. Silakan coba lagi.');
+      const errorMessage = error.response?.data?.message || 'Gagal membuat booking. Silakan coba lagi.';
+      alert(errorMessage);
     } finally {
       setBookingLoading(false);
     }

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 
 // Create axios instance
 const api = axios.create({
@@ -43,29 +43,42 @@ api.interceptors.response.use(
 
 export default api;
 
-// API endpoints
+// API endpoints based on backend documentation
 export const endpoints = {
-  // Auth
+  // Auth endpoints
   login: '/auth/login',
   register: '/auth/register',
   logout: '/auth/logout',
-  profile: '/auth/profile',
+  profile: '/auth/me',
   
-  // Trips
+  // Public catalog endpoints (guest access)
   trips: '/trips',
   tripDetail: (id) => `/trips/${id}`,
   
-  // Travels
   travels: '/travels',
   travelDetail: (id) => `/travels/${id}`,
   
-  // Carter Mobiles
-  carterMobiles: '/carter-mobiles',
-  carterMobileDetail: (id) => `/carter-mobiles/${id}`,
+  // Note: Carter mobiles not mentioned in API doc, using trips as fallback
+  // You may need to add this endpoint to backend or use a different approach
+  carterMobiles: '/trips', // Fallback - may need backend implementation
+  carterMobileDetail: (id) => `/trips/${id}`, // Fallback - may need backend implementation
   
-  // Transactions
-  transactions: '/transactions',
-  transactionDetail: (id) => `/transactions/${id}`,
-  payment: '/payment',
-  paymentCallback: '/payment/callback',
+  // Transaction endpoints (requires authentication)
+  createTripTransaction: (tripId) => `/transactions/trip/${tripId}`,
+  createTravelTransaction: (travelId) => `/transactions/travel/${travelId}`,
+  
+  // Payment endpoints
+  midtransConfig: '/payments/midtrans',
+  midtransCallback: '/payments/midtrans/callback',
+  
+  // Admin endpoints (requires admin role)
+  admin: {
+    trips: '/admin/trips',
+    tripDetail: (id) => `/admin/trips/${id}`,
+    travels: '/admin/travels',
+    travelDetail: (id) => `/admin/travels/${id}`,
+    transactions: '/admin/transactions',
+    transactionDetail: (id) => `/admin/transactions/${id}`,
+    transactionStats: '/admin/transactions/statistics',
+  }
 };
