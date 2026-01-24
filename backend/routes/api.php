@@ -49,11 +49,9 @@ Route::prefix('v1')->group(function () {
 
         // Admin Trip Management
         Route::apiResource('trips', AdminPaketTripController::class);
-        Route::post('trips/{id}/upload-image', [AdminPaketTripController::class, 'uploadImage']);
 
         // Admin Travel Management
         Route::apiResource('travels', AdminTravelController::class);
-        Route::post('travels/{id}/upload-image', [AdminTravelController::class, 'uploadImage']);
 
         // Admin Transaction Management
         Route::get('transactions', [AdminTransactionController::class, 'index']);

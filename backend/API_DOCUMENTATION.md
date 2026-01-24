@@ -193,30 +193,13 @@ Content-Type: application/json
 #### Admin Trip Management
 ```http
 GET /api/v1/admin/trips                    # Get all trips
-POST /api/v1/admin/trips                   # Create trip (REQUIRED image - Form Data OR JSON)
+POST /api/v1/admin/trips                   # Create trip (JSON ONLY - REQUIRED image)
 GET /api/v1/admin/trips/{id}               # Get trip detail
-PUT /api/v1/admin/trips/{id}               # Update trip (optional image - Form Data OR JSON)
+PUT /api/v1/admin/trips/{id}               # Update trip (JSON ONLY - optional image)
 DELETE /api/v1/admin/trips/{id}            # Delete trip
-POST /api/v1/admin/trips/{id}/upload-image # Upload trip image (separate endpoint)
 ```
 
-**Create Trip (Form Data - REQUIRED Image):**
-```http
-POST /api/v1/admin/trips
-Content-Type: multipart/form-data
-Authorization: Bearer {admin_token}
-
-title: "Wisata Bali 4D3N"
-description: "Paket wisata Bali lengkap dengan hotel dan transportasi"
-price: 2500000
-duration: "4 hari 3 malam"
-location: "Bali"
-quota: 25
-image: [REQUIRED FILE] (JPEG, PNG, JPG, WEBP - Max 5MB)
-is_active: true
-```
-
-**Create Trip (JSON - REQUIRED Base64 Image):**
+**Create Trip (JSON ONLY - Base64 Image REQUIRED):**
 ```http
 POST /api/v1/admin/trips
 Content-Type: application/json
@@ -235,17 +218,25 @@ Authorization: Bearer {admin_token}
 }
 ```
 
-**Update Trip (Form Data - Optional Image):**
+**Create Trip (JSON ONLY - Image URL REQUIRED):**
 ```http
-PUT /api/v1/admin/trips/{id}
-Content-Type: multipart/form-data
+POST /api/v1/admin/trips
+Content-Type: application/json
 Authorization: Bearer {admin_token}
 
-title: "Wisata Bali Updated"
-image: [OPTIONAL FILE] (JPEG, PNG, JPG, WEBP - Max 5MB)
+{
+    "title": "Wisata Bali 4D3N",
+    "description": "Paket wisata Bali lengkap dengan hotel dan transportasi",
+    "price": 2500000,
+    "duration": "4 hari 3 malam",
+    "location": "Bali",
+    "quota": 25,
+    "image_url": "https://example.com/images/bali-trip.jpg",
+    "is_active": true
+}
 ```
 
-**Update Trip (JSON - Optional Base64 Image):**
+**Update Trip (JSON ONLY - Optional Image):**
 ```http
 PUT /api/v1/admin/trips/{id}
 Content-Type: application/json
@@ -254,8 +245,7 @@ Authorization: Bearer {admin_token}
 {
     "title": "Wisata Bali Updated",
     "price": 2800000,
-    "image_base64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB...",
-    "image_name": "bali-updated.png"
+    "image_url": "https://example.com/images/bali-updated.jpg"
 }
 ```
 
@@ -283,28 +273,13 @@ Authorization: Bearer {admin_token}
 #### Admin Travel Management
 ```http
 GET /api/v1/admin/travels                  # Get all travels
-POST /api/v1/admin/travels                 # Create travel (REQUIRED image - Form Data OR JSON)
+POST /api/v1/admin/travels                 # Create travel (JSON ONLY - REQUIRED image)
 GET /api/v1/admin/travels/{id}             # Get travel detail
-PUT /api/v1/admin/travels/{id}             # Update travel (optional image - Form Data OR JSON)
+PUT /api/v1/admin/travels/{id}             # Update travel (JSON ONLY - optional image)
 DELETE /api/v1/admin/travels/{id}          # Delete travel
-POST /api/v1/admin/travels/{id}/upload-image # Upload travel image (separate endpoint)
 ```
 
-**Create Travel (Form Data - REQUIRED Image):**
-```http
-POST /api/v1/admin/travels
-Content-Type: multipart/form-data
-Authorization: Bearer {admin_token}
-
-origin: "Jakarta"
-destination: "Bandung"
-vehicle_type: "Bus Executive"
-price_per_person: 75000
-image: [REQUIRED FILE] (JPEG, PNG, JPG, WEBP - Max 5MB)
-is_active: true
-```
-
-**Create Travel (JSON - REQUIRED Base64 Image):**
+**Create Travel (JSON ONLY - Base64 Image REQUIRED):**
 ```http
 POST /api/v1/admin/travels
 Content-Type: application/json
@@ -321,17 +296,23 @@ Authorization: Bearer {admin_token}
 }
 ```
 
-**Update Travel (Form Data - Optional Image):**
+**Create Travel (JSON ONLY - Image URL REQUIRED):**
 ```http
-PUT /api/v1/admin/travels/{id}
-Content-Type: multipart/form-data
+POST /api/v1/admin/travels
+Content-Type: application/json
 Authorization: Bearer {admin_token}
 
-price_per_person: 85000
-image: [OPTIONAL FILE] (JPEG, PNG, JPG, WEBP - Max 5MB)
+{
+    "origin": "Jakarta",
+    "destination": "Bandung",
+    "vehicle_type": "Bus Executive",
+    "price_per_person": 75000,
+    "image_url": "https://example.com/images/jakarta-bandung.jpg",
+    "is_active": true
+}
 ```
 
-**Update Travel (JSON - Optional Base64 Image):**
+**Update Travel (JSON ONLY - Optional Image):**
 ```http
 PUT /api/v1/admin/travels/{id}
 Content-Type: application/json
@@ -340,8 +321,7 @@ Authorization: Bearer {admin_token}
 {
     "price_per_person": 85000,
     "vehicle_type": "Bus Super Executive",
-    "image_base64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB...",
-    "image_name": "updated-travel.png"
+    "image_url": "https://example.com/images/updated-travel.jpg"
 }
 ```
 
@@ -358,6 +338,35 @@ GET /api/v1/admin/transactions?payment_status=paid
 GET /api/v1/admin/transactions?transaction_type=trip
 GET /api/v1/admin/transactions?start_date=2026-01-01&end_date=2026-01-31
 ```
+
+## Image Upload Methods (JSON ONLY)
+
+Backend hanya mendukung format JSON dengan 2 metode upload gambar:
+
+### 1. JSON - Base64 Encoding
+Upload gambar yang sudah di-encode ke base64.
+```json
+{
+    "image_base64": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD...",
+    "image_name": "filename.jpg"
+}
+```
+
+### 2. JSON - Image URL
+Berikan URL gambar, backend akan download dan simpan otomatis.
+```json
+{
+    "image_url": "https://example.com/images/photo.jpg"
+}
+```
+
+**Catatan:**
+- **HANYA FORMAT JSON** yang didukung (tidak ada multipart/form-data)
+- Untuk CREATE: Salah satu method gambar WAJIB disediakan
+- Untuk UPDATE: Gambar bersifat opsional
+- Semua gambar akan disimpan di server dan mendapat URL lokal
+- Format yang didukung: JPEG, PNG, JPG, WEBP
+- Ukuran maksimal: 5MB
 
 ## JSON API with Base64 Images
 

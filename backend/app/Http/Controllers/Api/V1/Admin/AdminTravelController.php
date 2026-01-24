@@ -42,37 +42,22 @@ class AdminTravelController extends Controller
 
     /**
      * Store a newly created travel (Admin only)
-     * Supports both Form Data and JSON with base64 image
-     * IMAGE IS REQUIRED for both formats
+     * JSON ONLY - Supports base64 image OR image URL
+     * IMAGE IS REQUIRED
      */
     public function store(Request $request)
     {
-        // Detect content type
-        $contentType = $request->header('Content-Type', '');
-        $isJson = str_contains($contentType, 'application/json');
-
-        if ($isJson) {
-            // JSON with base64 image validation
-            $request->validate([
-                'origin' => 'required|string|max:255',
-                'destination' => 'required|string|max:255',
-                'vehicle_type' => 'required|string|max:255',
-                'price_per_person' => 'required|numeric|min:0',
-                'image_base64' => 'required|string', // REQUIRED for JSON
-                'image_name' => 'required|string|max:255',
-                'is_active' => 'nullable|boolean',
-            ]);
-        } else {
-            // Form data validation
-            $request->validate([
-                'origin' => 'required|string|max:255',
-                'destination' => 'required|string|max:255',
-                'vehicle_type' => 'required|string|max:255',
-                'price_per_person' => 'required|numeric|min:0',
-                'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120', // REQUIRED for Form Data
-                'is_active' => 'nullable|in:true,false,1,0',
-            ]);
-        }
+        // JSON validation only - supports base64 OR image URL
+        $request->validate([
+            'origin' => 'required|string|max:255',
+            'destination' => 'required|string|max:255',
+            'vehicle_type' => 'required|string|max:255',
+            'price_per_person' => 'required|numeric|min:0',
+            'image_base64' => 'required_without:image_url|string', // Base64 image
+            'image_url' => 'required_without:image_base64|url', // Direct image URL
+            'image_name' => 'required_with:image_base64|string|max:255',
+            'is_active' => 'nullable|boolean',
+        ]);
 
         try {
             $data = $request->only([
@@ -80,20 +65,14 @@ class AdminTravelController extends Controller
                 'price_per_person', 'is_active'
             ]);
 
-            // Handle is_active
-            if ($isJson) {
-                $data['is_active'] = $request->has('is_active') ? $request->is_active : true;
-            } else {
-                $data['is_active'] = $request->has('is_active') ? 
-                    in_array($request->is_active, ['true', '1', 1, true]) : true;
-            }
+            // Set default is_active if not provided
+            $data['is_active'] = $request->has('is_active') ? $request->is_active : true;
 
-            // Handle image upload
-            if ($isJson) {
+            // Handle image processing
+            if ($request->has('image_base64') && $request->image_base64) {
                 // Handle base64 image
                 $imageBase64 = $request->image_base64;
 
-                // Validate base64 format
                 if (!preg_match('/^data:image\/(\w+);base64,/', $imageBase64, $matches)) {
                     return response()->json([
                         'message' => 'Invalid image format. Must be base64 with data:image prefix',
@@ -111,7 +90,6 @@ class AdminTravelController extends Controller
                     ], 400);
                 }
 
-                // Remove data:image/xxx;base64, prefix
                 $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $imageBase64);
                 $imageData = base64_decode($imageData);
 
@@ -122,7 +100,6 @@ class AdminTravelController extends Controller
                     ], 400);
                 }
 
-                // Check image size (max 5MB)
                 if (strlen($imageData) > 5 * 1024 * 1024) {
                     return response()->json([
                         'message' => 'Image too large. Maximum size is 5MB',
@@ -130,21 +107,68 @@ class AdminTravelController extends Controller
                     ], 400);
                 }
 
-                // Generate unique filename
                 $extension = strtolower($imageType) === 'jpeg' ? 'jpg' : strtolower($imageType);
                 $filename = \Illuminate\Support\Str::uuid() . '.' . $extension;
                 $imagePath = 'travels/' . $filename;
 
-                // Save image to storage
                 \Storage::disk('public')->put($imagePath, $imageData);
                 $data['image'] = $imagePath;
 
-            } else {
-                // Handle form data image
-                $data['image'] = $this->fileUploadService->uploadImage(
-                    $request->file('image'),
-                    'travels'
-                );
+            } elseif ($request->has('image_url') && $request->image_url) {
+                // Handle image URL - download and save locally
+                try {
+                    $imageUrl = $request->image_url;
+                    $imageContent = file_get_contents($imageUrl);
+                    
+                    if ($imageContent === false) {
+                        return response()->json([
+                            'message' => 'Failed to download image from URL',
+                            'error' => 'Could not access the provided image URL'
+                        ], 400);
+                    }
+
+                    if (strlen($imageContent) > 5 * 1024 * 1024) {
+                        return response()->json([
+                            'message' => 'Image too large. Maximum size is 5MB',
+                            'error' => 'Current size: ' . round(strlen($imageContent) / 1024 / 1024, 2) . 'MB'
+                        ], 400);
+                    }
+
+                    $imageInfo = getimagesizefromstring($imageContent);
+                    if ($imageInfo === false) {
+                        return response()->json([
+                            'message' => 'Invalid image file',
+                            'error' => 'The URL does not point to a valid image'
+                        ], 400);
+                    }
+
+                    $mimeToExt = [
+                        'image/jpeg' => 'jpg',
+                        'image/png' => 'png',
+                        'image/webp' => 'webp',
+                        'image/jpg' => 'jpg'
+                    ];
+
+                    $extension = $mimeToExt[$imageInfo['mime']] ?? null;
+                    if (!$extension) {
+                        return response()->json([
+                            'message' => 'Unsupported image type',
+                            'error' => 'Allowed types: JPEG, PNG, WEBP'
+                        ], 400);
+                    }
+
+                    $filename = \Illuminate\Support\Str::uuid() . '.' . $extension;
+                    $imagePath = 'travels/' . $filename;
+
+                    \Storage::disk('public')->put($imagePath, $imageContent);
+                    $data['image'] = $imagePath;
+
+                } catch (\Exception $e) {
+                    return response()->json([
+                        'message' => 'Failed to process image URL',
+                        'error' => $e->getMessage()
+                    ], 400);
+                }
             }
 
             $travel = Travel::create($data);
@@ -185,36 +209,21 @@ class AdminTravelController extends Controller
 
     /**
      * Update the specified travel (Admin only)
-     * Supports both Form Data and JSON with base64 image
+     * JSON ONLY - Supports base64 image OR image URL
      */
     public function update(Request $request, string $id)
     {
-        // Detect content type
-        $contentType = $request->header('Content-Type', '');
-        $isJson = str_contains($contentType, 'application/json');
-
-        if ($isJson) {
-            // JSON with base64 image validation
-            $request->validate([
-                'origin' => 'sometimes|required|string|max:255',
-                'destination' => 'sometimes|required|string|max:255',
-                'vehicle_type' => 'sometimes|required|string|max:255',
-                'price_per_person' => 'sometimes|required|numeric|min:0',
-                'image_base64' => 'nullable|string',
-                'image_name' => 'required_with:image_base64|string|max:255',
-                'is_active' => 'nullable|boolean',
-            ]);
-        } else {
-            // Form data validation
-            $request->validate([
-                'origin' => 'sometimes|required|string|max:255',
-                'destination' => 'sometimes|required|string|max:255',
-                'vehicle_type' => 'sometimes|required|string|max:255',
-                'price_per_person' => 'sometimes|required|numeric|min:0',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
-                'is_active' => 'nullable|in:true,false,1,0',
-            ]);
-        }
+        // JSON validation only - supports base64 OR image URL
+        $request->validate([
+            'origin' => 'sometimes|required|string|max:255',
+            'destination' => 'sometimes|required|string|max:255',
+            'vehicle_type' => 'sometimes|required|string|max:255',
+            'price_per_person' => 'sometimes|required|numeric|min:0',
+            'image_base64' => 'nullable|string', // Base64 image
+            'image_url' => 'nullable|url', // Direct image URL
+            'image_name' => 'required_with:image_base64|string|max:255',
+            'is_active' => 'nullable|boolean',
+        ]);
 
         try {
             $travel = Travel::findOrFail($id);
@@ -224,8 +233,8 @@ class AdminTravelController extends Controller
                 'price_per_person', 'is_active'
             ]);
 
-            // Handle image upload
-            if ($isJson && $request->has('image_base64') && $request->image_base64) {
+            // Handle image processing
+            if ($request->has('image_base64') && $request->image_base64) {
                 // Handle base64 image
                 $imageBase64 = $request->image_base64;
 
@@ -280,13 +289,71 @@ class AdminTravelController extends Controller
                 \Storage::disk('public')->put($imagePath, $imageData);
                 $data['image'] = $imagePath;
 
-            } elseif (!$isJson && $request->hasFile('image')) {
-                // Handle form data image
-                $data['image'] = $this->fileUploadService->uploadImage(
-                    $request->file('image'),
-                    'travels',
-                    $travel->image // Delete old image
-                );
+            } elseif ($request->has('image_url') && $request->image_url) {
+                // Handle image URL - download and save locally
+                try {
+                    $imageUrl = $request->image_url;
+                    $imageContent = file_get_contents($imageUrl);
+                    
+                    if ($imageContent === false) {
+                        return response()->json([
+                            'message' => 'Failed to download image from URL',
+                            'error' => 'Could not access the provided image URL'
+                        ], 400);
+                    }
+
+                    // Check image size (max 5MB)
+                    if (strlen($imageContent) > 5 * 1024 * 1024) {
+                        return response()->json([
+                            'message' => 'Image too large. Maximum size is 5MB',
+                            'error' => 'Current size: ' . round(strlen($imageContent) / 1024 / 1024, 2) . 'MB'
+                        ], 400);
+                    }
+
+                    // Get image info
+                    $imageInfo = getimagesizefromstring($imageContent);
+                    if ($imageInfo === false) {
+                        return response()->json([
+                            'message' => 'Invalid image file',
+                            'error' => 'The URL does not point to a valid image'
+                        ], 400);
+                    }
+
+                    // Get extension from mime type
+                    $mimeToExt = [
+                        'image/jpeg' => 'jpg',
+                        'image/png' => 'png',
+                        'image/webp' => 'webp',
+                        'image/jpg' => 'jpg'
+                    ];
+
+                    $extension = $mimeToExt[$imageInfo['mime']] ?? null;
+                    if (!$extension) {
+                        return response()->json([
+                            'message' => 'Unsupported image type',
+                            'error' => 'Allowed types: JPEG, PNG, WEBP'
+                        ], 400);
+                    }
+
+                    // Delete old image
+                    if ($travel->image) {
+                        $this->fileUploadService->deleteImage($travel->image);
+                    }
+
+                    // Generate unique filename
+                    $filename = \Illuminate\Support\Str::uuid() . '.' . $extension;
+                    $imagePath = 'travels/' . $filename;
+
+                    // Save image to storage
+                    \Storage::disk('public')->put($imagePath, $imageContent);
+                    $data['image'] = $imagePath;
+
+                } catch (\Exception $e) {
+                    return response()->json([
+                        'message' => 'Failed to process image URL',
+                        'error' => $e->getMessage()
+                    ], 400);
+                }
             }
 
             $travel->update(array_filter($data)); // Only update provided fields
@@ -330,45 +397,4 @@ class AdminTravelController extends Controller
         }
     }
 
-    /**
-     * Upload image for travel (Admin only)
-     */
-    public function uploadImage(Request $request, string $id)
-    {
-        $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120', // 5MB max
-        ]);
-
-        try {
-            $travel = Travel::findOrFail($id);
-
-            if ($request->hasFile('image')) {
-                $imagePath = $this->fileUploadService->uploadImage(
-                    $request->file('image'),
-                    'travels',
-                    $travel->image // Delete old image
-                );
-
-                $travel->update(['image' => $imagePath]);
-                $travel->image_url = $this->fileUploadService->getImageUrl($imagePath);
-
-                return response()->json([
-                    'message' => 'Image uploaded successfully',
-                    'data' => [
-                        'image_path' => $imagePath,
-                        'image_url' => $travel->image_url
-                    ]
-                ]);
-            }
-
-            return response()->json([
-                'message' => 'No image file provided'
-            ], 400);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to upload image',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
 }
