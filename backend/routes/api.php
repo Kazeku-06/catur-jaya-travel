@@ -10,8 +10,6 @@ use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\Admin\AdminPaketTripController;
 use App\Http\Controllers\Api\V1\Admin\AdminTravelController;
 use App\Http\Controllers\Api\V1\Admin\AdminTransactionController;
-use App\Http\Controllers\Api\V1\Admin\AdminPaketTripJsonController;
-use App\Http\Controllers\Api\V1\Admin\AdminTravelJsonController;
 
 // API Version 1 Routes
 Route::prefix('v1')->group(function () {
@@ -49,21 +47,13 @@ Route::prefix('v1')->group(function () {
     // Admin Routes (Requires admin role)
     Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
-        // Admin Trip Management (Form Data - Optional Image)
+        // Admin Trip Management
         Route::apiResource('trips', AdminPaketTripController::class);
         Route::post('trips/{id}/upload-image', [AdminPaketTripController::class, 'uploadImage']);
 
-        // Admin Trip Management (JSON - Required Image)
-        Route::post('trips-json', [AdminPaketTripJsonController::class, 'store']);
-        Route::put('trips-json/{id}', [AdminPaketTripJsonController::class, 'update']);
-
-        // Admin Travel Management (Form Data - Optional Image)
+        // Admin Travel Management
         Route::apiResource('travels', AdminTravelController::class);
         Route::post('travels/{id}/upload-image', [AdminTravelController::class, 'uploadImage']);
-
-        // Admin Travel Management (JSON - Required Image)
-        Route::post('travels-json', [AdminTravelJsonController::class, 'store']);
-        Route::put('travels-json/{id}', [AdminTravelJsonController::class, 'update']);
 
         // Admin Transaction Management
         Route::get('transactions', [AdminTransactionController::class, 'index']);

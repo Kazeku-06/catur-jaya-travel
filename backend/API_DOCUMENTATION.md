@@ -190,25 +190,35 @@ Content-Type: application/json
 
 ### 5. Admin Routes (Requires Admin Role)
 
-#### Admin Trip Management (Form Data - Optional Image)
+#### Admin Trip Management
 ```http
 GET /api/v1/admin/trips                    # Get all trips
-POST /api/v1/admin/trips                   # Create trip (with optional image)
+POST /api/v1/admin/trips                   # Create trip (REQUIRED image - Form Data OR JSON)
 GET /api/v1/admin/trips/{id}               # Get trip detail
-PUT /api/v1/admin/trips/{id}               # Update trip (with optional image)
+PUT /api/v1/admin/trips/{id}               # Update trip (optional image - Form Data OR JSON)
 DELETE /api/v1/admin/trips/{id}            # Delete trip
 POST /api/v1/admin/trips/{id}/upload-image # Upload trip image (separate endpoint)
 ```
 
-#### Admin Trip Management (JSON - Required Image)
+**Create Trip (Form Data - REQUIRED Image):**
 ```http
-POST /api/v1/admin/trips-json              # Create trip (JSON + Required Base64 Image)
-PUT /api/v1/admin/trips-json/{id}          # Update trip (JSON + Optional Base64 Image)
+POST /api/v1/admin/trips
+Content-Type: multipart/form-data
+Authorization: Bearer {admin_token}
+
+title: "Wisata Bali 4D3N"
+description: "Paket wisata Bali lengkap dengan hotel dan transportasi"
+price: 2500000
+duration: "4 hari 3 malam"
+location: "Bali"
+quota: 25
+image: [REQUIRED FILE] (JPEG, PNG, JPG, WEBP - Max 5MB)
+is_active: true
 ```
 
-**Create Trip (JSON - Required Base64 Image):**
+**Create Trip (JSON - REQUIRED Base64 Image):**
 ```http
-POST /api/v1/admin/trips-json
+POST /api/v1/admin/trips
 Content-Type: application/json
 Authorization: Bearer {admin_token}
 
@@ -225,9 +235,19 @@ Authorization: Bearer {admin_token}
 }
 ```
 
+**Update Trip (Form Data - Optional Image):**
+```http
+PUT /api/v1/admin/trips/{id}
+Content-Type: multipart/form-data
+Authorization: Bearer {admin_token}
+
+title: "Wisata Bali Updated"
+image: [OPTIONAL FILE] (JPEG, PNG, JPG, WEBP - Max 5MB)
+```
+
 **Update Trip (JSON - Optional Base64 Image):**
 ```http
-PUT /api/v1/admin/trips-json/{id}
+PUT /api/v1/admin/trips/{id}
 Content-Type: application/json
 Authorization: Bearer {admin_token}
 
@@ -237,50 +257,6 @@ Authorization: Bearer {admin_token}
     "image_base64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB...",
     "image_name": "bali-updated.png"
 }
-```
-
-**Create Trip (JSON - without image):**
-```http
-POST /api/v1/admin/trips
-Content-Type: application/json
-Authorization: Bearer {admin_token}
-
-{
-    "title": "Wisata Bali 4D3N",
-    "description": "Paket wisata Bali lengkap dengan hotel dan transportasi",
-    "price": 2500000,
-    "duration": "4 hari 3 malam",
-    "location": "Bali",
-    "quota": 25,
-    "is_active": true
-}
-```
-
-**Create Trip (Form Data - with image):**
-```http
-POST /api/v1/admin/trips
-Content-Type: multipart/form-data
-Authorization: Bearer {admin_token}
-
-title: "Wisata Bali 4D3N"
-description: "Paket wisata Bali lengkap dengan hotel dan transportasi"
-price: 2500000
-duration: "4 hari 3 malam"
-location: "Bali"
-quota: 25
-image: [file] (JPEG, PNG, JPG, WEBP - Max 5MB)
-is_active: true
-```
-
-**Update Trip (Form Data - with image):**
-```http
-PUT /api/v1/admin/trips/{id}
-Content-Type: multipart/form-data
-Authorization: Bearer {admin_token}
-
-title: "Wisata Bali Updated"
-image: [file] (JPEG, PNG, JPG, WEBP - Max 5MB)
-# Only include fields you want to update
 ```
 
 **Response with Image:**
@@ -304,25 +280,33 @@ image: [file] (JPEG, PNG, JPG, WEBP - Max 5MB)
 }
 ```
 
-#### Admin Travel Management (Form Data - Optional Image)
+#### Admin Travel Management
 ```http
 GET /api/v1/admin/travels                  # Get all travels
-POST /api/v1/admin/travels                 # Create travel (with optional image)
+POST /api/v1/admin/travels                 # Create travel (REQUIRED image - Form Data OR JSON)
 GET /api/v1/admin/travels/{id}             # Get travel detail
-PUT /api/v1/admin/travels/{id}             # Update travel (with optional image)
+PUT /api/v1/admin/travels/{id}             # Update travel (optional image - Form Data OR JSON)
 DELETE /api/v1/admin/travels/{id}          # Delete travel
 POST /api/v1/admin/travels/{id}/upload-image # Upload travel image (separate endpoint)
 ```
 
-#### Admin Travel Management (JSON - Required Image)
+**Create Travel (Form Data - REQUIRED Image):**
 ```http
-POST /api/v1/admin/travels-json            # Create travel (JSON + Required Base64 Image)
-PUT /api/v1/admin/travels-json/{id}        # Update travel (JSON + Optional Base64 Image)
+POST /api/v1/admin/travels
+Content-Type: multipart/form-data
+Authorization: Bearer {admin_token}
+
+origin: "Jakarta"
+destination: "Bandung"
+vehicle_type: "Bus Executive"
+price_per_person: 75000
+image: [REQUIRED FILE] (JPEG, PNG, JPG, WEBP - Max 5MB)
+is_active: true
 ```
 
-**Create Travel (JSON - Required Base64 Image):**
+**Create Travel (JSON - REQUIRED Base64 Image):**
 ```http
-POST /api/v1/admin/travels-json
+POST /api/v1/admin/travels
 Content-Type: application/json
 Authorization: Bearer {admin_token}
 
@@ -337,9 +321,19 @@ Authorization: Bearer {admin_token}
 }
 ```
 
+**Update Travel (Form Data - Optional Image):**
+```http
+PUT /api/v1/admin/travels/{id}
+Content-Type: multipart/form-data
+Authorization: Bearer {admin_token}
+
+price_per_person: 85000
+image: [OPTIONAL FILE] (JPEG, PNG, JPG, WEBP - Max 5MB)
+```
+
 **Update Travel (JSON - Optional Base64 Image):**
 ```http
-PUT /api/v1/admin/travels-json/{id}
+PUT /api/v1/admin/travels/{id}
 Content-Type: application/json
 Authorization: Bearer {admin_token}
 
@@ -349,46 +343,6 @@ Authorization: Bearer {admin_token}
     "image_base64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB...",
     "image_name": "updated-travel.png"
 }
-```
-
-**Create Travel (JSON - without image):**
-```http
-POST /api/v1/admin/travels
-Content-Type: application/json
-Authorization: Bearer {admin_token}
-
-{
-    "origin": "Jakarta",
-    "destination": "Bandung",
-    "vehicle_type": "Bus Executive",
-    "price_per_person": 75000,
-    "is_active": true
-}
-```
-
-**Create Travel (Form Data - with image):**
-```http
-POST /api/v1/admin/travels
-Content-Type: multipart/form-data
-Authorization: Bearer {admin_token}
-
-origin: "Jakarta"
-destination: "Bandung"
-vehicle_type: "Bus Executive"
-price_per_person: 75000
-image: [file] (JPEG, PNG, JPG, WEBP - Max 5MB)
-is_active: true
-```
-
-**Update Travel (Form Data - with image):**
-```http
-PUT /api/v1/admin/travels/{id}
-Content-Type: multipart/form-data
-Authorization: Bearer {admin_token}
-
-origin: "Jakarta Updated"
-image: [file] (JPEG, PNG, JPG, WEBP - Max 5MB)
-# Only include fields you want to update
 ```
 
 #### Admin Transaction Management

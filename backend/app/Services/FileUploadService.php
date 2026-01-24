@@ -59,7 +59,8 @@ class FileUploadService
             return null;
         }
 
-        return Storage::disk('public')->url($filePath);
+        // Use Laravel's asset() helper with correct APP_URL
+        return asset('storage/' . $filePath);
     }
 
     /**
