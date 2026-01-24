@@ -99,7 +99,7 @@ const PaymentSuccess = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Tanggal:</span>
-                  <span className="font-medium">{formatDate(transaction.created_at)}</span>
+                  <span className="font-medium">{transaction.created_at ? formatDate(transaction.created_at) : '-'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Status:</span>

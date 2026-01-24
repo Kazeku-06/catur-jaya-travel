@@ -303,7 +303,7 @@ const TravelDetail = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       <span className="font-medium">
-                        Keberangkatan: {formatDate(travel.departure_date)}
+                        {travel.departure_date ? `Keberangkatan: ${formatDate(travel.departure_date)}` : 'Jadwal akan ditentukan'}
                       </span>
                     </div>
                     {travel?.departure_time && (
@@ -490,7 +490,9 @@ const TravelDetail = () => {
             <div className="text-sm text-gray-600 space-y-1">
               <p>Rute: {travel?.departure_location || 'Lokasi'} → {travel?.destination_location || 'Tujuan'}</p>
               <p>Jumlah Penumpang: {bookingData.passengers} orang</p>
-              <p>Tanggal Keberangkatan: {formatDate(travel?.departure_date || bookingData.departure_date)}</p>
+              {(travel?.departure_date || bookingData.departure_date) && (
+                <p>Tanggal Keberangkatan: {formatDate(travel?.departure_date || bookingData.departure_date)}</p>
+              )}
               <p className="font-medium text-lg text-primary-600">
                 Total: {formatCurrency(totalPrice)}
               </p>

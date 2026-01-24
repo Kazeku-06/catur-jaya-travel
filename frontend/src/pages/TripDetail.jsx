@@ -514,7 +514,9 @@ const TripDetail = () => {
             <h4 className="font-medium text-gray-900 mb-2">{trip?.name || trip?.title || 'Trip'}</h4>
             <div className="text-sm text-gray-600 space-y-1">
               <p>Jumlah Peserta: {bookingData.participants} orang</p>
-              <p>Tanggal Keberangkatan: {formatDate(bookingData.departure_date)}</p>
+              {bookingData.departure_date && (
+                <p>Tanggal Keberangkatan: {formatDate(bookingData.departure_date)}</p>
+              )}
               <p className="font-medium text-lg text-primary-600">
                 Total: {formatCurrency(totalPrice)}
               </p>

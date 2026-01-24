@@ -9,6 +9,16 @@ export const formatCurrency = (amount) => {
 
 // Format date to Indonesian format
 export const formatDate = (date, options = {}) => {
+  // Handle null, undefined, or invalid dates
+  if (!date) return '-';
+  
+  const dateObj = new Date(date);
+  
+  // Check if the date is valid
+  if (isNaN(dateObj.getTime())) {
+    return '-';
+  }
+  
   const defaultOptions = {
     year: 'numeric',
     month: 'long',
@@ -16,13 +26,27 @@ export const formatDate = (date, options = {}) => {
     ...options,
   };
   
-  return new Intl.DateTimeFormat('id-ID', defaultOptions).format(new Date(date));
+  try {
+    return new Intl.DateTimeFormat('id-ID', defaultOptions).format(dateObj);
+  } catch (error) {
+    console.warn('Invalid date format:', date);
+    return '-';
+  }
 };
 
 // Format relative time (e.g., "2 hari yang lalu")
 export const formatRelativeTime = (date) => {
+  // Handle null, undefined, or invalid dates
+  if (!date) return '-';
+  
   const now = new Date();
   const targetDate = new Date(date);
+  
+  // Check if the date is valid
+  if (isNaN(targetDate.getTime())) {
+    return '-';
+  }
+  
   const diffInSeconds = Math.floor((now - targetDate) / 1000);
   
   const intervals = {
