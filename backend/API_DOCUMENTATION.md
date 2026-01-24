@@ -190,7 +190,7 @@ Content-Type: application/json
 
 ### 5. Admin Routes (Requires Admin Role)
 
-#### Admin Trip Management
+#### Admin Trip Management (Form Data - Optional Image)
 ```http
 GET /api/v1/admin/trips                    # Get all trips
 POST /api/v1/admin/trips                   # Create trip (with optional image)
@@ -198,6 +198,45 @@ GET /api/v1/admin/trips/{id}               # Get trip detail
 PUT /api/v1/admin/trips/{id}               # Update trip (with optional image)
 DELETE /api/v1/admin/trips/{id}            # Delete trip
 POST /api/v1/admin/trips/{id}/upload-image # Upload trip image (separate endpoint)
+```
+
+#### Admin Trip Management (JSON - Required Image)
+```http
+POST /api/v1/admin/trips-json              # Create trip (JSON + Required Base64 Image)
+PUT /api/v1/admin/trips-json/{id}          # Update trip (JSON + Optional Base64 Image)
+```
+
+**Create Trip (JSON - Required Base64 Image):**
+```http
+POST /api/v1/admin/trips-json
+Content-Type: application/json
+Authorization: Bearer {admin_token}
+
+{
+    "title": "Wisata Bali 4D3N",
+    "description": "Paket wisata Bali lengkap dengan hotel dan transportasi",
+    "price": 2500000,
+    "duration": "4 hari 3 malam",
+    "location": "Bali",
+    "quota": 25,
+    "image_base64": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD...",
+    "image_name": "bali-trip.jpg",
+    "is_active": true
+}
+```
+
+**Update Trip (JSON - Optional Base64 Image):**
+```http
+PUT /api/v1/admin/trips-json/{id}
+Content-Type: application/json
+Authorization: Bearer {admin_token}
+
+{
+    "title": "Wisata Bali Updated",
+    "price": 2800000,
+    "image_base64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB...",
+    "image_name": "bali-updated.png"
+}
 ```
 
 **Create Trip (JSON - without image):**
@@ -265,7 +304,7 @@ image: [file] (JPEG, PNG, JPG, WEBP - Max 5MB)
 }
 ```
 
-#### Admin Travel Management
+#### Admin Travel Management (Form Data - Optional Image)
 ```http
 GET /api/v1/admin/travels                  # Get all travels
 POST /api/v1/admin/travels                 # Create travel (with optional image)
@@ -273,6 +312,43 @@ GET /api/v1/admin/travels/{id}             # Get travel detail
 PUT /api/v1/admin/travels/{id}             # Update travel (with optional image)
 DELETE /api/v1/admin/travels/{id}          # Delete travel
 POST /api/v1/admin/travels/{id}/upload-image # Upload travel image (separate endpoint)
+```
+
+#### Admin Travel Management (JSON - Required Image)
+```http
+POST /api/v1/admin/travels-json            # Create travel (JSON + Required Base64 Image)
+PUT /api/v1/admin/travels-json/{id}        # Update travel (JSON + Optional Base64 Image)
+```
+
+**Create Travel (JSON - Required Base64 Image):**
+```http
+POST /api/v1/admin/travels-json
+Content-Type: application/json
+Authorization: Bearer {admin_token}
+
+{
+    "origin": "Jakarta",
+    "destination": "Bandung",
+    "vehicle_type": "Bus Executive",
+    "price_per_person": 75000,
+    "image_base64": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD...",
+    "image_name": "jakarta-bandung.jpg",
+    "is_active": true
+}
+```
+
+**Update Travel (JSON - Optional Base64 Image):**
+```http
+PUT /api/v1/admin/travels-json/{id}
+Content-Type: application/json
+Authorization: Bearer {admin_token}
+
+{
+    "price_per_person": 85000,
+    "vehicle_type": "Bus Super Executive",
+    "image_base64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB...",
+    "image_name": "updated-travel.png"
+}
 ```
 
 **Create Travel (JSON - without image):**
@@ -329,7 +405,44 @@ GET /api/v1/admin/transactions?transaction_type=trip
 GET /api/v1/admin/transactions?start_date=2026-01-01&end_date=2026-01-31
 ```
 
-## Error Responses
+## JSON API with Base64 Images
+
+### Base64 Image Format
+All JSON endpoints that require images use base64 encoding with the following format:
+```
+data:image/{type};base64,{base64_string}
+```
+
+**Supported image types:**
+- `jpeg` or `jpg`
+- `png` 
+- `webp`
+
+**Example:**
+```
+data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8A8A
+```
+
+### Validation Rules
+- **Maximum file size:** 5MB
+- **Required fields for CREATE:** `image_base64` and `image_name`
+- **Optional fields for UPDATE:** `image_base64` and `image_name` (both required if updating image)
+- **Image validation:** Automatic validation of base64 format and image type
+
+### Error Responses
+```json
+{
+    "message": "Invalid image format. Must be base64 with data:image prefix",
+    "error": "Expected format: data:image/jpeg;base64,{base64_string}"
+}
+```
+
+```json
+{
+    "message": "Image too large. Maximum size is 5MB",
+    "error": "Current size: 7.2MB"
+}
+```
 
 ### 401 Unauthorized
 ```json
