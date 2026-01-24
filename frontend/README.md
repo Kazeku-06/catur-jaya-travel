@@ -22,8 +22,6 @@ Frontend aplikasi web untuk Catur Jaya Travel yang dibangun dengan React, Vite, 
 - **Trip Detail** - Detail paket trip dengan booking functionality
 - **Travels** - Daftar travel antar kota
 - **Travel Detail** - Detail travel dengan booking
-- **Carter Mobiles** - Daftar carter mobil
-- **Carter Mobile Detail** - Detail carter mobil dengan WhatsApp integration
 
 ### Auth Pages
 - **Login** - Halaman masuk dengan validasi
@@ -135,7 +133,6 @@ frontend/
 ### Card Components
 - **TripCard** - Card untuk paket trip
 - **TravelCard** - Card untuk travel
-- **CarterMobileCard** - Card untuk carter mobil
 
 ### Form Components
 - **LoginForm** - Form login dengan validasi
@@ -171,10 +168,6 @@ GET /trips/:id
 // Travels  
 GET /travels
 GET /travels/:id
-
-// Carter Mobiles
-GET /carter-mobiles
-GET /carter-mobiles/:id
 
 // Transactions
 POST /transactions

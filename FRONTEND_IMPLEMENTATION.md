@@ -50,18 +50,6 @@ Seluruh pekerjaan frontend telah diselesaikan sesuai dengan spesifikasi yang dim
   - Booking system terintegrasi
   - Terms & conditions
 
-#### 🚗 Catalog Pages - Carter Mobil
-- ✅ **CarterMobiles** (`src/pages/CarterMobiles.jsx`)
-  - Daftar mobil carter dengan spesifikasi
-  - Filter berdasarkan kapasitas dan harga
-  
-- ✅ **CarterMobileDetail** (`src/pages/CarterMobileDetail.jsx`)
-  - Spesifikasi lengkap mobil
-  - Fitur dan fasilitas
-  - Tombol redirect ke WhatsApp (TIDAK ada booking internal)
-  - TIDAK ada transaksi online (sesuai spesifikasi)
-  - WhatsApp integration dengan pesan otomatis
-
 #### 🔐 Authentication Pages
 - ✅ **Login** (`src/pages/Login.jsx`)
   - Validasi form real-time dengan custom hooks
@@ -109,12 +97,6 @@ Seluruh pekerjaan frontend telah diselesaikan sesuai dengan spesifikasi yang dim
   - Route information display
   - Departure date dan time
   - Capacity dan facilities info
-  
-- ✅ **CarterMobileCard** (`src/components/cards/CarterMobileCard.jsx`)
-  - Spesifikasi mobil (kapasitas, transmisi, BBM)
-  - Features badges
-  - WhatsApp contact button
-  - Price per day display
 
 #### 📝 Form Components
 - ✅ **LoginForm** (`src/components/forms/LoginForm.jsx`)
@@ -200,8 +182,6 @@ Seluruh pekerjaan frontend telah diselesaikan sesuai dengan spesifikasi yang dim
   /trips/:id (Trip detail)
   /travels (Travels listing)
   /travels/:id (Travel detail)
-  /carter-mobiles (Carter mobiles listing)
-  /carter-mobiles/:id (Carter mobile detail)
   /login (Login page)
   /register (Register page)
   /payment/success (Payment success)
@@ -419,8 +399,7 @@ frontend/
 │   │   │   └── Badge.jsx
 │   │   ├── cards/           # Card components
 │   │   │   ├── TripCard.jsx
-│   │   │   ├── TravelCard.jsx
-│   │   │   └── CarterMobileCard.jsx
+│   │   │   └── TravelCard.jsx
 │   │   ├── forms/           # Form components
 │   │   │   ├── LoginForm.jsx
 │   │   │   ├── RegisterForm.jsx
@@ -439,8 +418,6 @@ frontend/
 │   │   ├── TripDetail.jsx
 │   │   ├── Travels.jsx
 │   │   ├── TravelDetail.jsx
-│   │   ├── CarterMobiles.jsx
-│   │   ├── CarterMobileDetail.jsx
 │   │   ├── Login.jsx
 │   │   ├── Register.jsx
 │   │   ├── PaymentSuccess.jsx

@@ -19,7 +19,6 @@ const Footer = () => {
       links: [
         { name: 'Paket Trip', href: '/trips' },
         { name: 'Travel', href: '/travels' },
-        { name: 'Carter Mobil', href: '/carter-mobiles' },
         { name: 'Konsultasi', href: '/consultation' },
       ]
     },

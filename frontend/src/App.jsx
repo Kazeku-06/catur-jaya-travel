@@ -10,8 +10,6 @@ const Trips = lazy(() => import('./pages/Trips'));
 const TripDetail = lazy(() => import('./pages/TripDetail'));
 const Travels = lazy(() => import('./pages/Travels'));
 const TravelDetail = lazy(() => import('./pages/TravelDetail'));
-const CarterMobiles = lazy(() => import('./pages/CarterMobiles'));
-const CarterMobileDetail = lazy(() => import('./pages/CarterMobileDetail'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
@@ -65,10 +63,6 @@ function App() {
                 {/* Travels Routes */}
                 <Route path="/travels" element={<Travels />} />
                 <Route path="/travels/:id" element={<TravelDetail />} />
-                
-                {/* Carter Mobiles Routes */}
-                <Route path="/carter-mobiles" element={<CarterMobiles />} />
-                <Route path="/carter-mobiles/:id" element={<CarterMobileDetail />} />
                 
                 {/* Auth Routes */}
                 <Route 

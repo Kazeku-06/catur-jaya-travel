@@ -5,7 +5,6 @@ import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import TripCard from '../components/cards/TripCard';
 import TravelCard from '../components/cards/TravelCard';
-import CarterMobileCard from '../components/cards/CarterMobileCard';
 import SearchForm from '../components/forms/SearchForm';
 import api, { endpoints } from '../config/api';
 import { formatCurrency } from '../utils/helpers';
@@ -13,7 +12,6 @@ import { formatCurrency } from '../utils/helpers';
 const Home = () => {
   const [featuredTrips, setFeaturedTrips] = useState([]);
   const [featuredTravels, setFeaturedTravels] = useState([]);
-  const [featuredCarters, setFeaturedCarters] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,9 +32,6 @@ const Home = () => {
       // Backend response structure: { message: "...", data: [...] }
       setFeaturedTrips(tripsRes.data.data?.slice(0, 6) || []);
       setFeaturedTravels(travelsRes.data.data?.slice(0, 6) || []);
-      
-      // Carter mobiles tidak ada di backend, jadi kosongkan atau gunakan trips sebagai fallback
-      setFeaturedCarters([]);
       
       // Mock testimonials data (tidak ada di backend)
       setTestimonials([
@@ -106,16 +101,6 @@ const Home = () => {
       description: 'Layanan travel nyaman dan aman untuk perjalanan antar kota di seluruh Indonesia.',
       link: '/travels'
     },
-    {
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-        </svg>
-      ),
-      title: 'Carter Mobil',
-      description: 'Sewa mobil dengan driver berpengalaman untuk perjalanan yang fleksibel.',
-      link: '/carter-mobiles'
-    }
   ];
 
   const stats = [
@@ -214,7 +199,7 @@ const Home = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {services.map((service, index) => (
               <motion.div
                 key={index}

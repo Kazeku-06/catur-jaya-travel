@@ -58,11 +58,6 @@ export const endpoints = {
   travels: '/travels',
   travelDetail: (id) => `/travels/${id}`,
   
-  // Note: Carter mobiles not mentioned in API doc, using trips as fallback
-  // You may need to add this endpoint to backend or use a different approach
-  carterMobiles: '/trips', // Fallback - may need backend implementation
-  carterMobileDetail: (id) => `/trips/${id}`, // Fallback - may need backend implementation
-  
   // Transaction endpoints (requires authentication)
   createTripTransaction: (tripId) => `/transactions/trip/${tripId}`,
   createTravelTransaction: (travelId) => `/transactions/travel/${travelId}`,
