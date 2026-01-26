@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import api from '../config/api';
+import { logout } from '../utils/auth';
 
 const LoginDebug = () => {
   const [email, setEmail] = useState('admin@travel.com');
@@ -166,6 +167,15 @@ const LoginDebug = () => {
               className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
             >
               Clear Storage
+            </button>
+            <button
+              onClick={() => {
+                console.log('Manual logout clicked');
+                logout();
+              }}
+              className="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700"
+            >
+              Manual Logout
             </button>
           </div>
         </div>

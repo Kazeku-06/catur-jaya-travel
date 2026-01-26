@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { logout } from '../../utils/auth';
 import Button from '../ui/Button';
 // import NotificationBell from '../notifications/NotificationBell';
 
@@ -11,9 +12,8 @@ const AdminLayout = ({ children }) => {
   const [userData] = useLocalStorage('user_data', null);
 
   const handleLogout = () => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_data');
-    navigate('/');
+    console.log('AdminLayout logout clicked');
+    logout();
   };
 
   const sidebarItems = [
@@ -132,14 +132,12 @@ const AdminLayout = ({ children }) => {
                 Ke Website
               </Button>
             </Link>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <button 
               onClick={handleLogout}
-              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              className="px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded border border-red-200 hover:border-red-300 transition-colors"
             >
               Keluar
-            </Button>
+            </button>
           </div>
         </div>
       </div>
@@ -170,6 +168,14 @@ const AdminLayout = ({ children }) => {
               <div className="flex items-center space-x-4">
                 {/* Notification Bell - Temporarily disabled for debugging */}
                 {/* <NotificationBell /> */}
+                
+                {/* Temporary logout button for debugging */}
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
+                >
+                  Logout (Debug)
+                </button>
                 
                 <div className="text-right">
                   <p className="text-sm font-medium text-gray-900">
