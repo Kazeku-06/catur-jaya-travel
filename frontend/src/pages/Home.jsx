@@ -5,15 +5,17 @@ import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import TripCard from '../components/cards/TripCard';
 import TravelCard from '../components/cards/TravelCard';
-import SearchForm from '../components/forms/SearchForm';
 import api, { endpoints } from '../config/api';
-import { formatCurrency } from '../utils/helpers';
+import { formatCurrency, getImageUrl } from '../utils/helpers';
 
 const Home = () => {
   const [featuredTrips, setFeaturedTrips] = useState([]);
   const [featuredTravels, setFeaturedTravels] = useState([]);
-  const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchData, setSearchData] = useState({
+    destination: '',
+    travelDates: ''
+  });
 
   useEffect(() => {
     fetchHomeData();
@@ -23,43 +25,13 @@ const Home = () => {
     try {
       setLoading(true);
       
-      // Fetch featured content - backend hanya punya trips dan travels
       const [tripsRes, travelsRes] = await Promise.all([
         api.get(endpoints.trips),
         api.get(endpoints.travels),
       ]);
 
-      // Backend response structure: { message: "...", data: [...] }
-      setFeaturedTrips(tripsRes.data.data?.slice(0, 6) || []);
-      setFeaturedTravels(travelsRes.data.data?.slice(0, 6) || []);
-      
-      // Mock testimonials data (tidak ada di backend)
-      setTestimonials([
-        {
-          id: 1,
-          name: 'Sarah Wijaya',
-          location: 'Jakarta',
-          rating: 5,
-          comment: 'Pengalaman yang luar biasa! Pelayanan sangat memuaskan dan destinasi wisata yang dipilih sangat menarik.',
-          avatar: '/images/testimonials/sarah.jpg'
-        },
-        {
-          id: 2,
-          name: 'Ahmad Rizki',
-          location: 'Bandung',
-          rating: 5,
-          comment: 'Trip ke Bali bersama Catur Jaya Travel sangat berkesan. Guide yang ramah dan profesional.',
-          avatar: '/images/testimonials/ahmad.jpg'
-        },
-        {
-          id: 3,
-          name: 'Maya Sari',
-          location: 'Surabaya',
-          rating: 4,
-          comment: 'Harga terjangkau dengan kualitas pelayanan yang baik. Pasti akan menggunakan jasa mereka lagi.',
-          avatar: '/images/testimonials/maya.jpg'
-        }
-      ]);
+      setFeaturedTrips(tripsRes.data.data?.slice(0, 3) || []);
+      setFeaturedTravels(travelsRes.data.data?.slice(0, 3) || []);
       
     } catch (error) {
       console.error('Error fetching home data:', error);
@@ -68,59 +40,49 @@ const Home = () => {
     }
   };
 
-  const handleSearch = (searchData) => {
-    // Navigate to search results page
-    const params = new URLSearchParams();
-    if (searchData.query) params.append('q', searchData.query);
-    if (searchData.filters.category) params.append('category', searchData.filters.category);
-    if (searchData.filters.priceRange) params.append('price', searchData.filters.priceRange);
-    if (searchData.filters.location) params.append('location', searchData.filters.location);
-    
-    window.location.href = `/trips?${params.toString()}`;
+  const handleSearch = () => {
+    if (searchData.destination) {
+      window.location.href = `/trips?q=${encodeURIComponent(searchData.destination)}`;
+    } else {
+      window.location.href = '/trips';
+    }
   };
 
-  const services = [
+  const destinations = [
     {
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      ),
-      title: 'Paket Trip',
-      description: 'Nikmati paket wisata lengkap dengan destinasi menarik dan harga terjangkau.',
-      link: '/trips'
+      name: 'Bromo',
+      tours: '78 Tours',
+      image: '/images/destinations/bromo.jpg',
+      link: '/trips?destination=bromo'
     },
     {
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-        </svg>
-      ),
-      title: 'Travel Antar Kota',
-      description: 'Layanan travel nyaman dan aman untuk perjalanan antar kota di seluruh Indonesia.',
-      link: '/travels'
+      name: 'Tumpak Sewu',
+      tours: '45 Tours', 
+      image: '/images/destinations/tumpak-sewu.jpg',
+      link: '/trips?destination=tumpak-sewu'
     },
-  ];
-
-  const stats = [
-    { number: '10K+', label: 'Pelanggan Puas' },
-    { number: '500+', label: 'Destinasi Wisata' },
-    { number: '50+', label: 'Kota Tujuan' },
-    { number: '5', label: 'Tahun Pengalaman' }
+    {
+      name: 'Sarangan',
+      tours: '34 Tours',
+      image: '/images/destinations/sarangan.jpg', 
+      link: '/trips?destination=sarangan'
+    }
   ];
 
   return (
     <Layout>
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Background */}
+        {/* Background Image */}
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/40 z-10"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60 z-10"></div>
           <img
-            src="/images/hero-bg.jpg"
-            alt="Beautiful Indonesia"
+            src="/images/hero-mountain.jpg"
+            alt="Beautiful Mountain View"
             className="w-full h-full object-cover"
+            onError={(e) => {
+              e.target.src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80';
+            }}
           />
         </div>
 
@@ -130,58 +92,88 @@ const Home = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-          >
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Jelajahi Keindahan
-              <span className="block text-primary-400">Indonesia Bersama Kami</span>
-            </h1>
-            
-            <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-gray-200">
-              Temukan pengalaman wisata tak terlupakan dengan paket trip, travel, dan carter mobil terpercaya
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Link to="/trips">
-                <Button variant="primary" size="lg">
-                  Jelajahi Paket Trip
-                </Button>
-              </Link>
-              <Link to="/travels">
-                <Button variant="outline" size="lg">
-                  Lihat Travel
-                </Button>
-              </Link>
-            </div>
-          </motion.div>
-
-          {/* Search Form */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
             className="max-w-4xl mx-auto"
           >
-            <SearchForm
-              onSearch={handleSearch}
-              showFilters={true}
-              placeholder="Cari destinasi impian Anda..."
-            />
+            {/* Company Logo/Name */}
+            <div className="mb-8">
+              <div className="flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-primary-600 rounded-lg flex items-center justify-center mr-3">
+                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <div className="text-left">
+                  <h3 className="text-xl font-bold">Catur Jaya Mandiri</h3>
+                  <p className="text-sm text-gray-300">Travel Services</p>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-lg text-gray-300 mb-2">Welcome To Catur Jaya Mandiri Travel Services</p>
+            
+            <h1 className="text-4xl md:text-6xl font-bold mb-8 leading-tight">
+              Shaping Growth Through
+              <br />
+              <span className="text-primary-400">Trusted Excellence</span>
+            </h1>
+
+            {/* Search Form */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="max-w-md mx-auto bg-white rounded-lg p-6 text-gray-900"
+            >
+              {/* Destination Input */}
+              <div className="mb-4">
+                <div className="flex items-center text-gray-600 mb-2">
+                  <svg className="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  </svg>
+                  <span className="font-medium">Destination</span>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Tell us where you want to go"
+                  value={searchData.destination}
+                  onChange={(e) => setSearchData({...searchData, destination: e.target.value})}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Travel Dates Input */}
+              <div className="mb-6">
+                <div className="flex items-center text-gray-600 mb-2">
+                  <svg className="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span className="font-medium">Travel Dates</span>
+                </div>
+                <input
+                  type="date"
+                  value={searchData.travelDates}
+                  onChange={(e) => setSearchData({...searchData, travelDates: e.target.value})}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Search Button */}
+              <Button
+                onClick={handleSearch}
+                className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-lg font-medium"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Search Tour
+              </Button>
+            </motion.div>
           </motion.div>
         </div>
-
-        {/* Scroll Indicator */}
-        <motion.div
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
-        </motion.div>
       </section>
 
-      {/* Services Section */}
+      {/* Destinations Section */}
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <motion.div
@@ -192,33 +184,50 @@ const Home = () => {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Layanan Terbaik Kami
+              Destinations
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Kami menyediakan berbagai layanan perjalanan untuk memenuhi kebutuhan wisata Anda
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              Jelajahi beragam destinasi menakjukan di seluruh dunia dan rasakan pesona setiap musim yang memikat di setiap langkah perjalanan Anda yang tak terlupakan dengan #CaturJayaMandiriTravelServices!
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {services.map((service, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {destinations.map((destination, index) => (
               <motion.div
                 key={index}
-                className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300"
+                className="relative group cursor-pointer overflow-hidden rounded-xl"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                whileHover={{ y: -5 }}
+                whileHover={{ scale: 1.02 }}
               >
-                <div className="text-primary-600 mb-4">{service.icon}</div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                  {service.title}
-                </h3>
-                <p className="text-gray-600 mb-6">{service.description}</p>
-                <Link to={service.link}>
-                  <Button variant="outline" size="sm">
-                    Pelajari Lebih Lanjut
-                  </Button>
+                <Link to={destination.link}>
+                  <div className="relative h-80 overflow-hidden rounded-xl">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-10"></div>
+                    <img
+                      src={destination.image}
+                      alt={destination.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      onError={(e) => {
+                        const fallbackImages = [
+                          'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                          'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                          'https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+                        ];
+                        e.target.src = fallbackImages[index] || fallbackImages[0];
+                      }}
+                    />
+                    
+                    {/* Content Overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
+                      <h3 className="text-2xl font-bold text-white mb-2">{destination.name}</h3>
+                      <p className="text-gray-300">{destination.tours}</p>
+                    </div>
+
+                    {/* Hover Effect */}
+                    <div className="absolute inset-0 bg-primary-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-15"></div>
+                  </div>
                 </Link>
               </motion.div>
             ))}
@@ -241,17 +250,17 @@ const Home = () => {
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                   Paket Trip Populer
                 </h2>
-                <p className="text-xl text-gray-600">
+                <p className="text-lg text-gray-600">
                   Destinasi wisata favorit pilihan traveler
                 </p>
               </div>
               <Link to="/trips">
-                <Button variant="outline">Lihat Semua</Button>
+                <Button variant="outline">Lihat Semua Trip</Button>
               </Link>
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredTrips.slice(0, 6).map((trip, index) => (
+              {featuredTrips.map((trip, index) => (
                 <motion.div
                   key={trip.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -267,29 +276,49 @@ const Home = () => {
         </section>
       )}
 
-      {/* Stats Section */}
-      <section className="py-20 bg-primary-600 text-white">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                className="text-center"
-                initial={{ opacity: 0, scale: 0.5 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <div className="text-3xl md:text-4xl font-bold mb-2">{stat.number}</div>
-                <div className="text-primary-100">{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Featured Travels */}
+      {featuredTravels.length > 0 && (
+        <section className="py-20 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <motion.div
+              className="flex items-center justify-between mb-12"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                  Layanan Travel Terpercaya
+                </h2>
+                <p className="text-lg text-gray-600">
+                  Perjalanan antar kota yang nyaman dan aman
+                </p>
+              </div>
+              <Link to="/travels">
+                <Button variant="outline">Lihat Semua Travel</Button>
+              </Link>
+            </motion.div>
 
-      {/* Testimonials */}
-      <section className="py-20 bg-gray-50">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredTravels.map((travel, index) => (
+                <motion.div
+                  key={travel.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <TravelCard travel={travel} />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Why Choose Us */}
+      <section className="py-20">
         <div className="container mx-auto px-4">
           <motion.div
             className="text-center mb-16"
@@ -299,51 +328,54 @@ const Home = () => {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Apa Kata Mereka
+              Mengapa Memilih Kami?
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Testimoni dari pelanggan yang telah merasakan pengalaman berwisata bersama kami
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Pengalaman bertahun-tahun dalam industri travel membuat kami memahami kebutuhan perjalanan Anda
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
+            {[
+              {
+                icon: (
+                  <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                ),
+                title: 'Terpercaya & Berpengalaman',
+                description: 'Lebih dari 5 tahun melayani ribuan pelanggan dengan kepuasan tinggi'
+              },
+              {
+                icon: (
+                  <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                  </svg>
+                ),
+                title: 'Harga Terjangkau',
+                description: 'Paket wisata dengan harga kompetitif tanpa mengurangi kualitas pelayanan'
+              },
+              {
+                icon: (
+                  <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.25a9.75 9.75 0 100 19.5 9.75 9.75 0 000-19.5z" />
+                  </svg>
+                ),
+                title: 'Pelayanan 24/7',
+                description: 'Tim customer service siap membantu Anda kapan saja dibutuhkan'
+              }
+            ].map((feature, index) => (
               <motion.div
-                key={testimonial.id}
-                className="bg-white rounded-xl p-6 shadow-lg"
+                key={index}
+                className="text-center p-6"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <div className="flex items-center mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <svg
-                      key={i}
-                      className={`w-5 h-5 ${
-                        i < testimonial.rating ? 'text-yellow-400' : 'text-gray-300'
-                      }`}
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                </div>
-                
-                <p className="text-gray-600 mb-6 italic">"{testimonial.comment}"</p>
-                
-                <div className="flex items-center">
-                  <div className="w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center mr-4">
-                    <span className="text-white font-semibold">
-                      {testimonial.name.charAt(0)}
-                    </span>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                    <div className="text-gray-500 text-sm">{testimonial.location}</div>
-                  </div>
-                </div>
+                <div className="text-primary-600 mb-4 flex justify-center">{feature.icon}</div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">{feature.title}</h3>
+                <p className="text-gray-600">{feature.description}</p>
               </motion.div>
             ))}
           </div>
@@ -371,9 +403,9 @@ const Home = () => {
                   Pilih Paket Trip
                 </Button>
               </Link>
-              <Link to="/contact">
-                <Button variant="outline" size="lg">
-                  Hubungi Kami
+              <Link to="/travels">
+                <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-primary-600">
+                  Lihat Travel
                 </Button>
               </Link>
             </div>

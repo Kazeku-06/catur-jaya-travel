@@ -15,6 +15,10 @@ const Register = lazy(() => import('./pages/Register'));
 const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
 const PaymentPending = lazy(() => import('./pages/PaymentPending'));
 const PaymentFailed = lazy(() => import('./pages/PaymentFailed'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const AdminTrips = lazy(() => import('./pages/AdminTrips'));
+const AdminTravels = lazy(() => import('./pages/AdminTravels'));
+const Demo = lazy(() => import('./pages/Demo'));
 
 // Loading component
 const LoadingSpinner = () => (
@@ -29,6 +33,35 @@ const ProtectedRoute = ({ children }) => {
   
   if (!authToken) {
     return <Navigate to="/login" replace />;
+  }
+  
+  return children;
+};
+
+// Admin Route component (requires admin role)
+const AdminRoute = ({ children }) => {
+  const [authToken] = useLocalStorage('auth_token', null);
+  const [userData] = useLocalStorage('user_data', null);
+  
+  if (!authToken) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  if (!userData || userData.role !== 'admin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-red-600 mb-4">403</h1>
+          <p className="text-gray-600 mb-8">Akses ditolak. Anda tidak memiliki izin admin.</p>
+          <a 
+            href="/" 
+            className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-200"
+          >
+            Kembali ke Beranda
+          </a>
+        </div>
+      </div>
+    );
   }
   
   return children;
@@ -55,6 +88,7 @@ function App() {
               <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<Home />} />
+                <Route path="/demo" element={<Demo />} />
                 
                 {/* Trips Routes */}
                 <Route path="/trips" element={<Trips />} />
@@ -88,7 +122,30 @@ function App() {
                 <Route path="/payment/failed" element={<PaymentFailed />} />
                 
                 {/* Protected Routes */}
-                {/* Add more protected routes here as needed */}
+                <Route 
+                  path="/admin" 
+                  element={
+                    <AdminRoute>
+                      <AdminDashboard />
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/trips" 
+                  element={
+                    <AdminRoute>
+                      <AdminTrips />
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/travels" 
+                  element={
+                    <AdminRoute>
+                      <AdminTravels />
+                    </AdminRoute>
+                  } 
+                />
                 
                 {/* Catch all route - 404 */}
                 <Route 

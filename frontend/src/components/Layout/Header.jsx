@@ -142,6 +142,15 @@ const Header = () => {
                       >
                         Riwayat Booking
                       </Link>
+                      {userData?.role === 'admin' && (
+                        <Link
+                          to="/admin"
+                          className="block px-4 py-2 text-sm text-primary-600 hover:bg-primary-50 font-medium"
+                          onClick={() => setShowProfileMenu(false)}
+                        >
+                          🔧 Admin Dashboard
+                        </Link>
+                      )}
                       <hr className="my-2" />
                       <button
                         onClick={handleLogout}
@@ -240,6 +249,14 @@ const Header = () => {
                     >
                       Riwayat Booking
                     </Link>
+                    {userData?.role === 'admin' && (
+                      <Link
+                        to="/admin"
+                        className="block py-2 text-primary-600 hover:text-primary-700 font-medium"
+                      >
+                        🔧 Admin Dashboard
+                      </Link>
+                    )}
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left py-2 text-red-600 hover:text-red-700"
