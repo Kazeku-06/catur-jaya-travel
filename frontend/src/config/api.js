@@ -63,6 +63,7 @@ export const endpoints = {
   createTravelTransaction: (travelId) => `/transactions/travel/${travelId}`,
   userBookings: '/transactions/my-bookings',
   transactionDetail: (id) => `/transactions/${id}`,
+  testAuth: '/test-auth',
   
   // Payment endpoints
   midtransConfig: '/payments/midtrans',

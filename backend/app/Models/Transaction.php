@@ -17,10 +17,20 @@ class Transaction extends Model
         'total_price',
         'payment_status',
         'midtrans_order_id',
+        // Booking details
+        'participants',
+        'passengers',
+        'departure_date',
+        'special_requests',
+        'contact_phone',
+        'emergency_contact',
+        'pickup_location',
+        'destination_address',
     ];
 
     protected $casts = [
         'total_price' => 'decimal:2',
+        'departure_date' => 'date',
     ];
 
     /**

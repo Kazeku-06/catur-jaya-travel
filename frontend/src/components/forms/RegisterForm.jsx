@@ -10,6 +10,7 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState('error');
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const {
     values,
@@ -158,7 +159,8 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
             id="terms"
             name="terms"
             type="checkbox"
-            required
+            checked={termsAccepted}
+            onChange={(e) => setTermsAccepted(e.target.checked)}
             className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
           />
           <label htmlFor="terms" className="ml-2 block text-sm text-gray-900">
@@ -180,7 +182,7 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
           size="lg"
           fullWidth
           loading={loading}
-          disabled={!isValid || loading}
+          disabled={!isValid || !termsAccepted || loading}
         >
           {loading ? 'Mendaftar...' : 'Daftar'}
         </Button>

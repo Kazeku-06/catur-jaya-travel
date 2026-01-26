@@ -19,6 +19,10 @@ const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminTrips = lazy(() => import('./pages/AdminTrips'));
 const AdminTravels = lazy(() => import('./pages/AdminTravels'));
 const MyBookings = lazy(() => import('./pages/MyBookings'));
+const TripBooking = lazy(() => import('./pages/TripBooking'));
+const TravelBooking = lazy(() => import('./pages/TravelBooking'));
+const Payment = lazy(() => import('./pages/Payment'));
+const Debug = lazy(() => import('./pages/Debug'));
 const Demo = lazy(() => import('./pages/Demo'));
 
 // Loading component
@@ -90,14 +94,31 @@ function App() {
                 {/* Public Routes */}
                 <Route path="/" element={<Home />} />
                 <Route path="/demo" element={<Demo />} />
+                <Route path="/debug" element={<Debug />} />
                 
                 {/* Trips Routes */}
                 <Route path="/trips" element={<Trips />} />
                 <Route path="/trips/:id" element={<TripDetail />} />
+                <Route 
+                  path="/trips/:id/booking" 
+                  element={
+                    <ProtectedRoute>
+                      <TripBooking />
+                    </ProtectedRoute>
+                  } 
+                />
                 
                 {/* Travels Routes */}
                 <Route path="/travels" element={<Travels />} />
                 <Route path="/travels/:id" element={<TravelDetail />} />
+                <Route 
+                  path="/travels/:id/booking" 
+                  element={
+                    <ProtectedRoute>
+                      <TravelBooking />
+                    </ProtectedRoute>
+                  } 
+                />
                 
                 {/* Auth Routes */}
                 <Route 
@@ -121,6 +142,16 @@ function App() {
                 <Route path="/payment/success" element={<PaymentSuccess />} />
                 <Route path="/payment/pending" element={<PaymentPending />} />
                 <Route path="/payment/failed" element={<PaymentFailed />} />
+                
+                {/* Payment Route */}
+                <Route 
+                  path="/payment/:transactionId" 
+                  element={
+                    <ProtectedRoute>
+                      <Payment />
+                    </ProtectedRoute>
+                  } 
+                />
                 
                 {/* Protected User Routes */}
                 <Route 

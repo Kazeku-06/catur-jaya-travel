@@ -26,6 +26,13 @@ class TransactionController extends Controller
      */
     public function createTripTransaction(Request $request, string $tripId)
     {
+        // Debug logging
+        \Log::info('Creating trip transaction', [
+            'user_id' => $request->user()->id,
+            'trip_id' => $tripId,
+            'request_data' => $request->all()
+        ]);
+
         $request->validate([
             'participants' => 'required|integer|min:1|max:50',
             'departure_date' => 'required|date|after:today',
@@ -47,6 +54,11 @@ class TransactionController extends Controller
                 ])
             );
 
+            \Log::info('Trip transaction created successfully', [
+                'transaction_id' => $result['transaction']->id,
+                'order_id' => $result['transaction']->midtrans_order_id
+            ]);
+
             return response()->json([
                 'message' => 'Transaction created successfully',
                 'data' => [
@@ -58,6 +70,11 @@ class TransactionController extends Controller
                 ]
             ], 201);
         } catch (\Exception $e) {
+            \Log::error('Error creating trip transaction', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'message' => 'Failed to create transaction',
                 'error' => $e->getMessage()

@@ -86,6 +86,21 @@ export const useForm = (initialValues = {}, validationRules = {}) => {
     setErrors(prev => ({ ...prev, [name]: error }));
   }, []);
 
+  const isFormValid = useCallback(() => {
+    // Check if there are any errors
+    const hasErrors = Object.keys(errors).some(key => errors[key]);
+    if (hasErrors) return false;
+
+    // Check if all required fields are filled
+    const requiredFields = Object.keys(validationRules);
+    const allRequiredFilled = requiredFields.every(field => {
+      const value = values[field];
+      return value && (typeof value === 'string' ? value.trim() : true);
+    });
+
+    return allRequiredFilled;
+  }, [errors, values, validationRules]);
+
   return {
     values,
     errors,
@@ -98,6 +113,6 @@ export const useForm = (initialValues = {}, validationRules = {}) => {
     reset,
     setFieldValue,
     setFieldError,
-    isValid: Object.keys(errors).length === 0,
+    isValid: isFormValid(),
   };
 };

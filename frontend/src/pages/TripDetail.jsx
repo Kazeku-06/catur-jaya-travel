@@ -4,11 +4,9 @@ import { motion } from 'framer-motion';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
-import Modal from '../components/ui/Modal';
 import Breadcrumb from '../components/navigation/Breadcrumb';
 import TripCard from '../components/cards/TripCard';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { transactionService } from '../services/transactionService';
 import api, { endpoints } from '../config/api';
 import { formatCurrency, formatDate, getImageUrl } from '../utils/helpers';
 
@@ -20,14 +18,7 @@ const TripDetail = () => {
   const [trip, setTrip] = useState(null);
   const [relatedTrips, setRelatedTrips] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [bookingLoading, setBookingLoading] = useState(false);
-  const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [bookingData, setBookingData] = useState({
-    participants: 1,
-    departure_date: '',
-    special_requests: '',
-  });
 
   useEffect(() => {
     fetchTripDetail();
@@ -117,53 +108,6 @@ const TripDetail = () => {
     }
   };
 
-  const handleBooking = async () => {
-    if (!authToken) {
-      navigate('/login', { state: { from: `/trips/${id}` } });
-      return;
-    }
-
-    // Validate required fields
-    if (!bookingData.departure_date) {
-      alert('Silakan pilih tanggal keberangkatan');
-      return;
-    }
-
-    try {
-      setBookingLoading(true);
-      
-      // Use the transaction service with proper booking data
-      const response = await transactionService.createTripTransaction(id, {
-        participants: bookingData.participants,
-        departure_date: bookingData.departure_date,
-        special_requests: bookingData.special_requests,
-        contact_phone: '+62812345678', // You might want to get this from user profile
-        emergency_contact: bookingData.emergency_contact || ''
-      });
-
-      // Backend response: { message: "...", data: { transaction_id, order_id, snap_token, ... } }
-      const transactionData = response.data;
-      
-      // If Midtrans integration is available, redirect to payment
-      if (transactionData.snap_token) {
-        // Implement Midtrans Snap payment here
-        // For now, redirect to success page
-        navigate(`/payment/success?transaction_id=${transactionData.transaction_id}`);
-      } else {
-        // Fallback to success page
-        navigate(`/payment/success?order_id=${transactionData.order_id}`);
-      }
-      
-    } catch (error) {
-      console.error('Error creating booking:', error);
-      const errorMessage = error.response?.data?.message || 'Gagal membuat booking. Silakan coba lagi.';
-      alert(errorMessage);
-    } finally {
-      setBookingLoading(false);
-      setShowBookingModal(false);
-    }
-  };
-
   const breadcrumbItems = [
     { label: 'Beranda', href: '/' },
     { label: 'Paket Trip', href: '/trips' },
@@ -207,7 +151,6 @@ const TripDetail = () => {
     );
   }
 
-  const totalPrice = (trip?.price || 0) * bookingData.participants;
   const images = trip?.images || [trip?.image] || ['/images/trip-placeholder.jpg'];
 
   return (
@@ -413,58 +356,35 @@ const TripDetail = () => {
               <div className="bg-white rounded-xl p-6 shadow-sm sticky top-24">
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">Booking Trip</h3>
                 
-                <div className="space-y-4 mb-6">
-                  {/* Participants */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Jumlah Peserta
-                    </label>
-                    <select
-                      value={bookingData.participants}
-                      onChange={(e) => setBookingData({
-                        ...bookingData,
-                        participants: parseInt(e.target.value)
-                      })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    >
-                      {[...Array(10)].map((_, i) => (
-                        <option key={i + 1} value={i + 1}>
-                          {i + 1} orang
-                        </option>
-                      ))}
-                    </select>
+                {/* Price Display */}
+                <div className="text-center mb-6">
+                  <div className="text-3xl font-bold text-primary-600 mb-2">
+                    {formatCurrency(trip?.price || 0)}
+                    <span className="text-lg text-gray-600 font-normal">/orang</span>
                   </div>
-
-                  {/* Departure Date */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Tanggal Keberangkatan
-                    </label>
-                    <input
-                      type="date"
-                      value={bookingData.departure_date}
-                      onChange={(e) => setBookingData({
-                        ...bookingData,
-                        departure_date: e.target.value
-                      })}
-                      min={new Date().toISOString().split('T')[0]}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
+                  <p className="text-sm text-gray-600">Harga sudah termasuk pajak</p>
                 </div>
 
-                {/* Price Summary */}
-                <div className="border-t border-gray-200 pt-4 mb-6">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-gray-600">
-                      {formatCurrency(trip?.price || 0)} x {bookingData.participants} orang
-                    </span>
-                    <span className="font-medium">{formatCurrency(totalPrice)}</span>
+                {/* Trip Info */}
+                <div className="space-y-3 mb-6 p-4 bg-gray-50 rounded-lg">
+                  <div className="flex items-center text-sm text-gray-600">
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>{trip?.location || 'Lokasi tidak diketahui'}</span>
                   </div>
-                  <div className="flex justify-between items-center text-lg font-semibold">
-                    <span>Total</span>
-                    <span className="text-primary-600">{formatCurrency(totalPrice)}</span>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{trip?.duration || 'Durasi tidak diketahui'}</span>
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span>Kuota: {trip?.quota || 0} orang</span>
                   </div>
                 </div>
 
@@ -473,12 +393,24 @@ const TripDetail = () => {
                   variant="primary"
                   size="lg"
                   fullWidth
-                  disabled={!trip?.is_available || !bookingData.departure_date}
-                  loading={bookingLoading}
-                  onClick={() => setShowBookingModal(true)}
+                  disabled={!trip?.is_available}
+                  onClick={() => {
+                    if (!authToken) {
+                      navigate('/login', { state: { from: `/trips/${id}` } });
+                    } else {
+                      navigate(`/trips/${id}/booking`);
+                    }
+                  }}
                 >
-                  {!trip?.is_available ? 'Tidak Tersedia' : 'Booking Sekarang'}
+                  {!trip?.is_available ? 'Tidak Tersedia' : 'Pesan Sekarang'}
                 </Button>
+
+                {/* Status Badge */}
+                <div className="mt-4 text-center">
+                  <Badge variant={trip?.is_available ? 'success' : 'error'}>
+                    {trip?.is_available ? 'Tersedia' : 'Tidak Tersedia'}
+                  </Badge>
+                </div>
 
                 {/* Contact Info */}
                 <div className="mt-6 pt-6 border-t border-gray-200">
@@ -512,63 +444,6 @@ const TripDetail = () => {
           )}
         </div>
       </div>
-
-      {/* Booking Confirmation Modal */}
-      <Modal
-        isOpen={showBookingModal}
-        onClose={() => setShowBookingModal(false)}
-        title="Konfirmasi Booking"
-        size="md"
-      >
-        <div className="space-y-4">
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-2">{trip?.name || trip?.title || 'Trip'}</h4>
-            <div className="text-sm text-gray-600 space-y-1">
-              <p>Jumlah Peserta: {bookingData.participants} orang</p>
-              {bookingData.departure_date && (
-                <p>Tanggal Keberangkatan: {formatDate(bookingData.departure_date)}</p>
-              )}
-              <p className="font-medium text-lg text-primary-600">
-                Total: {formatCurrency(totalPrice)}
-              </p>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Permintaan Khusus (Opsional)
-            </label>
-            <textarea
-              value={bookingData.special_requests}
-              onChange={(e) => setBookingData({
-                ...bookingData,
-                special_requests: e.target.value
-              })}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="Masukkan permintaan khusus jika ada..."
-            />
-          </div>
-
-          <div className="flex space-x-3 pt-4">
-            <Button
-              variant="outline"
-              fullWidth
-              onClick={() => setShowBookingModal(false)}
-            >
-              Batal
-            </Button>
-            <Button
-              variant="primary"
-              fullWidth
-              loading={bookingLoading}
-              onClick={handleBooking}
-            >
-              Konfirmasi Booking
-            </Button>
-          </div>
-        </div>
-      </Modal>
     </Layout>
   );
 };

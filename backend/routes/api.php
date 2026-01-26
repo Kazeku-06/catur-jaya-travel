@@ -34,6 +34,15 @@ Route::prefix('v1')->group(function () {
 
     // User Transaction Routes (Requires authentication)
     Route::middleware('auth:sanctum')->group(function () {
+        // Test endpoint untuk debugging
+        Route::get('test-auth', function (Request $request) {
+            return response()->json([
+                'message' => 'Authentication working',
+                'user' => $request->user(),
+                'token' => $request->bearerToken()
+            ]);
+        });
+        
         Route::post('transactions/trip/{id}', [TransactionController::class, 'createTripTransaction']);
         Route::post('transactions/travel/{id}', [TransactionController::class, 'createTravelTransaction']);
         Route::get('transactions/my-bookings', [TransactionController::class, 'getUserBookings']);
