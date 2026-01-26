@@ -3,8 +3,8 @@ import api from '../config/api';
 import { logout } from '../utils/auth';
 
 const LoginDebug = () => {
-  const [email, setEmail] = useState('admin@travel.com');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('atta@example.com');
+  const [password, setPassword] = useState('password');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
 
@@ -114,11 +114,31 @@ const LoginDebug = () => {
               <strong>User Data:</strong> {localStorage.getItem('user_data') || 'None'}
             </div>
           </div>
+          
+          {/* Token Status Check */}
+          <div className="mt-4 p-3 bg-yellow-100 border border-yellow-300 rounded">
+            <p className="text-sm text-yellow-800">
+              <strong>⚠️ Token Issue Detected:</strong> Your current token is invalid or expired. 
+              Please logout and login again to get a fresh token.
+            </p>
+          </div>
         </div>
 
         {/* Login Form */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Login Test</h2>
+          
+          {/* Available Admin Accounts */}
+          <div className="mb-4 p-3 bg-blue-100 border border-blue-300 rounded">
+            <p className="text-sm text-blue-800 mb-2">
+              <strong>Available Admin Accounts:</strong>
+            </p>
+            <ul className="text-sm text-blue-700 space-y-1">
+              <li>• Email: <code>atta@example.com</code> | Password: <code>password</code></li>
+              <li>• Email: <code>admin@travel.com</code> | Password: <code>password123</code></li>
+            </ul>
+          </div>
+          
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
