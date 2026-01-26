@@ -11,10 +11,12 @@ use Illuminate\Support\Str;
 class TransactionService
 {
     protected $midtransService;
+    protected $notificationService;
 
-    public function __construct(MidtransService $midtransService)
+    public function __construct(MidtransService $midtransService, NotificationService $notificationService)
     {
         $this->midtransService = $midtransService;
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -46,6 +48,13 @@ class TransactionService
             'contact_phone' => $bookingData['contact_phone'] ?? null,
             'emergency_contact' => $bookingData['emergency_contact'] ?? null,
         ]);
+
+        // Create notification for admins about new order
+        $this->notificationService->createOrderNotification(
+            $orderId,
+            'Trip: ' . $trip->title,
+            $totalPrice
+        );
 
         return $this->createPayment($transaction, $trip);
     }
@@ -80,6 +89,13 @@ class TransactionService
             'pickup_location' => $bookingData['pickup_location'] ?? null,
             'destination_address' => $bookingData['destination_address'] ?? null,
         ]);
+
+        // Create notification for admins about new order
+        $this->notificationService->createOrderNotification(
+            $orderId,
+            'Travel: ' . $travel->origin . ' - ' . $travel->destination,
+            $totalPrice
+        );
 
         return $this->createPayment($transaction, $travel);
     }
@@ -154,6 +170,7 @@ class TransactionService
             throw new \Exception('Transaction not found');
         }
 
+        $oldStatus = $transaction->payment_status;
         $transaction->update(['payment_status' => $paymentStatus]);
 
         // Create payment record
@@ -163,6 +180,26 @@ class TransactionService
             'transaction_status' => $paymentStatus,
             'raw_response' => $rawResponse,
         ]);
+
+        // Create notifications based on payment status change
+        if ($oldStatus !== $paymentStatus) {
+            $transactionType = $transaction->transaction_type === 'trip' ? 'Trip' : 'Travel';
+            
+            if ($paymentStatus === 'paid' || $paymentStatus === 'settlement' || $paymentStatus === 'capture') {
+                $this->notificationService->createPaymentSuccessNotification(
+                    $orderId,
+                    $transactionType,
+                    $transaction->total_price
+                );
+            } elseif (in_array($paymentStatus, ['failed', 'expire', 'cancel', 'deny'])) {
+                $this->notificationService->createPaymentFailedNotification(
+                    $orderId,
+                    $transactionType,
+                    $transaction->total_price,
+                    $paymentStatus
+                );
+            }
+        }
 
         return $transaction;
     }

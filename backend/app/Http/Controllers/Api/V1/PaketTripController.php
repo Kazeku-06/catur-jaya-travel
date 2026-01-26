@@ -28,16 +28,30 @@ class PaketTripController extends Controller
     public function index()
     {
         try {
-            $trips = PaketTrip::active()->get()->map(function ($trip) {
-                $trip->image_url = $trip->image ? $this->fileUploadService->getImageUrl($trip->image) : null;
-                return $trip;
-            });
+            // Add logging for debugging
+            \Log::info('Fetching trips started');
+            
+            $trips = PaketTrip::select(['id', 'title', 'description', 'price', 'duration', 'location', 'quota', 'image', 'is_active', 'created_at', 'updated_at'])
+                ->where('is_active', true)
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($trip) {
+                    $trip->image_url = $trip->image ? $this->fileUploadService->getImageUrl($trip->image) : null;
+                    return $trip;
+                });
+
+            \Log::info('Trips fetched successfully', ['count' => $trips->count()]);
 
             return response()->json([
                 'message' => 'Trips retrieved successfully',
                 'data' => $trips
             ]);
         } catch (\Exception $e) {
+            \Log::error('Error fetching trips', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'message' => 'Failed to retrieve trips',
                 'error' => $e->getMessage()

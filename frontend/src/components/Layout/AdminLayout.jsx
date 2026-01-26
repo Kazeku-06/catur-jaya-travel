@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import Button from '../ui/Button';
+import NotificationBell from '../notifications/NotificationBell';
 
 const AdminLayout = ({ children }) => {
   const location = useLocation();
@@ -42,6 +43,15 @@ const AdminLayout = ({ children }) => {
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+        </svg>
+      )
+    },
+    {
+      name: 'Notifikasi',
+      href: '/admin/notifications',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
         </svg>
       )
     },
@@ -146,16 +156,21 @@ const AdminLayout = ({ children }) => {
                   {location.pathname === '/admin/trips' && 'Kelola Trips'}
                   {location.pathname === '/admin/travels' && 'Kelola Travels'}
                   {location.pathname === '/admin/transactions' && 'Kelola Transaksi'}
+                  {location.pathname === '/admin/notifications' && 'Notifikasi'}
                 </h1>
                 <p className="text-gray-600 mt-1">
                   {location.pathname === '/admin' && 'Selamat datang di panel admin Catur Jaya Travel'}
                   {location.pathname === '/admin/trips' && 'Kelola paket trip wisata'}
                   {location.pathname === '/admin/travels' && 'Kelola layanan travel'}
                   {location.pathname === '/admin/transactions' && 'Kelola transaksi dan pembayaran'}
+                  {location.pathname === '/admin/notifications' && 'Kelola notifikasi order dan pembayaran'}
                 </p>
               </div>
               
               <div className="flex items-center space-x-4">
+                {/* Notification Bell */}
+                <NotificationBell />
+                
                 <div className="text-right">
                   <p className="text-sm font-medium text-gray-900">
                     {new Date().toLocaleDateString('id-ID', {

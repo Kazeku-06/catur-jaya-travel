@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\Admin\AdminPaketTripController;
 use App\Http\Controllers\Api\V1\Admin\AdminTravelController;
 use App\Http\Controllers\Api\V1\Admin\AdminTransactionController;
+use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
 
 // API Version 1 Routes
 Route::prefix('v1')->group(function () {
@@ -68,5 +69,14 @@ Route::prefix('v1')->group(function () {
         Route::get('transactions', [AdminTransactionController::class, 'index']);
         Route::get('transactions/{id}', [AdminTransactionController::class, 'show']);
         Route::get('transactions/statistics', [AdminTransactionController::class, 'statistics']);
+
+        // Admin Notification Management
+        Route::prefix('notifications')->group(function () {
+            Route::get('/', [AdminNotificationController::class, 'index']);
+            Route::get('/unread-count', [AdminNotificationController::class, 'unreadCount']);
+            Route::get('/statistics', [AdminNotificationController::class, 'statistics']);
+            Route::post('/{id}/read', [AdminNotificationController::class, 'markAsRead']);
+            Route::post('/mark-all-read', [AdminNotificationController::class, 'markAllAsRead']);
+        });
     });
 });

@@ -5,7 +5,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 30000, // Increase timeout to 30 seconds
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -78,5 +78,12 @@ export const endpoints = {
     transactions: '/admin/transactions',
     transactionDetail: (id) => `/admin/transactions/${id}`,
     transactionStats: '/admin/transactions/statistics',
+    
+    // Notification endpoints
+    notifications: '/admin/notifications',
+    notificationUnreadCount: '/admin/notifications/unread-count',
+    notificationStats: '/admin/notifications/statistics',
+    markNotificationRead: (id) => `/admin/notifications/${id}/read`,
+    markAllNotificationsRead: '/admin/notifications/mark-all-read',
   }
 };
