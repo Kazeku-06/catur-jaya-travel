@@ -16,27 +16,45 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('auth_token');
+    console.log('Request interceptor - Token from localStorage:', token ? `${token.substring(0, 20)}...` : 'None');
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('Request interceptor - Authorization header set:', config.headers.Authorization.substring(0, 30) + '...');
+    } else {
+      console.warn('Request interceptor - No token found in localStorage');
     }
+    
+    console.log('Request interceptor - Final config:', {
+      url: config.url,
+      method: config.method,
+      headers: config.headers
+    });
+    
     return config;
   },
   (error) => {
+    console.error('Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
 
-// Response interceptor
+// Response interceptor - Temporarily disabled for debugging
 api.interceptors.response.use(
   (response) => {
     return response;
   },
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user_data');
-      window.location.href = '/login';
-    }
+    // Log error but don't auto-logout
+    console.error('API Error:', error.response?.status, error.config?.url);
+    
+    // Uncomment this when debugging is done:
+    // if (error.response?.status === 401) {
+    //   localStorage.removeItem('auth_token');
+    //   localStorage.removeItem('user_data');
+    //   window.location.href = '/login';
+    // }
+    
     return Promise.reject(error);
   }
 );

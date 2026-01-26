@@ -27,14 +27,26 @@ const AdminDashboard = () => {
   const loadTrips = async () => {
     try {
       console.log('Loading trips...');
+      console.log('Current auth token:', localStorage.getItem('auth_token')?.substring(0, 20) + '...');
       setLoading(true);
+      
       const response = await adminService.trips.getAll();
       console.log('Trips loaded successfully:', response);
       setTrips(response.data || []);
+      showAlert('success', 'Data trips berhasil dimuat');
     } catch (error) {
       console.error('Error loading trips:', error);
       console.error('Error response:', error.response);
-      showAlert('error', 'Gagal memuat data trips');
+      console.error('Error status:', error.response?.status);
+      console.error('Error data:', error.response?.data);
+      
+      if (error.response?.status === 401) {
+        showAlert('error', 'Session expired. Please login again.');
+      } else if (error.response?.status === 403) {
+        showAlert('error', 'Access denied. Admin role required.');
+      } else {
+        showAlert('error', `Gagal memuat data trips: ${error.message}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -43,14 +55,26 @@ const AdminDashboard = () => {
   const loadTravels = async () => {
     try {
       console.log('Loading travels...');
+      console.log('Current auth token:', localStorage.getItem('auth_token')?.substring(0, 20) + '...');
       setLoading(true);
+      
       const response = await adminService.travels.getAll();
       console.log('Travels loaded successfully:', response);
       setTravels(response.data || []);
+      showAlert('success', 'Data travels berhasil dimuat');
     } catch (error) {
       console.error('Error loading travels:', error);
       console.error('Error response:', error.response);
-      showAlert('error', 'Gagal memuat data travels');
+      console.error('Error status:', error.response?.status);
+      console.error('Error data:', error.response?.data);
+      
+      if (error.response?.status === 401) {
+        showAlert('error', 'Session expired. Please login again.');
+      } else if (error.response?.status === 403) {
+        showAlert('error', 'Access denied. Admin role required.');
+      } else {
+        showAlert('error', `Gagal memuat data travels: ${error.message}`);
+      }
     } finally {
       setLoading(false);
     }

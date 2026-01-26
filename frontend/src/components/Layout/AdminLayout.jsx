@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import Button from '../ui/Button';
-import NotificationBell from '../notifications/NotificationBell';
+// import NotificationBell from '../notifications/NotificationBell';
 
 const AdminLayout = ({ children }) => {
   const location = useLocation();
@@ -191,6 +191,13 @@ const AdminLayout = ({ children }) => {
 
         {/* Page Content */}
         <main className="flex-1 p-6">
+          {/* Debug info in development */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mb-4 p-2 bg-yellow-100 border border-yellow-300 rounded text-xs">
+              <strong>Debug:</strong> User: {userData?.name} | Role: {userData?.role} | Token: {localStorage.getItem('auth_token') ? 'Present' : 'Missing'}
+            </div>
+          )}
+          
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

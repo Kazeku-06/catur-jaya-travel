@@ -26,6 +26,8 @@ const Payment = lazy(() => import('./pages/Payment'));
 const Debug = lazy(() => import('./pages/Debug'));
 const Demo = lazy(() => import('./pages/Demo'));
 const AdminTest = lazy(() => import('./pages/AdminTest'));
+const AdminDashboardSimple = lazy(() => import('./pages/AdminDashboardSimple'));
+const LoginDebug = lazy(() => import('./pages/LoginDebug'));
 
 // Loading component
 const LoadingSpinner = () => (
@@ -97,6 +99,8 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/demo" element={<Demo />} />
                 <Route path="/admin-test" element={<AdminTest />} />
+                <Route path="/admin-simple" element={<AdminDashboardSimple />} />
+                <Route path="/login-debug" element={<LoginDebug />} />
                 <Route path="/debug" element={<Debug />} />
                 
                 {/* Trips Routes */}
