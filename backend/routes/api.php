@@ -58,6 +58,16 @@ Route::prefix('v1')->group(function () {
 
     // Admin Routes (Requires admin role)
     Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        
+        // Test endpoint for debugging
+        Route::get('test-auth', function (Request $request) {
+            return response()->json([
+                'message' => 'Admin authentication working',
+                'user' => $request->user(),
+                'role' => $request->user()->role,
+                'token_name' => $request->user()->currentAccessToken()->name ?? 'unknown'
+            ]);
+        });
 
         // Admin Trip Management
         Route::apiResource('trips', AdminPaketTripController::class);

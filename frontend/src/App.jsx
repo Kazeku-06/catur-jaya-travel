@@ -25,6 +25,7 @@ const TravelBooking = lazy(() => import('./pages/TravelBooking'));
 const Payment = lazy(() => import('./pages/Payment'));
 const Debug = lazy(() => import('./pages/Debug'));
 const Demo = lazy(() => import('./pages/Demo'));
+const AdminTest = lazy(() => import('./pages/AdminTest'));
 
 // Loading component
 const LoadingSpinner = () => (
@@ -95,6 +96,7 @@ function App() {
                 {/* Public Routes */}
                 <Route path="/" element={<Home />} />
                 <Route path="/demo" element={<Demo />} />
+                <Route path="/admin-test" element={<AdminTest />} />
                 <Route path="/debug" element={<Debug />} />
                 
                 {/* Trips Routes */}

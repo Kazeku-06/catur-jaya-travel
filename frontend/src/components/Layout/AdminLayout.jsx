@@ -168,8 +168,8 @@ const AdminLayout = ({ children }) => {
               </div>
               
               <div className="flex items-center space-x-4">
-                {/* Notification Bell */}
-                <NotificationBell />
+                {/* Notification Bell - Temporarily disabled for debugging */}
+                {/* <NotificationBell /> */}
                 
                 <div className="text-right">
                   <p className="text-sm font-medium text-gray-900">

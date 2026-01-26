@@ -5,6 +5,7 @@ import Button from '../components/ui/Button';
 import Alert from '../components/ui/Alert';
 import TripForm from '../components/admin/TripForm';
 import TravelForm from '../components/admin/TravelForm';
+import AuthDebug from '../components/debug/AuthDebug';
 import { adminService } from '../services/adminService';
 import { formatCurrency, getImageUrl } from '../utils/helpers';
 
@@ -25,11 +26,14 @@ const AdminDashboard = () => {
   // Load data
   const loadTrips = async () => {
     try {
+      console.log('Loading trips...');
       setLoading(true);
       const response = await adminService.trips.getAll();
+      console.log('Trips loaded successfully:', response);
       setTrips(response.data || []);
     } catch (error) {
       console.error('Error loading trips:', error);
+      console.error('Error response:', error.response);
       showAlert('error', 'Gagal memuat data trips');
     } finally {
       setLoading(false);
@@ -38,11 +42,14 @@ const AdminDashboard = () => {
 
   const loadTravels = async () => {
     try {
+      console.log('Loading travels...');
       setLoading(true);
       const response = await adminService.travels.getAll();
+      console.log('Travels loaded successfully:', response);
       setTravels(response.data || []);
     } catch (error) {
       console.error('Error loading travels:', error);
+      console.error('Error response:', error.response);
       showAlert('error', 'Gagal memuat data travels');
     } finally {
       setLoading(false);
@@ -50,6 +57,7 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
+    console.log('ActiveTab changed to:', activeTab);
     if (activeTab === 'trips') {
       loadTrips();
     } else if (activeTab === 'travels') {
@@ -98,6 +106,7 @@ const AdminDashboard = () => {
 
   return (
     <AdminLayout>
+      <AuthDebug />
       <div className="space-y-6">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -180,6 +189,34 @@ const AdminDashboard = () => {
               </div>
             </div>
           </motion.div>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="bg-white rounded-lg shadow mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8 px-6">
+              <button
+                onClick={() => setActiveTab('trips')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'trips'
+                    ? 'border-primary-500 text-primary-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Trips
+              </button>
+              <button
+                onClick={() => setActiveTab('travels')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'travels'
+                    ? 'border-primary-500 text-primary-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Travels
+              </button>
+            </nav>
+          </div>
         </div>
 
         {alert.show && (
