@@ -197,6 +197,7 @@ const AdminDashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
+          <div className="p-6">
             {showForm ? (
               <div>
                 {activeTab === 'trips' ? (
@@ -372,7 +373,7 @@ const AdminDashboard = () => {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
     </AdminLayout>
   );

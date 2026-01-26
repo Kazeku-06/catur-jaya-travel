@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNotifications } from '../../hooks/useNotifications';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
 import NotificationDropdown from './NotificationDropdown';
 
 const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [userData] = useLocalStorage('user_data', null);
   const { unreadCount } = useNotifications();
+
+  // Only show for admin users
+  if (userData?.role !== 'admin') {
+    return null;
+  }
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);

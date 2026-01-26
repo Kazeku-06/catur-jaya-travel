@@ -1,14 +1,21 @@
 import { useState, useEffect, useCallback } from 'react';
 import notificationService from '../services/notificationService';
+import { useLocalStorage } from './useLocalStorage';
 
 export const useNotifications = (pollingInterval = 30000) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [userData] = useLocalStorage('user_data', null);
+
+  // Check if user is admin
+  const isAdmin = userData?.role === 'admin';
 
   // Fetch unread count
   const fetchUnreadCount = useCallback(async () => {
+    if (!isAdmin) return; // Only fetch for admin users
+    
     try {
       const count = await notificationService.getUnreadCount();
       setUnreadCount(count);
@@ -17,10 +24,12 @@ export const useNotifications = (pollingInterval = 30000) => {
       console.error('Error fetching unread count:', err);
       setError(err.message);
     }
-  }, []);
+  }, [isAdmin]);
 
   // Fetch all notifications
   const fetchNotifications = useCallback(async (page = 1, perPage = 20) => {
+    if (!isAdmin) return; // Only fetch for admin users
+    
     setLoading(true);
     try {
       const response = await notificationService.getNotifications(page, perPage);
@@ -34,10 +43,12 @@ export const useNotifications = (pollingInterval = 30000) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAdmin]);
 
   // Mark notification as read
   const markAsRead = useCallback(async (notificationId) => {
+    if (!isAdmin) return; // Only for admin users
+    
     try {
       await notificationService.markAsRead(notificationId);
       
@@ -58,10 +69,12 @@ export const useNotifications = (pollingInterval = 30000) => {
       setError(err.message);
       throw err;
     }
-  }, []);
+  }, [isAdmin]);
 
   // Mark all notifications as read
   const markAllAsRead = useCallback(async () => {
+    if (!isAdmin) return; // Only for admin users
+    
     try {
       await notificationService.markAllAsRead();
       
@@ -77,10 +90,12 @@ export const useNotifications = (pollingInterval = 30000) => {
       setError(err.message);
       throw err;
     }
-  }, []);
+  }, [isAdmin]);
 
   // Setup polling for unread count
   useEffect(() => {
+    if (!isAdmin) return; // Only setup polling for admin users
+    
     // Initial fetch
     fetchUnreadCount();
 
@@ -88,7 +103,7 @@ export const useNotifications = (pollingInterval = 30000) => {
     const interval = setInterval(fetchUnreadCount, pollingInterval);
 
     return () => clearInterval(interval);
-  }, [fetchUnreadCount, pollingInterval]);
+  }, [fetchUnreadCount, pollingInterval, isAdmin]);
 
   return {
     notifications,
