@@ -14,6 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'is_admin' => \App\Http\Middleware\IsAdmin::class,
+            'log_sanctum' => \App\Http\Middleware\LogSanctumAuth::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

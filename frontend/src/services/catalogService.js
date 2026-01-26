@@ -23,17 +23,5 @@ export const catalogService = {
   getTravelDetail: async (id) => {
     const response = await api.get(`/travels/${id}`);
     return response.data;
-  },
-
-  // Get all carter mobiles (public)
-  getCarterMobiles: async () => {
-    const response = await api.get('/carter-mobiles');
-    return response.data;
-  },
-
-  // Get carter mobile detail (public)
-  getCarterMobileDetail: async (id) => {
-    const response = await api.get(`/carter-mobiles/${id}`);
-    return response.data;
   }
 };

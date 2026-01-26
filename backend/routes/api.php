@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\Admin\AdminPaketTripController;
 use App\Http\Controllers\Api\V1\Admin\AdminTravelController;
 use App\Http\Controllers\Api\V1\Admin\AdminTransactionController;
+use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
 
 // API Version 1 Routes
 Route::prefix('v1')->group(function () {
@@ -34,8 +35,19 @@ Route::prefix('v1')->group(function () {
 
     // User Transaction Routes (Requires authentication)
     Route::middleware('auth:sanctum')->group(function () {
+        // Test endpoint untuk debugging
+        Route::get('test-auth', function (Request $request) {
+            return response()->json([
+                'message' => 'Authentication working',
+                'user' => $request->user(),
+                'token' => $request->bearerToken()
+            ]);
+        });
+        
         Route::post('transactions/trip/{id}', [TransactionController::class, 'createTripTransaction']);
         Route::post('transactions/travel/{id}', [TransactionController::class, 'createTravelTransaction']);
+        Route::get('transactions/my-bookings', [TransactionController::class, 'getUserBookings']);
+        Route::get('transactions/{id}', [TransactionController::class, 'getTransactionDetail']);
     });
 
     // Payment Routes
@@ -45,7 +57,17 @@ Route::prefix('v1')->group(function () {
     });
 
     // Admin Routes (Requires admin role)
-    Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::prefix('admin')->middleware(['auth:sanctum', 'log_sanctum', 'role:admin'])->group(function () {
+        
+        // Test endpoint for debugging
+        Route::get('test-auth', function (Request $request) {
+            return response()->json([
+                'message' => 'Admin authentication working',
+                'user' => $request->user(),
+                'role' => $request->user()->role,
+                'token_name' => $request->user()->currentAccessToken()->name ?? 'unknown'
+            ]);
+        });
 
         // Admin Trip Management
         Route::apiResource('trips', AdminPaketTripController::class);
@@ -57,5 +79,14 @@ Route::prefix('v1')->group(function () {
         Route::get('transactions', [AdminTransactionController::class, 'index']);
         Route::get('transactions/{id}', [AdminTransactionController::class, 'show']);
         Route::get('transactions/statistics', [AdminTransactionController::class, 'statistics']);
+
+        // Admin Notification Management
+        Route::prefix('notifications')->group(function () {
+            Route::get('/', [AdminNotificationController::class, 'index']);
+            Route::get('/unread-count', [AdminNotificationController::class, 'unreadCount']);
+            Route::get('/statistics', [AdminNotificationController::class, 'statistics']);
+            Route::post('/{id}/read', [AdminNotificationController::class, 'markAsRead']);
+            Route::post('/mark-all-read', [AdminNotificationController::class, 'markAllAsRead']);
+        });
     });
 });

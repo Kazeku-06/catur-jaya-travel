@@ -26,6 +26,7 @@ class TravelRequest extends FormRequest
             'destination' => 'required|string|max:255',
             'vehicle_type' => 'required|string|max:255',
             'price_per_person' => 'required|numeric|min:0',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120', // 5MB max
             'is_active' => 'boolean',
         ];
     }

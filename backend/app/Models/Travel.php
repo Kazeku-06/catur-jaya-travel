@@ -17,6 +17,7 @@ class Travel extends Model
         'destination',
         'vehicle_type',
         'price_per_person',
+        'image',
         'is_active',
     ];
 
