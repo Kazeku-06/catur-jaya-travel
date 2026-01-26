@@ -127,7 +127,7 @@ const PaymentSuccess = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
           >
-            <Link to="/bookings" className="block">
+            <Link to="/my-bookings" className="block">
               <Button variant="primary" size="lg" fullWidth>
                 Lihat Riwayat Booking
               </Button>

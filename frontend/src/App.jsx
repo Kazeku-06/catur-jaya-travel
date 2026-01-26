@@ -18,6 +18,7 @@ const PaymentFailed = lazy(() => import('./pages/PaymentFailed'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminTrips = lazy(() => import('./pages/AdminTrips'));
 const AdminTravels = lazy(() => import('./pages/AdminTravels'));
+const MyBookings = lazy(() => import('./pages/MyBookings'));
 const Demo = lazy(() => import('./pages/Demo'));
 
 // Loading component
@@ -121,7 +122,17 @@ function App() {
                 <Route path="/payment/pending" element={<PaymentPending />} />
                 <Route path="/payment/failed" element={<PaymentFailed />} />
                 
-                {/* Protected Routes */}
+                {/* Protected User Routes */}
+                <Route 
+                  path="/my-bookings" 
+                  element={
+                    <ProtectedRoute>
+                      <MyBookings />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* Admin Routes */}
                 <Route 
                   path="/admin" 
                   element={

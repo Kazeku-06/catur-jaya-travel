@@ -8,6 +8,7 @@ import Modal from '../components/ui/Modal';
 import Breadcrumb from '../components/navigation/Breadcrumb';
 import TravelCard from '../components/cards/TravelCard';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { transactionService } from '../services/transactionService';
 import api, { endpoints } from '../config/api';
 import { formatCurrency, formatDate, getImageUrl } from '../utils/helpers';
 
@@ -25,6 +26,8 @@ const TravelDetail = () => {
   const [bookingData, setBookingData] = useState({
     passengers: 1,
     departure_date: '',
+    pickup_location: '',
+    destination_address: '',
     special_requests: '',
   });
 
@@ -122,17 +125,27 @@ const TravelDetail = () => {
       return;
     }
 
+    // Validate required fields
+    if (!travel?.departure_date && !bookingData.departure_date) {
+      alert('Silakan pilih tanggal keberangkatan');
+      return;
+    }
+
     try {
       setBookingLoading(true);
       
-      // Use the correct endpoint from backend documentation
-      const response = await api.post(endpoints.createTravelTransaction(id), {
-        // Backend might expect different field names
-        // Check the actual backend implementation for required fields
+      // Use the transaction service with proper booking data
+      const response = await transactionService.createTravelTransaction(id, {
+        passengers: bookingData.passengers,
+        departure_date: travel?.departure_date || bookingData.departure_date,
+        pickup_location: bookingData.pickup_location || travel?.departure_location || '',
+        destination_address: bookingData.destination_address || travel?.destination_location || '',
+        contact_phone: '+62812345678', // You might want to get this from user profile
+        special_requests: bookingData.special_requests
       });
 
       // Backend response: { message: "...", data: { transaction_id, order_id, snap_token, ... } }
-      const transactionData = response.data.data;
+      const transactionData = response.data;
       
       // If Midtrans integration is available, redirect to payment
       if (transactionData.snap_token) {
@@ -150,6 +163,7 @@ const TravelDetail = () => {
       alert(errorMessage);
     } finally {
       setBookingLoading(false);
+      setShowBookingModal(false);
     }
   };
 
@@ -416,6 +430,41 @@ const TravelDetail = () => {
                       />
                     </div>
                   )}
+
+                  {/* Pickup Location */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Lokasi Penjemputan
+                    </label>
+                    <input
+                      type="text"
+                      value={bookingData.pickup_location}
+                      onChange={(e) => setBookingData({
+                        ...bookingData,
+                        pickup_location: e.target.value
+                      })}
+                      placeholder={`Alamat lengkap di ${travel?.departure_location || 'kota asal'}`}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+
+                  {/* Destination Address */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Alamat Tujuan
+                    </label>
+                    <input
+                      type="text"
+                      value={bookingData.destination_address}
+                      onChange={(e) => setBookingData({
+                        ...bookingData,
+                        destination_address: e.target.value
+                      })}
+                      placeholder={`Alamat lengkap di ${travel?.destination_location || 'kota tujuan'}`}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    />
+                  </div>
                 </div>
 
                 {/* Price Summary */}
@@ -437,7 +486,7 @@ const TravelDetail = () => {
                   variant="primary"
                   size="lg"
                   fullWidth
-                  disabled={!travel?.is_available || (!travel?.departure_date && !bookingData.departure_date)}
+                  disabled={!travel?.is_available || (!travel?.departure_date && !bookingData.departure_date) || !bookingData.pickup_location}
                   loading={bookingLoading}
                   onClick={() => setShowBookingModal(true)}
                 >
@@ -492,6 +541,12 @@ const TravelDetail = () => {
               <p>Jumlah Penumpang: {bookingData.passengers} orang</p>
               {(travel?.departure_date || bookingData.departure_date) && (
                 <p>Tanggal Keberangkatan: {formatDate(travel?.departure_date || bookingData.departure_date)}</p>
+              )}
+              {bookingData.pickup_location && (
+                <p>Lokasi Penjemputan: {bookingData.pickup_location}</p>
+              )}
+              {bookingData.destination_address && (
+                <p>Alamat Tujuan: {bookingData.destination_address}</p>
               )}
               <p className="font-medium text-lg text-primary-600">
                 Total: {formatCurrency(totalPrice)}

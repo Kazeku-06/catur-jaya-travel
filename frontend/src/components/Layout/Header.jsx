@@ -136,7 +136,7 @@ const Header = () => {
                         Profil Saya
                       </Link>
                       <Link
-                        to="/bookings"
+                        to="/my-bookings"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setShowProfileMenu(false)}
                       >
@@ -244,7 +244,7 @@ const Header = () => {
                       Profil Saya
                     </Link>
                     <Link
-                      to="/bookings"
+                      to="/my-bookings"
                       className="block py-2 text-gray-700 hover:text-primary-600"
                     >
                       Riwayat Booking

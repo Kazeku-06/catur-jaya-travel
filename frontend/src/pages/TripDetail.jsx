@@ -8,6 +8,7 @@ import Modal from '../components/ui/Modal';
 import Breadcrumb from '../components/navigation/Breadcrumb';
 import TripCard from '../components/cards/TripCard';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { transactionService } from '../services/transactionService';
 import api, { endpoints } from '../config/api';
 import { formatCurrency, formatDate, getImageUrl } from '../utils/helpers';
 
@@ -122,17 +123,26 @@ const TripDetail = () => {
       return;
     }
 
+    // Validate required fields
+    if (!bookingData.departure_date) {
+      alert('Silakan pilih tanggal keberangkatan');
+      return;
+    }
+
     try {
       setBookingLoading(true);
       
-      // Use the correct endpoint from backend documentation
-      const response = await api.post(endpoints.createTripTransaction(id), {
-        // Backend might expect different field names
-        // Check the actual backend implementation for required fields
+      // Use the transaction service with proper booking data
+      const response = await transactionService.createTripTransaction(id, {
+        participants: bookingData.participants,
+        departure_date: bookingData.departure_date,
+        special_requests: bookingData.special_requests,
+        contact_phone: '+62812345678', // You might want to get this from user profile
+        emergency_contact: bookingData.emergency_contact || ''
       });
 
       // Backend response: { message: "...", data: { transaction_id, order_id, snap_token, ... } }
-      const transactionData = response.data.data;
+      const transactionData = response.data;
       
       // If Midtrans integration is available, redirect to payment
       if (transactionData.snap_token) {
@@ -150,6 +160,7 @@ const TripDetail = () => {
       alert(errorMessage);
     } finally {
       setBookingLoading(false);
+      setShowBookingModal(false);
     }
   };
 

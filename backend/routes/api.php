@@ -36,6 +36,8 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('transactions/trip/{id}', [TransactionController::class, 'createTripTransaction']);
         Route::post('transactions/travel/{id}', [TransactionController::class, 'createTravelTransaction']);
+        Route::get('transactions/my-bookings', [TransactionController::class, 'getUserBookings']);
+        Route::get('transactions/{id}', [TransactionController::class, 'getTransactionDetail']);
     });
 
     // Payment Routes

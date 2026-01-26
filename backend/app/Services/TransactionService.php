@@ -1,6 +1,6 @@
 <?php
 
-nap\Services;
+namespace App\Services;
 
 use App\Models\Transaction;
 use App\Models\PaketTrip;
@@ -20,7 +20,7 @@ class TransactionService
     /**
      * Create transaction for trip
      */
-    public function createTripTransaction($userId, $tripId)
+    public function createTripTransaction($userId, $tripId, $bookingData = [])
     {
         $trip = PaketTrip::where('id', $tripId)->where('is_active', true)->first();
 
@@ -28,15 +28,23 @@ class TransactionService
             throw new \Exception('Trip not found or inactive');
         }
 
+        $participants = $bookingData['participants'] ?? 1;
+        $totalPrice = $trip->price * $participants;
         $orderId = 'TRIP-' . time() . '-' . Str::random(6);
 
         $transaction = Transaction::create([
             'user_id' => $userId,
             'transaction_type' => 'trip',
             'reference_id' => $tripId,
-            'total_price' => $trip->price,
+            'total_price' => $totalPrice,
             'payment_status' => 'pending',
             'midtrans_order_id' => $orderId,
+            // Booking details
+            'participants' => $participants,
+            'departure_date' => $bookingData['departure_date'] ?? null,
+            'special_requests' => $bookingData['special_requests'] ?? null,
+            'contact_phone' => $bookingData['contact_phone'] ?? null,
+            'emergency_contact' => $bookingData['emergency_contact'] ?? null,
         ]);
 
         return $this->createPayment($transaction, $trip);
@@ -45,7 +53,7 @@ class TransactionService
     /**
      * Create transaction for travel
      */
-    public function createTravelTransaction($userId, $travelId)
+    public function createTravelTransaction($userId, $travelId, $bookingData = [])
     {
         $travel = Travel::where('id', $travelId)->where('is_active', true)->first();
 
@@ -53,15 +61,24 @@ class TransactionService
             throw new \Exception('Travel not found or inactive');
         }
 
+        $passengers = $bookingData['passengers'] ?? 1;
+        $totalPrice = $travel->price_per_person * $passengers;
         $orderId = 'TRAVEL-' . time() . '-' . Str::random(6);
 
         $transaction = Transaction::create([
             'user_id' => $userId,
             'transaction_type' => 'travel',
             'reference_id' => $travelId,
-            'total_price' => $travel->price_per_person,
+            'total_price' => $totalPrice,
             'payment_status' => 'pending',
             'midtrans_order_id' => $orderId,
+            // Booking details
+            'passengers' => $passengers,
+            'departure_date' => $bookingData['departure_date'] ?? null,
+            'special_requests' => $bookingData['special_requests'] ?? null,
+            'contact_phone' => $bookingData['contact_phone'] ?? null,
+            'pickup_location' => $bookingData['pickup_location'] ?? null,
+            'destination_address' => $bookingData['destination_address'] ?? null,
         ]);
 
         return $this->createPayment($transaction, $travel);
@@ -132,5 +149,86 @@ class TransactionService
         ]);
 
         return $transaction;
+    }
+
+    /**
+     * Get user's bookings/transactions
+     */
+    public function getUserBookings($userId)
+    {
+        $transactions = Transaction::where('user_id', $userId)
+            ->with(['user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return $transactions->map(function ($transaction) {
+            $item = null;
+            
+            if ($transaction->transaction_type === 'trip') {
+                $item = PaketTrip::find($transaction->reference_id);
+            } else if ($transaction->transaction_type === 'travel') {
+                $item = Travel::find($transaction->reference_id);
+            }
+
+            return [
+                'id' => $transaction->id,
+                'order_id' => $transaction->midtrans_order_id,
+                'transaction_type' => $transaction->transaction_type,
+                'total_price' => $transaction->total_price,
+                'payment_status' => $transaction->payment_status,
+                'created_at' => $transaction->created_at,
+                'updated_at' => $transaction->updated_at,
+                'item' => $item,
+                // Add booking details if they exist in transaction
+                'participants' => $transaction->participants ?? null,
+                'passengers' => $transaction->passengers ?? null,
+                'departure_date' => $transaction->departure_date ?? null,
+                'special_requests' => $transaction->special_requests ?? null,
+                'pickup_location' => $transaction->pickup_location ?? null,
+                'destination_address' => $transaction->destination_address ?? null,
+            ];
+        });
+    }
+
+    /**
+     * Get specific transaction detail for user
+     */
+    public function getTransactionDetail($userId, $transactionId)
+    {
+        $transaction = Transaction::where('id', $transactionId)
+            ->where('user_id', $userId)
+            ->with(['user'])
+            ->first();
+
+        if (!$transaction) {
+            throw new \Exception('Transaction not found or access denied');
+        }
+
+        $item = null;
+        
+        if ($transaction->transaction_type === 'trip') {
+            $item = PaketTrip::find($transaction->reference_id);
+        } else if ($transaction->transaction_type === 'travel') {
+            $item = Travel::find($transaction->reference_id);
+        }
+
+        return [
+            'id' => $transaction->id,
+            'order_id' => $transaction->midtrans_order_id,
+            'transaction_type' => $transaction->transaction_type,
+            'total_price' => $transaction->total_price,
+            'payment_status' => $transaction->payment_status,
+            'created_at' => $transaction->created_at,
+            'updated_at' => $transaction->updated_at,
+            'item' => $item,
+            'user' => $transaction->user,
+            // Add booking details if they exist in transaction
+            'participants' => $transaction->participants ?? null,
+            'passengers' => $transaction->passengers ?? null,
+            'departure_date' => $transaction->departure_date ?? null,
+            'special_requests' => $transaction->special_requests ?? null,
+            'pickup_location' => $transaction->pickup_location ?? null,
+            'destination_address' => $transaction->destination_address ?? null,
+        ];
     }
 }
