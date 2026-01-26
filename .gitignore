@@ -4,6 +4,8 @@
 
 # Environment Variables (CRITICAL - Never commit these!)
 .env
+.env.*
+!.env.example
 .env.local
 .env.development.local
 .env.test.local
@@ -11,10 +13,26 @@
 .env.backup
 .env.example.local
 
-# Backend specific
+# Backend specific environment files
 backend/.env
+backend/.env.*
+!backend/.env.example
 backend/.env.backup
 backend/.env.production
+backend/.env.local
+backend/.env.development.local
+backend/.env.test.local
+backend/.env.production.local
+
+# Frontend specific environment files
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/.env.backup
 backend/storage/*.key
 backend/storage/logs/*.log
 backend/vendor/
