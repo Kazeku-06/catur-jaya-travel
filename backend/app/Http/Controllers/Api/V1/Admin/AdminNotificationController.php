@@ -19,10 +19,15 @@ class AdminNotificationController extends Controller
 
     public function __construct(NotificationService $notificationService)
     {
-        $this->middleware(['auth:sanctum', 'is_admin']);
         $this->notificationService = $notificationService;
     }
 
+    /**
+     * Get all notifications for admin
+     *
+     * @summary Get admin notifications
+     * @description Retrieve all notifications for the authenticated admin user, ordered by newest first
+     */
     /**
      * Get all notifications for admin
      *
@@ -40,19 +45,7 @@ class AdminNotificationController extends Controller
                 $perPage = 100;
             }
             
-            // Check if table exists first
-            if (!\Schema::hasTable('notifications')) {
-                return response()->json([
-                    'message' => 'Notifications table does not exist',
-                    'error' => 'Please run migrations: php artisan migrate'
-                ], 500);
-            }
-            
-            // Simple direct query without service
-            $notifications = \DB::table('notifications')
-                ->where('user_id', $adminId)
-                ->orderBy('created_at', 'desc')
-                ->paginate($perPage);
+            $notifications = $this->notificationService->getNotificationsForAdmin($adminId, $perPage);
             
             return response()->json([
                 'message' => 'Notifications retrieved successfully',
@@ -67,22 +60,12 @@ class AdminNotificationController extends Controller
                 ]
             ]);
         } catch (\Exception $e) {
-            \Log::error('Notification index error', [
-                'user_id' => Auth::id(),
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
-            ]);
-            
             return response()->json([
                 'message' => 'Failed to retrieve notifications',
                 'error' => $e->getMessage(),
-                'debug' => [
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                    'user_id' => Auth::id(),
-                    'table_exists' => \Schema::hasTable('notifications')
-                ]
+                'trace' => $e->getTraceAsString(), // DEBUG
+                'file' => $e->getFile(), // DEBUG
+                'line' => $e->getLine() // DEBUG
             ], 500);
         }
     }
@@ -97,12 +80,7 @@ class AdminNotificationController extends Controller
     {
         try {
             $adminId = Auth::id();
-            
-            // Simple direct query without service
-            $count = \DB::table('notifications')
-                ->where('user_id', $adminId)
-                ->where('is_read', false)
-                ->count();
+            $count = $this->notificationService->getUnreadCountForAdmin($adminId);
             
             return response()->json([
                 'message' => 'Unread count retrieved successfully',
@@ -111,21 +89,12 @@ class AdminNotificationController extends Controller
                 ]
             ]);
         } catch (\Exception $e) {
-            \Log::error('Notification unread count error', [
-                'user_id' => Auth::id(),
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
-            ]);
-            
             return response()->json([
                 'message' => 'Failed to retrieve unread count',
                 'error' => $e->getMessage(),
-                'debug' => [
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                    'user_id' => Auth::id()
-                ]
+                'trace' => $e->getTraceAsString(), // DEBUG
+                'file' => $e->getFile(), // DEBUG
+                'line' => $e->getLine() // DEBUG
             ], 500);
         }
     }
