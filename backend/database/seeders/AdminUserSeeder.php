@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class AdminUserSeeder extends Seeder
 {
@@ -12,12 +14,14 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\User::create([
-            'id' => \Illuminate\Support\Str::uuid(),
-            'name' => 'Admin',
-            'email' => 'admin@travel.com',
-            'password' => \Illuminate\Support\Facades\Hash::make('password123'),
-            'role' => 'admin',
-        ]);
+        // Use firstOrCreate to avoid duplicate entry errors
+        User::firstOrCreate(
+            ['email' => 'admin@travel.com'],
+            [
+                'name' => 'Admin',
+                'password' => Hash::make('password123'),
+                'role' => 'admin',
+            ]
+        );
     }
 }
