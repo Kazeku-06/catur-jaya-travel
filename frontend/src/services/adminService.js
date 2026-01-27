@@ -4,8 +4,8 @@ export const adminService = {
   // Trip Management (JSON Only)
   trips: {
     // Get all trips (admin)
-    getAll: async () => {
-      const response = await api.get('/admin/trips');
+    getAll: async (params = {}) => {
+      const response = await api.get('/admin/trips', { params });
       return response.data;
     },
 
@@ -37,8 +37,8 @@ export const adminService = {
   // Travel Management (JSON Only)
   travels: {
     // Get all travels (admin)
-    getAll: async () => {
-      const response = await api.get('/admin/travels');
+    getAll: async (params = {}) => {
+      const response = await api.get('/admin/travels', { params });
       return response.data;
     },
 

@@ -1,14 +1,12 @@
-import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { logout } from '../../utils/auth';
 import Button from '../ui/Button';
-// import NotificationBell from '../notifications/NotificationBell';
 
 const AdminLayout = ({ children }) => {
   const location = useLocation();
-  const navigate = useNavigate();
   const [userData] = useLocalStorage('user_data', null);
 
   const handleLogout = () => {
@@ -76,7 +74,8 @@ const AdminLayout = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
-      <div className="w-64 bg-white shadow-lg">
+      <div className="w-64 bg-white shadow-lg flex flex-col relative border-r border-gray-200">
+        {/* Logo Section */}
         <div className="p-6">
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
@@ -89,7 +88,8 @@ const AdminLayout = ({ children }) => {
           </Link>
         </div>
 
-        <nav className="px-4 pb-4">
+        {/* Navigation Section */}
+        <nav className="px-4 flex-1">
           <ul className="space-y-2">
             {sidebarItems.map((item) => (
               <li key={item.name}>
@@ -109,7 +109,7 @@ const AdminLayout = ({ children }) => {
           </ul>
         </nav>
 
-        {/* User Info & Logout */}
+        {/* User Info & Logout (Ditaruh Paling Bawah) */}
         <div className="absolute bottom-0 left-0 right-0 w-64 p-4 border-t border-gray-200 bg-white">
           <div className="flex items-center space-x-3 mb-3">
             <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center">
@@ -122,7 +122,7 @@ const AdminLayout = ({ children }) => {
                 {userData?.name || 'Admin'}
               </p>
               <p className="text-xs text-gray-500 truncate">
-                {userData?.email || 'admin@example.com'}
+                {userData?.email || 'admin@travel.com'}
               </p>
             </div>
           </div>
@@ -166,17 +166,6 @@ const AdminLayout = ({ children }) => {
               </div>
               
               <div className="flex items-center space-x-4">
-                {/* Notification Bell - Temporarily disabled for debugging */}
-                {/* <NotificationBell /> */}
-                
-                {/* Temporary logout button for debugging */}
-                <button
-                  onClick={handleLogout}
-                  className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
-                >
-                  Logout (Debug)
-                </button>
-                
                 <div className="text-right">
                   <p className="text-sm font-medium text-gray-900">
                     {new Date().toLocaleDateString('id-ID', {
@@ -197,13 +186,6 @@ const AdminLayout = ({ children }) => {
 
         {/* Page Content */}
         <main className="flex-1 p-6">
-          {/* Debug info in development */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="mb-4 p-2 bg-yellow-100 border border-yellow-300 rounded text-xs">
-              <strong>Debug:</strong> User: {userData?.name} | Role: {userData?.role} | Token: {localStorage.getItem('auth_token') ? 'Present' : 'Missing'}
-            </div>
-          )}
-          
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

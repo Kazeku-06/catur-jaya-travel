@@ -4,6 +4,7 @@ import AdminLayout from '../components/Layout/AdminLayout';
 import Button from '../components/ui/Button';
 import Alert from '../components/ui/Alert';
 import Image from '../components/ui/Image';
+import Pagination from '../components/ui/Pagination';
 import TripForm from '../components/admin/TripForm';
 import TravelForm from '../components/admin/TravelForm';
 import { adminService } from '../services/adminService';
@@ -17,6 +18,25 @@ const AdminDashboard = () => {
   const [travels, setTravels] = useState([]);
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState({ show: false, type: '', message: '' });
+  
+  // Pagination states
+  const [tripsPagination, setTripsPagination] = useState({
+    current_page: 1,
+    last_page: 1,
+    total: 0,
+    from: 0,
+    to: 0,
+    per_page: 5
+  });
+  
+  const [travelsPagination, setTravelsPagination] = useState({
+    current_page: 1,
+    last_page: 1,
+    total: 0,
+    from: 0,
+    to: 0,
+    per_page: 5
+  });
 
   const showAlert = (type, message) => {
     setAlert({ show: true, type, message });
@@ -24,11 +44,12 @@ const AdminDashboard = () => {
   };
 
   // Load data
-  const loadTrips = async () => {
+  const loadTrips = async (page = 1) => {
     try {
       setLoading(true);
-      const response = await adminService.trips.getAll();
+      const response = await adminService.trips.getAll({ page, per_page: 5 });
       setTrips(response.data || []);
+      setTripsPagination(response.pagination || {});
       showAlert('success', 'Data trips berhasil dimuat');
     } catch (error) {
       console.error('Error loading trips:', error);
@@ -45,11 +66,12 @@ const AdminDashboard = () => {
     }
   };
 
-  const loadTravels = async () => {
+  const loadTravels = async (page = 1) => {
     try {
       setLoading(true);
-      const response = await adminService.travels.getAll();
+      const response = await adminService.travels.getAll({ page, per_page: 5 });
       setTravels(response.data || []);
+      setTravelsPagination(response.pagination || {});
       showAlert('success', 'Data travels berhasil dimuat');
     } catch (error) {
       console.error('Error loading travels:', error);
@@ -73,6 +95,15 @@ const AdminDashboard = () => {
       loadTravels();
     }
   }, [activeTab]);
+
+  // Handle pagination
+  const handlePageChange = (page) => {
+    if (activeTab === 'trips') {
+      loadTrips(page);
+    } else if (activeTab === 'travels') {
+      loadTravels(page);
+    }
+  };
 
   // Handle form success
   const handleFormSuccess = (data) => {
@@ -272,12 +303,7 @@ const AdminDashboard = () => {
                   <h2 className="text-xl font-semibold text-gray-900">
                     {activeTab === 'trips' ? 'Daftar Trips' : 'Daftar Travels'}
                   </h2>
-                  <Button
-                    onClick={() => setShowForm(true)}
-                    className="bg-primary-600 hover:bg-primary-700"
-                  >
-                    Tambah {activeTab === 'trips' ? 'Trip' : 'Travel'}
-                  </Button>
+                  
                 </div>
 
                 {/* Data Table */}
@@ -400,6 +426,21 @@ const AdminDashboard = () => {
                         )}
                       </tbody>
                     </table>
+
+                    {/* Pagination */}
+                    {((activeTab === 'trips' && trips.length > 0) || 
+                      (activeTab === 'travels' && travels.length > 0)) && (
+                      <div className="px-6 py-4 border-t border-gray-200">
+                        <Pagination
+                          currentPage={activeTab === 'trips' ? tripsPagination.current_page : travelsPagination.current_page}
+                          totalPages={activeTab === 'trips' ? tripsPagination.last_page : travelsPagination.last_page}
+                          onPageChange={handlePageChange}
+                          from={activeTab === 'trips' ? tripsPagination.from : travelsPagination.from}
+                          to={activeTab === 'trips' ? tripsPagination.to : travelsPagination.to}
+                          total={activeTab === 'trips' ? tripsPagination.total : travelsPagination.total}
+                        />
+                      </div>
+                    )}
 
                     {((activeTab === 'trips' && trips.length === 0) || 
                       (activeTab === 'travels' && travels.length === 0)) && (

@@ -14,6 +14,14 @@ class AdminTransactionController extends Controller
     public function index(Request $request)
     {
         try {
+            $perPage = $request->get('per_page', 5); // Default 5 items per page
+            $page = $request->get('page', 1);
+            
+            // Validate per_page parameter
+            if ($perPage > 50) {
+                $perPage = 50; // Max 50 items per page
+            }
+
             $query = Transaction::with(['user', 'payments']);
 
             // Filter by payment status if provided
@@ -35,11 +43,20 @@ class AdminTransactionController extends Controller
                 $query->whereDate('created_at', '<=', $request->end_date);
             }
 
-            $transactions = $query->orderBy('created_at', 'desc')->paginate(20);
+            $transactions = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
             return response()->json([
                 'message' => 'Transactions retrieved successfully',
-                'data' => $transactions
+                'data' => $transactions->items(),
+                'pagination' => [
+                    'current_page' => $transactions->currentPage(),
+                    'per_page' => $transactions->perPage(),
+                    'total' => $transactions->total(),
+                    'last_page' => $transactions->lastPage(),
+                    'from' => $transactions->firstItem(),
+                    'to' => $transactions->lastItem(),
+                    'has_more_pages' => $transactions->hasMorePages(),
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json([

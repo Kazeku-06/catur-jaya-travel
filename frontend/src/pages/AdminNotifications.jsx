@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import AdminLayout from '../components/Layout/AdminLayout';
+import Pagination from '../components/ui/Pagination';
 import { useNotifications } from '../hooks/useNotifications';
 import NotificationItem from '../components/notifications/NotificationItem';
 
@@ -16,10 +18,32 @@ const AdminNotifications = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [filter, setFilter] = useState('all'); // all, unread, read
   const [typeFilter, setTypeFilter] = useState('all'); // all, order_created, payment_paid, payment_failed
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    last_page: 1,
+    total: 0,
+    from: 0,
+    to: 0,
+    per_page: 5
+  });
 
   useEffect(() => {
-    fetchNotifications(1, 20);
-  }, [fetchNotifications]);
+    loadNotifications(1);
+  }, []);
+
+  const loadNotifications = async (page = 1) => {
+    try {
+      const response = await fetchNotifications(page, 5);
+      setPagination(response.pagination || {});
+      setCurrentPage(page);
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+    }
+  };
+
+  const handlePageChange = (page) => {
+    loadNotifications(page);
+  };
 
   const handleMarkAllAsRead = async () => {
     try {
@@ -60,8 +84,9 @@ const AdminNotifications = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <AdminLayout>
+      <div className="bg-gray-50 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -211,21 +236,23 @@ const AdminNotifications = () => {
             </div>
           )}
 
-          {/* Load More Button */}
-          {filteredNotifications.length > 0 && (
-            <div className="p-4 border-t border-gray-200 text-center">
-              <button
-                onClick={handleLoadMore}
-                disabled={loading}
-                className="bg-gray-100 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
-              >
-                {loading ? 'Memuat...' : 'Muat Lebih Banyak'}
-              </button>
+          {/* Pagination */}
+          {filteredNotifications.length > 0 && pagination.last_page > 1 && (
+            <div className="p-4 border-t border-gray-200">
+              <Pagination
+                currentPage={pagination.current_page}
+                totalPages={pagination.last_page}
+                onPageChange={handlePageChange}
+                from={pagination.from}
+                to={pagination.to}
+                total={pagination.total}
+              />
             </div>
           )}
         </div>
       </div>
     </div>
+    </AdminLayout>
   );
 };
 

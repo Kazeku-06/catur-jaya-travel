@@ -14,20 +14,16 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Check if we're on a page with dark hero section
   const isDarkHeroPage = location.pathname === '/';
 
-  // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu when route changes
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location]);
@@ -46,9 +42,7 @@ const Header = () => {
   ];
 
   const isActive = (path) => {
-    if (path === '/') {
-      return location.pathname === '/';
-    }
+    if (path === '/') return location.pathname === '/';
     return location.pathname.startsWith(path);
   };
 
@@ -57,8 +51,6 @@ const Header = () => {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
           ? 'bg-white/95 backdrop-blur-md shadow-lg' 
-          : isDarkHeroPage 
-          ? 'bg-white shadow-md' // Diubah agar tidak transparan di halaman utama
           : 'bg-white shadow-md'
       }`}
       initial={{ y: -100 }}
@@ -75,9 +67,7 @@ const Header = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
-            <span className={`text-xl lg:text-2xl font-bold ${
-              isScrolled ? 'text-gray-900' : isDarkHeroPage ? 'text-gray-900' : 'text-gray-900'
-            }`}>
+            <span className="text-xl lg:text-2xl font-bold text-gray-900">
               Catur Jaya Mandiri
             </span>
           </Link>
@@ -89,13 +79,7 @@ const Header = () => {
                 key={item.name}
                 to={item.href}
                 className={`font-medium transition-colors duration-200 ${
-                  isActive(item.href)
-                    ? 'text-primary-600'
-                    : isScrolled
-                    ? 'text-gray-700 hover:text-primary-600'
-                    : isDarkHeroPage
-                    ? 'text-gray-700 hover:text-primary-600' // Diubah dari text-white agar terlihat
-                    : 'text-gray-700 hover:text-primary-600'
+                  isActive(item.href) ? 'text-primary-600' : 'text-gray-700 hover:text-primary-600'
                 }`}
               >
                 {item.name}
@@ -103,97 +87,118 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* Desktop Auth Buttons */}
+          {/* Desktop Auth & Profile Dropdown */}
           <div className="hidden lg:flex items-center space-x-4">
-            {authToken ? (
-              <div className="relative">
-                <button
-                  onClick={() => setShowProfileMenu(!showProfileMenu)}
-                  className="flex items-center space-x-2 text-gray-700 hover:text-primary-600 transition-colors duration-200"
-                >
-                  <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">
-                      {userData?.name?.charAt(0)?.toUpperCase() || 'U'}
-                    </span>
-                  </div>
-                  <span className={isScrolled ? 'text-gray-700' : isDarkHeroPage ? 'text-gray-700' : 'text-gray-700'}>
-                    {userData?.name || 'User'}
+            <div className="relative">
+              <button
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                className="flex items-center space-x-2 text-gray-700 hover:text-primary-600 transition-colors duration-200"
+              >
+                <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-medium">
+                    {authToken ? (userData?.name?.charAt(0)?.toUpperCase() || 'U') : '?'}
                   </span>
-                  <svg className={`w-4 h-4 ${isScrolled ? 'text-gray-700' : isDarkHeroPage ? 'text-gray-700' : 'text-gray-700'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
+                </div>
+                <span className="text-gray-700 font-medium">
+                  {authToken ? (userData?.name || 'User') : 'Menu'}
+                </span>
+                <svg className={`w-4 h-4 transition-transform duration-200 ${showProfileMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
 
-                {/* Profile Dropdown */}
-                <AnimatePresence>
-                  {showProfileMenu && (
-                    <motion.div
-                      className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2"
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <Link
-                        to="/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setShowProfileMenu(false)}
-                      >
-                        Profil Saya
-                      </Link>
-                      <Link
-                        to="/my-bookings"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setShowProfileMenu(false)}
-                      >
-                        Riwayat Booking
-                      </Link>
-                      {userData?.role === 'admin' && (
-                        <Link
-                          to="/admin"
-                          className="block px-4 py-2 text-sm text-primary-600 hover:bg-primary-50 font-medium"
-                          onClick={() => setShowProfileMenu(false)}
+              <AnimatePresence>
+                {showProfileMenu && (
+                  <motion.div
+                    className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {/* Header Dropdown */}
+                    <div className="bg-[#0095f6] p-4 flex items-center space-x-3">
+                      <div className="w-12 h-12 bg-gray-300 rounded-full border-2 border-white/50 flex items-center justify-center overflow-hidden">
+                        <svg className="w-8 h-8 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                        </svg>
+                      </div>
+                      <div className="overflow-hidden">
+                        <h4 className="text-white font-bold leading-tight truncate">
+                          {!authToken ? "Anonymus" : (userData?.name || "User")}
+                        </h4>
+                        <p className="text-blue-100 text-[10px] font-bold uppercase tracking-widest">
+                          {!authToken 
+                            ? "Guest" 
+                            : userData?.role === 'admin' 
+                              ? "ADMIN" 
+                              : "CUSTOMER"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Menu Items Dinamis Berdasarkan Role */}
+                    <div className="bg-white">
+                      {authToken && userData?.role === 'admin' ? (
+                        /* MENU KHUSUS ADMIN */
+                        <Link to="/admin" onClick={() => setShowProfileMenu(false)} className="flex items-center space-x-4 px-5 py-4 text-primary-600 hover:bg-primary-50 border-b border-gray-100 transition-colors">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <span className="font-bold">Admin Dashboard</span>
+                        </Link>
+                      ) : (
+                        /* MENU CUSTOMER / GUEST */
+                        <>
+                          <Link to="/" onClick={() => setShowProfileMenu(false)} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
+                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                            <span className="font-medium">Home</span>
+                          </Link>
+                          <Link to="/my-bookings" onClick={() => setShowProfileMenu(false)} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
+                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            <span className="font-medium">Bookings</span>
+                          </Link>
+                          <Link to="/contact" onClick={() => setShowProfileMenu(false)} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
+                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                            <span className="font-medium">Contact</span>
+                          </Link>
+                          <Link to="/about" onClick={() => setShowProfileMenu(false)} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
+                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <span className="font-medium">About us</span>
+                          </Link>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Tombol Footer Dinamis */}
+                    <div className="p-4 bg-gray-50/50">
+                      {authToken ? (
+                        <button
+                          onClick={handleLogout}
+                          className="w-full bg-[#0095f6] hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center space-x-2"
                         >
-                          🔧 Admin Dashboard
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                          <span>Keluar</span>
+                        </button>
+                      ) : (
+                        <Link to="/login" onClick={() => setShowProfileMenu(false)}>
+                          <button className="w-full bg-[#0095f6] hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl transition-all shadow-md active:scale-95">
+                            Masuk
+                          </button>
                         </Link>
                       )}
-                      <hr className="my-2" />
-                      <button
-                        onClick={handleLogout}
-                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                      >
-                        Keluar
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            ) : (
-              <>
-                <Link to="/login">
-                  <Button variant="ghost" size="md" className="text-gray-700">
-                    Masuk
-                  </Button>
-                </Link>
-                <Link to="/register">
-                  <Button variant="primary" size="md">
-                    Daftar
-                  </Button>
-                </Link>
-              </>
-            )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className={`lg:hidden p-2 rounded-lg transition-colors duration-200 ${
-              isScrolled 
-                ? 'text-gray-700 hover:bg-gray-100' 
-                : isDarkHeroPage
-                ? 'text-gray-700 hover:bg-gray-100' // Diubah agar icon hamburger kelihatan
-                : 'text-gray-700 hover:bg-gray-100'
-            }`}
+            className="lg:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors duration-200"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {isMenuOpen ? (
@@ -209,81 +214,31 @@ const Header = () => {
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
-              className="lg:hidden bg-white border-t border-gray-200"
+              className="lg:hidden bg-white border-t border-gray-200 shadow-xl overflow-hidden"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
             >
-              <div className="py-4 space-y-2">
+              <div className="py-4 space-y-2 px-4">
                 {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={`block px-4 py-2 text-base font-medium rounded-lg transition-colors duration-200 ${
-                      isActive(item.href)
-                        ? 'text-primary-600 bg-primary-50'
-                        : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    {item.name}
-                  </Link>
+                  <Link key={item.name} to={item.href} className={`block px-4 py-2 text-base font-medium rounded-lg transition-colors ${isActive(item.href) ? 'text-primary-600 bg-primary-50' : 'text-gray-700 hover:bg-gray-50'}`}>{item.name}</Link>
                 ))}
-                
-                <hr className="my-4" />
-                
-                {authToken ? (
-                  <div className="px-4 space-y-2">
-                    <div className="flex items-center space-x-3 py-2">
-                      <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center">
-                        <span className="text-white font-medium">
-                          {userData?.name?.charAt(0)?.toUpperCase() || 'U'}
-                        </span>
-                      </div>
+                <hr className="my-4 border-gray-100" />
+                {!authToken ? (
+                  <Link to="/login" className="block"><Button variant="primary" fullWidth>Masuk</Button></Link>
+                ) : (
+                  <div className="space-y-4 p-2 bg-gray-50 rounded-xl">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold">{userData?.name?.charAt(0)}</div>
                       <div>
-                        <p className="font-medium text-gray-900">{userData?.name || 'User'}</p>
-                        <p className="text-sm text-gray-500">{userData?.email}</p>
+                        <p className="font-bold text-gray-900">{userData?.name}</p>
+                        <p className="text-[10px] text-blue-500 font-black uppercase tracking-widest">{userData?.role}</p>
                       </div>
                     </div>
-                    <Link
-                      to="/profile"
-                      className="block py-2 text-gray-700 hover:text-primary-600"
-                    >
-                      Profil Saya
-                    </Link>
-                    <Link
-                      to="/my-bookings"
-                      className="block py-2 text-gray-700 hover:text-primary-600"
-                    >
-                      Riwayat Booking
-                    </Link>
                     {userData?.role === 'admin' && (
-                      <Link
-                        to="/admin"
-                        className="block py-2 text-primary-600 hover:text-primary-700 font-medium"
-                      >
-                        🔧 Admin Dashboard
-                      </Link>
+                      <Link to="/admin" className="block w-full text-center bg-blue-100 text-blue-700 py-2 rounded-lg font-bold">Dashboard Admin</Link>
                     )}
-                    <button
-                      onClick={handleLogout}
-                      className="block w-full text-left py-2 text-red-600 hover:text-red-700"
-                    >
-                      Keluar
-                    </button>
-                  </div>
-                ) : (
-                  <div className="px-4 space-y-2">
-                    <Link to="/login" className="block">
-                      <Button variant="outline" size="md" fullWidth>
-                        Masuk
-                      </Button>
-                    </Link>
-                    <Link to="/register" className="block">
-                      <Button variant="primary" size="md" fullWidth>
-                        Daftar
-                      </Button>
-                    </Link>
+                    <button onClick={handleLogout} className="w-full bg-red-500 text-white font-bold py-2 rounded-lg">Keluar</button>
                   </div>
                 )}
               </div>

@@ -20,17 +20,38 @@ class AdminPaketTripController extends Controller
     /**
      * Display a listing of all trips (Admin only)
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $trips = PaketTrip::all()->map(function ($trip) {
+            $perPage = $request->get('per_page', 5); // Default 5 items per page
+            $page = $request->get('page', 1);
+            
+            // Validate per_page parameter
+            if ($perPage > 50) {
+                $perPage = 50; // Max 50 items per page
+            }
+
+            $trips = PaketTrip::orderBy('created_at', 'desc')
+                ->paginate($perPage);
+
+            // Add image URLs to each trip
+            $trips->getCollection()->transform(function ($trip) {
                 $trip->image_url = $trip->image ? $this->fileUploadService->getImageUrl($trip->image) : null;
                 return $trip;
             });
 
             return response()->json([
                 'message' => 'Trips retrieved successfully',
-                'data' => $trips
+                'data' => $trips->items(),
+                'pagination' => [
+                    'current_page' => $trips->currentPage(),
+                    'per_page' => $trips->perPage(),
+                    'total' => $trips->total(),
+                    'last_page' => $trips->lastPage(),
+                    'from' => $trips->firstItem(),
+                    'to' => $trips->lastItem(),
+                    'has_more_pages' => $trips->hasMorePages(),
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json([

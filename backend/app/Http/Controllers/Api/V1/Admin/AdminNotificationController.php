@@ -38,7 +38,7 @@ class AdminNotificationController extends Controller
     {
         try {
             $adminId = Auth::id();
-            $perPage = $request->get('per_page', 20);
+            $perPage = $request->get('per_page', 5);
             
             // Validate per_page parameter
             if ($perPage > 100) {
@@ -57,6 +57,7 @@ class AdminNotificationController extends Controller
                     'last_page' => $notifications->lastPage(),
                     'from' => $notifications->firstItem(),
                     'to' => $notifications->lastItem(),
+                    'has_more_pages' => $notifications->hasMorePages(),
                 ]
             ]);
         } catch (\Exception $e) {

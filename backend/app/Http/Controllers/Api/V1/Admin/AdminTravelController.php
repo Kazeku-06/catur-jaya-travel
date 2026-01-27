@@ -20,17 +20,38 @@ class AdminTravelController extends Controller
     /**
      * Display a listing of all travels (Admin only)
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $travels = Travel::all()->map(function ($travel) {
+            $perPage = $request->get('per_page', 5); // Default 5 items per page
+            $page = $request->get('page', 1);
+            
+            // Validate per_page parameter
+            if ($perPage > 50) {
+                $perPage = 50; // Max 50 items per page
+            }
+
+            $travels = Travel::orderBy('created_at', 'desc')
+                ->paginate($perPage);
+
+            // Add image URLs to each travel
+            $travels->getCollection()->transform(function ($travel) {
                 $travel->image_url = $travel->image ? $this->fileUploadService->getImageUrl($travel->image) : null;
                 return $travel;
             });
 
             return response()->json([
                 'message' => 'Travels retrieved successfully',
-                'data' => $travels
+                'data' => $travels->items(),
+                'pagination' => [
+                    'current_page' => $travels->currentPage(),
+                    'per_page' => $travels->perPage(),
+                    'total' => $travels->total(),
+                    'last_page' => $travels->lastPage(),
+                    'from' => $travels->firstItem(),
+                    'to' => $travels->lastItem(),
+                    'has_more_pages' => $travels->hasMorePages(),
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json([
