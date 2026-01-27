@@ -6,12 +6,10 @@ import Button from '../components/ui/Button';
 import TripCard from '../components/cards/TripCard';
 import TravelCard from '../components/cards/TravelCard';
 import api, { endpoints } from '../config/api';
-import { formatCurrency, getImageUrl } from '../utils/helpers';
 
 const Home = () => {
   const [featuredTrips, setFeaturedTrips] = useState([]);
   const [featuredTravels, setFeaturedTravels] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchData, setSearchData] = useState({
     destination: '',
     travelDates: ''
@@ -23,8 +21,6 @@ const Home = () => {
 
   const fetchHomeData = async () => {
     try {
-      setLoading(true);
-      
       const [tripsRes, travelsRes] = await Promise.all([
         api.get(endpoints.trips),
         api.get(endpoints.travels),
@@ -35,8 +31,6 @@ const Home = () => {
       
     } catch (error) {
       console.error('Error fetching home data:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -404,7 +398,7 @@ const Home = () => {
                 </Button>
               </Link>
               <Link to="/travels">
-                <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-primary-600">
+                <Button variant="outline" size="lg" className="border-white text-white hover:bg-gray hover:text-primary-600">
                   Lihat Travel
                 </Button>
               </Link>
