@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { getImageUrl } from '../../utils/helpers';
-import { imageDebug } from '../../utils/imageDebug';
 
 const Image = ({ 
   src, 
@@ -9,13 +8,11 @@ const Image = ({
   className = '',
   onError,
   onLoad,
-  debug = false,
   ...props 
 }) => {
   const [imageSrc, setImageSrc] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const [debugInfo, setDebugInfo] = useState(null);
 
   useEffect(() => {
     if (!src) {
@@ -26,17 +23,7 @@ const Image = ({
 
     const processedUrl = getImageUrl(src, fallback);
     setImageSrc(processedUrl);
-
-    if (debug) {
-      imageDebug.logImageInfo(src, processedUrl, '(Image Component)');
-      
-      // Test image accessibility
-      imageDebug.testImageUrl(processedUrl).then(result => {
-        setDebugInfo(result);
-        console.log('🖼️ Image accessibility test:', result);
-      });
-    }
-  }, [src, fallback, debug]);
+  }, [src, fallback]);
 
   const handleLoad = (e) => {
     setIsLoading(false);
@@ -45,13 +32,11 @@ const Image = ({
   };
 
   const handleError = (e) => {
-    console.warn('🖼️ Image failed to load:', imageSrc);
     setIsLoading(false);
     setHasError(true);
     
     // Try fallback if not already using it
     if (imageSrc !== fallback) {
-      console.log('🖼️ Trying fallback image:', fallback);
       setImageSrc(fallback);
       return;
     }
@@ -86,12 +71,6 @@ const Image = ({
             </svg>
             <p className="text-xs">Image not found</p>
           </div>
-        </div>
-      )}
-      
-      {debug && debugInfo && process.env.NODE_ENV === 'development' && (
-        <div className="absolute top-0 right-0 bg-black bg-opacity-75 text-white text-xs p-1 rounded">
-          {debugInfo.accessible ? '✅' : '❌'} {debugInfo.status}
         </div>
       )}
     </div>

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Layout from '../components/layout/Layout';
+import Layout from '../components/Layout/Layout';
 import LoginForm from '../components/forms/LoginForm';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import api, { endpoints } from '../config/api';
@@ -61,7 +61,7 @@ const Login = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
-                <span className="text-2xl font-extrabold text-gray-900 tracking-tight">Catur Jaya Travel</span>
+                <span className="text-2xl font-extrabold text-gray-900 tracking-tight">Catur Jaya Mandiri Travel</span>
               </Link>
             </div>
 
@@ -78,7 +78,6 @@ const Login = () => {
             {/* Form Container */}
             <div className="bg-white rounded-2xl">
               <LoginForm onSubmit={handleLogin} />
-              </div>
             </div>
 
             {/* Footer Links */}

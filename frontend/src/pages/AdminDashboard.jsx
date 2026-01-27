@@ -318,7 +318,6 @@ const AdminDashboard = () => {
                                   alt={trip.title}
                                   className="h-12 w-12 object-cover rounded-lg"
                                   fallback="/images/trip-placeholder.jpg"
-                                  debug={process.env.NODE_ENV === 'development'}
                                 />
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
@@ -362,7 +361,6 @@ const AdminDashboard = () => {
                                   alt={`${travel.origin} - ${travel.destination}`}
                                   className="h-12 w-12 object-cover rounded-lg"
                                   fallback="/images/travel-placeholder.jpg"
-                                  debug={process.env.NODE_ENV === 'development'}
                                 />
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">

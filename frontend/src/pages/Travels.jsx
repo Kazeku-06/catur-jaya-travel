@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Layout from '../components/layout/Layout';
+import Layout from '../components/Layout/Layout';
 import TravelCard from '../components/cards/TravelCard';
 import SearchForm from '../components/forms/SearchForm';
 import Pagination from '../components/navigation/Pagination';

@@ -23,9 +23,6 @@ const MyBookings = lazy(() => import('./pages/MyBookings'));
 const TripBooking = lazy(() => import('./pages/TripBooking'));
 const TravelBooking = lazy(() => import('./pages/TravelBooking'));
 const Payment = lazy(() => import('./pages/Payment'));
-const AdminTest = lazy(() => import('./pages/AdminTest'));
-const AdminDashboardSimple = lazy(() => import('./pages/AdminDashboardSimple'));
-const LoginDebug = lazy(() => import('./pages/LoginDebug'));
 
 // Loading component
 const LoadingSpinner = () => (

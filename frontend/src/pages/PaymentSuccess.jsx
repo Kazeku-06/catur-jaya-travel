@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Layout from '../components/layout/Layout';
+import Layout from '../components/Layout/Layout';
 import Button from '../components/ui/Button';
 import { formatCurrency, formatDate } from '../utils/helpers';
 import api, { endpoints } from '../config/api';

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Layout from '../components/layout/Layout';
+import Layout from '../components/Layout/Layout';
 import Button from '../components/ui/Button';
 import TripCard from '../components/cards/TripCard';
 import TravelCard from '../components/cards/TravelCard';

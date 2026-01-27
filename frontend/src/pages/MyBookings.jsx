@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Layout from '../components/layout/Layout';
+import Layout from '../components/Layout/Layout';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import { useLocalStorage } from '../hooks/useLocalStorage';
