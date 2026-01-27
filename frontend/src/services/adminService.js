@@ -1,11 +1,15 @@
 import api from '../config/api';
 
+console.log('📦 AdminService loaded');
+
 export const adminService = {
   // Trip Management (JSON Only)
   trips: {
     // Get all trips (admin)
     getAll: async () => {
+      console.log('🔄 AdminService.trips.getAll called');
       const response = await api.get('/admin/trips');
+      console.log('✅ AdminService.trips.getAll response:', response);
       return response.data;
     },
 
@@ -38,7 +42,9 @@ export const adminService = {
   travels: {
     // Get all travels (admin)
     getAll: async () => {
+      console.log('🔄 AdminService.travels.getAll called');
       const response = await api.get('/admin/travels');
+      console.log('✅ AdminService.travels.getAll response:', response);
       return response.data;
     },
 

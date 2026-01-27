@@ -26,14 +26,25 @@ const AdminDashboard = () => {
   // Load data
   const loadTrips = async () => {
     try {
-      console.log('Loading trips...');
+      console.log('🔄 Loading trips...');
+      console.log('Current auth token:', localStorage.getItem('auth_token')?.substring(0, 20) + '...');
+      console.log('Current user data:', JSON.parse(localStorage.getItem('user_data') || 'null'));
+      
       setLoading(true);
       const response = await adminService.trips.getAll();
-      console.log('Trips loaded successfully:', response);
+      console.log('✅ Trips loaded successfully:', response);
       setTrips(response.data || []);
     } catch (error) {
-      console.error('Error loading trips:', error);
+      console.error('❌ Error loading trips:', error);
       console.error('Error response:', error.response);
+      console.error('Error config:', error.config);
+      
+      if (error.response?.status === 401) {
+        console.warn('🚨 401 error when loading trips - this will trigger logout');
+      } else if (error.response?.status === 403) {
+        console.warn('🚨 403 error when loading trips - role authorization failed');
+      }
+      
       showAlert('error', 'Gagal memuat data trips');
     } finally {
       setLoading(false);
@@ -42,14 +53,25 @@ const AdminDashboard = () => {
 
   const loadTravels = async () => {
     try {
-      console.log('Loading travels...');
+      console.log('🔄 Loading travels...');
+      console.log('Current auth token:', localStorage.getItem('auth_token')?.substring(0, 20) + '...');
+      console.log('Current user data:', JSON.parse(localStorage.getItem('user_data') || 'null'));
+      
       setLoading(true);
       const response = await adminService.travels.getAll();
-      console.log('Travels loaded successfully:', response);
+      console.log('✅ Travels loaded successfully:', response);
       setTravels(response.data || []);
     } catch (error) {
-      console.error('Error loading travels:', error);
+      console.error('❌ Error loading travels:', error);
       console.error('Error response:', error.response);
+      console.error('Error config:', error.config);
+      
+      if (error.response?.status === 401) {
+        console.warn('🚨 401 error when loading travels - this will trigger logout');
+      } else if (error.response?.status === 403) {
+        console.warn('🚨 403 error when loading travels - role authorization failed');
+      }
+      
       showAlert('error', 'Gagal memuat data travels');
     } finally {
       setLoading(false);
@@ -57,10 +79,15 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
-    console.log('ActiveTab changed to:', activeTab);
+    console.log('🔄 AdminDashboard useEffect - ActiveTab changed to:', activeTab);
+    console.log('Current localStorage auth_token:', localStorage.getItem('auth_token')?.substring(0, 20) + '...');
+    console.log('Current localStorage user_data:', JSON.parse(localStorage.getItem('user_data') || 'null'));
+    
     if (activeTab === 'trips') {
+      console.log('📋 Loading trips data...');
       loadTrips();
     } else if (activeTab === 'travels') {
+      console.log('🚗 Loading travels data...');
       loadTravels();
     }
   }, [activeTab]);

@@ -16,12 +16,21 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('auth_token');
+    console.log('🔄 API Request:', {
+      url: config.url,
+      method: config.method,
+      hasToken: !!token,
+      tokenPreview: token ? token.substring(0, 20) + '...' : 'None',
+      headers: config.headers
+    });
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
   (error) => {
+    console.error('❌ API Request Error:', error);
     return Promise.reject(error);
   }
 );
@@ -29,10 +38,30 @@ api.interceptors.request.use(
 // Response interceptor
 api.interceptors.response.use(
   (response) => {
+    console.log('✅ API Response Success:', {
+      url: response.config.url,
+      method: response.config.method,
+      status: response.status,
+      data: response.data
+    });
     return response;
   },
   (error) => {
+    console.error('❌ API Response Error:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      headers: error.response?.headers,
+      message: error.message
+    });
+    
     if (error.response?.status === 401) {
+      console.warn('🚨 401 Unauthorized - Clearing auth data and redirecting to login');
+      console.log('Current auth token:', localStorage.getItem('auth_token')?.substring(0, 20) + '...');
+      console.log('Current user data:', JSON.parse(localStorage.getItem('user_data') || 'null'));
+      
       localStorage.removeItem('auth_token');
       localStorage.removeItem('user_data');
       window.location.href = '/login';
