@@ -8,6 +8,7 @@ import TravelForm from '../components/admin/TravelForm';
 import AuthDebug from '../components/debug/AuthDebug';
 import { adminService } from '../services/adminService';
 import { formatCurrency, getImageUrl } from '../utils/helpers';
+import { tokenDebug } from '../utils/tokenDebug';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('trips');
