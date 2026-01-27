@@ -3,12 +3,14 @@ import { motion } from 'framer-motion';
 import AdminLayout from '../components/Layout/AdminLayout';
 import Button from '../components/ui/Button';
 import Alert from '../components/ui/Alert';
+import Image from '../components/ui/Image';
 import TripForm from '../components/admin/TripForm';
 import TravelForm from '../components/admin/TravelForm';
 import AuthDebug from '../components/debug/AuthDebug';
 import { adminService } from '../services/adminService';
 import { formatCurrency, getImageUrl } from '../utils/helpers';
 import { tokenDebug } from '../utils/tokenDebug';
+import { imageDebug } from '../utils/imageDebug';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('trips');
@@ -365,13 +367,12 @@ const AdminDashboard = () => {
                           trips.map((trip) => (
                             <tr key={trip.id}>
                               <td className="px-6 py-4 whitespace-nowrap">
-                                <img
-                                  src={getImageUrl(trip.image_url || trip.image)}
+                                <Image
+                                  src={trip.image_url || trip.image}
                                   alt={trip.title}
                                   className="h-12 w-12 object-cover rounded-lg"
-                                  onError={(e) => {
-                                    e.target.src = '/images/trip-placeholder.jpg';
-                                  }}
+                                  fallback="/images/trip-placeholder.jpg"
+                                  debug={process.env.NODE_ENV === 'development'}
                                 />
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
@@ -410,13 +411,12 @@ const AdminDashboard = () => {
                           travels.map((travel) => (
                             <tr key={travel.id}>
                               <td className="px-6 py-4 whitespace-nowrap">
-                                <img
-                                  src={getImageUrl(travel.image_url || travel.image)}
+                                <Image
+                                  src={travel.image_url || travel.image}
                                   alt={`${travel.origin} - ${travel.destination}`}
                                   className="h-12 w-12 object-cover rounded-lg"
-                                  onError={(e) => {
-                                    e.target.src = '/images/travel-placeholder.jpg';
-                                  }}
+                                  fallback="/images/travel-placeholder.jpg"
+                                  debug={process.env.NODE_ENV === 'development'}
                                 />
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
