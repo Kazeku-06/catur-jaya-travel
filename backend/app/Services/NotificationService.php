@@ -92,9 +92,17 @@ class NotificationService
      */
     public function getUnreadCountForAdmin(string $adminId): int
     {
-        return Notification::where('user_id', $adminId)
-            ->unread()
-            ->count();
+        try {
+            return Notification::where('user_id', $adminId)
+                ->unread()
+                ->count();
+        } catch (\Exception $e) {
+            Log::error('Failed to get unread count for admin', [
+                'admin_id' => $adminId,
+                'error' => $e->getMessage()
+            ]);
+            return 0;
+        }
     }
 
     /**
@@ -102,9 +110,25 @@ class NotificationService
      */
     public function getNotificationsForAdmin(string $adminId, int $perPage = 20)
     {
-        return Notification::where('user_id', $adminId)
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage);
+        try {
+            return Notification::where('user_id', $adminId)
+                ->orderBy('created_at', 'desc')
+                ->paginate($perPage);
+        } catch (\Exception $e) {
+            Log::error('Failed to get notifications for admin', [
+                'admin_id' => $adminId,
+                'per_page' => $perPage,
+                'error' => $e->getMessage()
+            ]);
+            // Return empty paginator
+            return new \Illuminate\Pagination\LengthAwarePaginator(
+                [],
+                0,
+                $perPage,
+                1,
+                ['path' => request()->url()]
+            );
+        }
     }
 
     /**

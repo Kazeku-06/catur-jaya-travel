@@ -10,6 +10,20 @@ class Notification extends Model
 {
     use HasFactory, HasUuid;
 
+    /**
+     * Indicates if the model's ID is auto-incrementing.
+     *
+     * @var bool
+     */
+    public $incrementing = false;
+
+    /**
+     * The data type of the auto-incrementing ID.
+     *
+     * @var string
+     */
+    protected $keyType = 'string';
+
     // Notification types constants
     const TYPE_ORDER_CREATED = 'order_created';
     const TYPE_PAYMENT_PAID = 'payment_paid';

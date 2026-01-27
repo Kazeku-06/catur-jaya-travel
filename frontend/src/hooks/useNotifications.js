@@ -22,7 +22,11 @@ export const useNotifications = (pollingInterval = 30000) => {
       setError(null);
     } catch (err) {
       console.error('Error fetching unread count:', err);
-      setError(err.message);
+      // Don't set error for polling requests to avoid UI spam
+      if (err.response?.status !== 500) {
+        setError(err.message);
+      }
+      setUnreadCount(0); // Set to 0 on error
     }
   }, [isAdmin]);
 
@@ -38,8 +42,9 @@ export const useNotifications = (pollingInterval = 30000) => {
       return response;
     } catch (err) {
       console.error('Error fetching notifications:', err);
-      setError(err.message);
-      throw err;
+      setError('Failed to load notifications. Please try again later.');
+      setNotifications([]); // Set empty array on error
+      return { data: [], pagination: null };
     } finally {
       setLoading(false);
     }

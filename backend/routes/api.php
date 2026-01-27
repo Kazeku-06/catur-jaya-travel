@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\PaketTripController;
 use App\Http\Controllers\Api\V1\TravelController;
@@ -82,6 +83,27 @@ Route::prefix('v1')->group(function () {
 
         // Admin Notification Management
         Route::prefix('notifications')->group(function () {
+            // Debug endpoint
+            Route::get('/debug', function () {
+                try {
+                    $user = auth()->user();
+                    $notificationCount = \App\Models\Notification::count();
+                    $userNotificationCount = \App\Models\Notification::where('user_id', $user->id)->count();
+                    
+                    return response()->json([
+                        'user' => $user,
+                        'total_notifications' => $notificationCount,
+                        'user_notifications' => $userNotificationCount,
+                        'table_exists' => \Schema::hasTable('notifications')
+                    ]);
+                } catch (\Exception $e) {
+                    return response()->json([
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ], 500);
+                }
+            });
+            
             Route::get('/', [AdminNotificationController::class, 'index']);
             Route::get('/unread-count', [AdminNotificationController::class, 'unreadCount']);
             Route::get('/statistics', [AdminNotificationController::class, 'statistics']);
