@@ -24,7 +24,10 @@ api.interceptors.request.use(
         // If parsing fails, it's likely a raw string, use as is
       }
 
+      console.log('Sending Auth Token:', token); // DEBUG
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      console.log('No Auth Token found in localStorage'); // DEBUG
     }
     return config;
   },
