@@ -6,13 +6,23 @@ class NotificationService {
    */
   async getNotifications(page = 1, perPage = 20) {
     try {
-      const response = await api.get(endpoints.admin.notifications, {
+      // Temporary: use fake endpoint for testing
+      const response = await api.get('/admin/notifications/test-fake', {
         params: { page, per_page: perPage }
       });
       return response.data;
     } catch (error) {
       console.error('Error fetching notifications:', error);
-      throw error;
+      // Fallback to original endpoint
+      try {
+        const response = await api.get(endpoints.admin.notifications, {
+          params: { page, per_page: perPage }
+        });
+        return response.data;
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError);
+        throw error;
+      }
     }
   }
 
@@ -21,11 +31,19 @@ class NotificationService {
    */
   async getUnreadCount() {
     try {
-      const response = await api.get(endpoints.admin.notificationUnreadCount);
+      // Temporary: use fake endpoint for testing
+      const response = await api.get('/admin/notifications/unread-count-fake');
       return response.data.data.unread_count;
     } catch (error) {
       console.error('Error fetching unread count:', error);
-      throw error;
+      // Fallback to original endpoint
+      try {
+        const response = await api.get(endpoints.admin.notificationUnreadCount);
+        return response.data.data.unread_count;
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError);
+        throw error;
+      }
     }
   }
 

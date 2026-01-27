@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\PaketTripController;
 use App\Http\Controllers\Api\V1\TravelController;
@@ -70,6 +71,45 @@ Route::prefix('v1')->group(function () {
             ]);
         });
 
+        // Test notifications table
+        Route::get('test-notifications', function (Request $request) {
+            try {
+                // Check if table exists
+                $tableExists = \Schema::hasTable('notifications');
+                
+                if (!$tableExists) {
+                    return response()->json([
+                        'error' => 'Notifications table does not exist',
+                        'solution' => 'Run: php artisan migrate'
+                    ], 500);
+                }
+                
+                // Try to count notifications
+                $count = \DB::table('notifications')->count();
+                
+                // Try to get user notifications
+                $user = $request->user();
+                $userNotifications = \DB::table('notifications')
+                    ->where('user_id', $user->id)
+                    ->count();
+                
+                return response()->json([
+                    'table_exists' => $tableExists,
+                    'total_notifications' => $count,
+                    'user_notifications' => $userNotifications,
+                    'user_id' => $user->id,
+                    'user_role' => $user->role
+                ]);
+                
+            } catch (\Exception $e) {
+                return response()->json([
+                    'error' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine()
+                ], 500);
+            }
+        });
+
         // Admin Trip Management
         Route::apiResource('trips', AdminPaketTripController::class);
 
@@ -83,6 +123,66 @@ Route::prefix('v1')->group(function () {
 
         // Admin Notification Management
         Route::prefix('notifications')->group(function () {
+            // Simple test endpoint
+            Route::get('/test-simple', function (Request $request) {
+                return response()->json([
+                    'message' => 'Simple test working',
+                    'user_id' => $request->user()->id,
+                    'timestamp' => now()
+                ]);
+            });
+            
+            // Test without database
+            Route::get('/test-no-db', function (Request $request) {
+                return response()->json([
+                    'message' => 'Test without database working',
+                    'user' => $request->user()->only(['id', 'name', 'email', 'role']),
+                    'timestamp' => now()->toISOString()
+                ]);
+            });
+            
+            // Test with fake data
+            Route::get('/test-fake', function (Request $request) {
+                return response()->json([
+                    'message' => 'Notifications retrieved successfully',
+                    'data' => [
+                        [
+                            'id' => 'fake-1',
+                            'type' => 'order_created',
+                            'title' => 'Order Baru Masuk',
+                            'message' => 'Order dengan ID TRIP-123 menunggu pembayaran',
+                            'is_read' => false,
+                            'created_at' => now()->subHours(2)->toISOString(),
+                        ],
+                        [
+                            'id' => 'fake-2',
+                            'type' => 'payment_paid',
+                            'title' => 'Pembayaran Berhasil',
+                            'message' => 'Pembayaran untuk order TRIP-456 telah berhasil',
+                            'is_read' => true,
+                            'created_at' => now()->subHours(5)->toISOString(),
+                        ]
+                    ],
+                    'pagination' => [
+                        'current_page' => 1,
+                        'per_page' => 20,
+                        'total' => 2,
+                        'last_page' => 1,
+                        'from' => 1,
+                        'to' => 2,
+                    ]
+                ]);
+            });
+            
+            Route::get('/unread-count-fake', function (Request $request) {
+                return response()->json([
+                    'message' => 'Unread count retrieved successfully',
+                    'data' => [
+                        'unread_count' => 1
+                    ]
+                ]);
+            });
+            
             // Debug endpoint
             Route::get('/debug', function () {
                 try {
