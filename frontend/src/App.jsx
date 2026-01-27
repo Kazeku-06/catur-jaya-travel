@@ -26,6 +26,8 @@ const Payment = lazy(() => import('./pages/Payment'));
 const Debug = lazy(() => import('./pages/Debug'));
 const Demo = lazy(() => import('./pages/Demo'));
 const AdminTest = lazy(() => import('./pages/AdminTest'));
+const AdminDashboardSimple = lazy(() => import('./pages/AdminDashboardSimple'));
+const LoginDebug = lazy(() => import('./pages/LoginDebug'));
 
 // Loading component
 const LoadingSpinner = () => (
@@ -50,23 +52,11 @@ const AdminRoute = ({ children }) => {
   const [authToken] = useLocalStorage('auth_token', null);
   const [userData] = useLocalStorage('user_data', null);
   
-  console.log('🔐 AdminRoute Check:', {
-    hasToken: !!authToken,
-    tokenPreview: authToken?.substring(0, 20) + '...',
-    userData: userData,
-    userRole: userData?.role
-  });
-  
   if (!authToken) {
-    console.warn('🚨 AdminRoute: No auth token found, redirecting to login');
     return <Navigate to="/login" replace />;
   }
   
   if (!userData || userData.role !== 'admin') {
-    console.warn('🚨 AdminRoute: User is not admin', {
-      userData,
-      role: userData?.role
-    });
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -83,7 +73,6 @@ const AdminRoute = ({ children }) => {
     );
   }
   
-  console.log('✅ AdminRoute: Access granted for admin user');
   return children;
 };
 
@@ -110,6 +99,8 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/demo" element={<Demo />} />
                 <Route path="/admin-test" element={<AdminTest />} />
+                <Route path="/admin-simple" element={<AdminDashboardSimple />} />
+                <Route path="/login-debug" element={<LoginDebug />} />
                 <Route path="/debug" element={<Debug />} />
                 
                 {/* Trips Routes */}

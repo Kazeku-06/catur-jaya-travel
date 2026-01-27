@@ -2,8 +2,9 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { logout } from '../../utils/auth';
 import Button from '../ui/Button';
-import NotificationBell from '../notifications/NotificationBell';
+// import NotificationBell from '../notifications/NotificationBell';
 
 const AdminLayout = ({ children }) => {
   const location = useLocation();
@@ -11,9 +12,8 @@ const AdminLayout = ({ children }) => {
   const [userData] = useLocalStorage('user_data', null);
 
   const handleLogout = () => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_data');
-    navigate('/');
+    console.log('AdminLayout logout clicked');
+    logout();
   };
 
   const sidebarItems = [
@@ -132,14 +132,12 @@ const AdminLayout = ({ children }) => {
                 Ke Website
               </Button>
             </Link>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <button 
               onClick={handleLogout}
-              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              className="px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded border border-red-200 hover:border-red-300 transition-colors"
             >
               Keluar
-            </Button>
+            </button>
           </div>
         </div>
       </div>
@@ -171,6 +169,14 @@ const AdminLayout = ({ children }) => {
                 {/* Notification Bell - Temporarily disabled for debugging */}
                 {/* <NotificationBell /> */}
                 
+                {/* Temporary logout button for debugging */}
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
+                >
+                  Logout (Debug)
+                </button>
+                
                 <div className="text-right">
                   <p className="text-sm font-medium text-gray-900">
                     {new Date().toLocaleDateString('id-ID', {
@@ -191,6 +197,13 @@ const AdminLayout = ({ children }) => {
 
         {/* Page Content */}
         <main className="flex-1 p-6">
+          {/* Debug info in development */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mb-4 p-2 bg-yellow-100 border border-yellow-300 rounded text-xs">
+              <strong>Debug:</strong> User: {userData?.name} | Role: {userData?.role} | Token: {localStorage.getItem('auth_token') ? 'Present' : 'Missing'}
+            </div>
+          )}
+          
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

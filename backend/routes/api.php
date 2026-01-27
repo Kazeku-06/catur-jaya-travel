@@ -57,7 +57,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // Admin Routes (Requires admin role)
-    Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::prefix('admin')->middleware(['auth:sanctum', 'log_sanctum', 'role:admin'])->group(function () {
         
         // Test endpoint for debugging
         Route::get('test-auth', function (Request $request) {

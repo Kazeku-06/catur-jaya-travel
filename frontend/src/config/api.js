@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Create axios instance
 const api = axios.create({
@@ -16,56 +16,45 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('auth_token');
-    console.log('🔄 API Request:', {
-      url: config.url,
-      method: config.method,
-      hasToken: !!token,
-      tokenPreview: token ? token.substring(0, 20) + '...' : 'None',
-      headers: config.headers
-    });
+    console.log('Request interceptor - Token from localStorage:', token ? `${token.substring(0, 20)}...` : 'None');
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('Request interceptor - Authorization header set:', config.headers.Authorization.substring(0, 30) + '...');
+    } else {
+      console.warn('Request interceptor - No token found in localStorage');
     }
+    
+    console.log('Request interceptor - Final config:', {
+      url: config.url,
+      method: config.method,
+      headers: config.headers
+    });
+    
     return config;
   },
   (error) => {
-    console.error('❌ API Request Error:', error);
+    console.error('Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
 
-// Response interceptor
+// Response interceptor - Temporarily disabled for debugging
 api.interceptors.response.use(
   (response) => {
-    console.log('✅ API Response Success:', {
-      url: response.config.url,
-      method: response.config.method,
-      status: response.status,
-      data: response.data
-    });
     return response;
   },
   (error) => {
-    console.error('❌ API Response Error:', {
-      url: error.config?.url,
-      method: error.config?.method,
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
-      headers: error.response?.headers,
-      message: error.message
-    });
+    // Log error but don't auto-logout
+    console.error('API Error:', error.response?.status, error.config?.url);
     
-    if (error.response?.status === 401) {
-      console.warn('🚨 401 Unauthorized - Clearing auth data and redirecting to login');
-      console.log('Current auth token:', localStorage.getItem('auth_token')?.substring(0, 20) + '...');
-      console.log('Current user data:', JSON.parse(localStorage.getItem('user_data') || 'null'));
-      
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user_data');
-      window.location.href = '/login';
-    }
+    // Uncomment this when debugging is done:
+    // if (error.response?.status === 401) {
+    //   localStorage.removeItem('auth_token');
+    //   localStorage.removeItem('user_data');
+    //   window.location.href = '/login';
+    // }
+    
     return Promise.reject(error);
   }
 );

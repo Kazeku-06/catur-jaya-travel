@@ -19,12 +19,17 @@ export const useLocalStorage = (key, initialValue) => {
       const valueToStore = value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
       window.localStorage.setItem(key, JSON.stringify(valueToStore));
+      
+      // Dispatch custom event for same-tab detection
+      window.dispatchEvent(new CustomEvent('localStorageChange', {
+        detail: { key, newValue: JSON.stringify(valueToStore) }
+      }));
     } catch (error) {
       console.error(`Error setting localStorage key "${key}":`, error);
     }
   };
 
-  // Listen for changes to this key from other tabs/windows
+  // Listen for changes to this key from other tabs/windows and same tab
   useEffect(() => {
     const handleStorageChange = (e) => {
       if (e.key === key && e.newValue !== null) {
@@ -36,9 +41,46 @@ export const useLocalStorage = (key, initialValue) => {
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, [key]);
+    const handleCustomStorageChange = (e) => {
+      if (e.detail.key === key) {
+        try {
+          const newValue = e.detail.newValue;
+          if (newValue === null) {
+            setStoredValue(initialValue);
+          } else {
+            setStoredValue(JSON.parse(newValue));
+          }
+        } catch (error) {
+          console.error(`Error parsing localStorage key "${key}":`, error);
+        }
+      }
+    };
 
-  return [storedValue, setValue];
+    // Listen for storage events from other tabs
+    window.addEventListener('storage', handleStorageChange);
+    // Listen for custom events from same tab
+    window.addEventListener('localStorageChange', handleCustomStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('localStorageChange', handleCustomStorageChange);
+    };
+  }, [key, initialValue]);
+
+  // Method to remove item from localStorage
+  const removeValue = () => {
+    try {
+      window.localStorage.removeItem(key);
+      setStoredValue(initialValue);
+      
+      // Dispatch custom event for same-tab detection
+      window.dispatchEvent(new CustomEvent('localStorageChange', {
+        detail: { key, newValue: null }
+      }));
+    } catch (error) {
+      console.error(`Error removing localStorage key "${key}":`, error);
+    }
+  };
+
+  return [storedValue, setValue, removeValue];
 };

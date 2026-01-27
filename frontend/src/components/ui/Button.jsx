@@ -42,7 +42,11 @@ const Button = forwardRef(({
   ].filter(Boolean).join(' ');
 
   const handleClick = (e) => {
-    if (disabled || loading) return;
+    console.log('Button clicked:', { disabled, loading, onClick: !!onClick });
+    if (disabled || loading) {
+      console.log('Button click ignored - disabled or loading');
+      return;
+    }
     onClick?.(e);
   };
 

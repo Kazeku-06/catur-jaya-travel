@@ -1,34 +1,13 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 
 const AuthDebug = () => {
   const [authToken] = useLocalStorage('auth_token', null);
   const [userData] = useLocalStorage('user_data', null);
 
-  useEffect(() => {
-    console.log('🔍 AuthDebug Component Mounted');
-    console.log('Auth Token:', authToken ? `${authToken.substring(0, 20)}...` : 'None');
-    console.log('User Data:', userData);
-    console.log('User Role:', userData?.role);
-    console.log('User Email:', userData?.email);
-    
-    // Check if token is expired (basic check)
-    if (authToken) {
-      try {
-        const tokenParts = authToken.split('.');
-        if (tokenParts.length === 3) {
-          const payload = JSON.parse(atob(tokenParts[1]));
-          const now = Math.floor(Date.now() / 1000);
-          console.log('Token payload:', payload);
-          console.log('Token expires at:', new Date(payload.exp * 1000));
-          console.log('Current time:', new Date());
-          console.log('Token expired:', payload.exp < now);
-        }
-      } catch (e) {
-        console.log('Token is not JWT format or cannot be decoded');
-      }
-    }
-  }, [authToken, userData]);
+  // Also check localStorage directly
+  const directToken = localStorage.getItem('auth_token');
+  const directUserData = localStorage.getItem('user_data');
 
   if (process.env.NODE_ENV !== 'development') {
     return null;
@@ -39,10 +18,16 @@ const AuthDebug = () => {
       <h4 className="font-bold mb-2">Auth Debug</h4>
       <div className="space-y-1">
         <div>
-          <strong>Token:</strong> {authToken ? `${authToken.substring(0, 20)}...` : 'None'}
+          <strong>Hook Token:</strong> {authToken ? `${authToken.substring(0, 20)}...` : 'None'}
         </div>
         <div>
-          <strong>User:</strong> {userData?.name || 'None'}
+          <strong>Direct Token:</strong> {directToken ? `${directToken.substring(0, 20)}...` : 'None'}
+        </div>
+        <div>
+          <strong>Hook User:</strong> {userData?.name || 'None'}
+        </div>
+        <div>
+          <strong>Direct User:</strong> {directUserData ? JSON.parse(directUserData)?.name : 'None'}
         </div>
         <div>
           <strong>Role:</strong> {userData?.role || 'None'}
@@ -50,10 +35,8 @@ const AuthDebug = () => {
         <div>
           <strong>Email:</strong> {userData?.email || 'None'}
         </div>
-        <div className="mt-2 pt-2 border-t border-gray-600">
-          <div className="text-xs text-gray-300">
-            Check browser console for detailed logs
-          </div>
+        <div>
+          <strong>Token Match:</strong> {authToken === directToken ? 'Yes' : 'No'}
         </div>
       </div>
     </div>
