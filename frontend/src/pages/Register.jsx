@@ -62,7 +62,7 @@ const Register = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-secondary-600/90 to-secondary-800/90 z-10"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-600/90 to-primary-800/90 z-10"></div>
           <img
             src="/images/register-bg.jpg"
             alt="Adventure Indonesia"
@@ -82,7 +82,7 @@ const Register = () => {
               </motion.h3>
               
               <motion.p
-                className="text-xl text-secondary-100 mb-8 max-w-md"
+                className="text-xl text-primary-100 mb-8 max-w-md"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
@@ -96,25 +96,25 @@ const Register = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
               >
-                <div className="flex items-center text-secondary-100">
+                <div className="flex items-center text-primary-100">
                   <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   <span>Booking mudah dan cepat</span>
                 </div>
-                <div className="flex items-center text-secondary-100">
+                <div className="flex items-center text-primary-100">
                   <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   <span>Harga terjangkau dan transparan</span>
                 </div>
-                <div className="flex items-center text-secondary-100">
+                <div className="flex items-center text-primary-100">
                   <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   <span>Pelayanan 24/7</span>
                 </div>
-                <div className="flex items-center text-secondary-100">
+                <div className="flex items-center text-primary-100">
                   <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
