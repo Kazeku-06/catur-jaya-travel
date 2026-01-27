@@ -2,12 +2,6 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 
-console.log('🔧 API Configuration:', {
-  VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
-  API_BASE_URL: API_BASE_URL,
-  NODE_ENV: import.meta.env.NODE_ENV
-});
-
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -22,32 +16,20 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     let token = localStorage.getItem('auth_token');
-    console.log('Request interceptor - Token from localStorage:', token ? `${token.substring(0, 20)}...` : 'None');
-
+    
     if (token) {
       try {
         const parsed = JSON.parse(token);
         if (parsed) token = parsed;
       } catch (e) {
-        // Token likely not a JSON string, usage as-is
+        // Token likely not a JSON string, use as-is
       }
-
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('Request interceptor - Authorization header set:', config.headers.Authorization.substring(0, 30) + '...');
-    } else {
-      console.warn('Request interceptor - No token found in localStorage');
     }
-
-    console.log('Request interceptor - Final config:', {
-      url: config.url,
-      method: config.method,
-      headers: config.headers
-    });
-
+    
     return config;
   },
   (error) => {
-    console.error('Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
@@ -58,16 +40,11 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    // Log error but don't auto-logout
-    console.error('API Error:', error.response?.status, error.config?.url);
-
-    // Uncomment this when debugging is done:
-    // if (error.response?.status === 401) {
-    //   localStorage.removeItem('auth_token');
-    //   localStorage.removeItem('user_data');
-    //   window.location.href = '/login';
-    // }
-
+    if (error.response?.status === 401) {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_data');
+      window.location.href = '/login';
+    }
     return Promise.reject(error);
   }
 );

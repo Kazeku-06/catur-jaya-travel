@@ -74,7 +74,7 @@ const Header = () => {
             <span className={`text-xl lg:text-2xl font-bold ${
               isScrolled ? 'text-gray-900' : 'text-white'
             }`}>
-              Catur Jaya Travel
+              Catur Jaya Mandiri
             </span>
           </Link>
 

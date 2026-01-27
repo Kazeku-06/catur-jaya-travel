@@ -23,11 +23,6 @@ const MyBookings = lazy(() => import('./pages/MyBookings'));
 const TripBooking = lazy(() => import('./pages/TripBooking'));
 const TravelBooking = lazy(() => import('./pages/TravelBooking'));
 const Payment = lazy(() => import('./pages/Payment'));
-const Debug = lazy(() => import('./pages/Debug'));
-const Demo = lazy(() => import('./pages/Demo'));
-const ImageTest = lazy(() => import('./pages/ImageTest'));
-const TokenTest = lazy(() => import('./pages/TokenTest'));
-const AdminDebug = lazy(() => import('./pages/AdminDebug'));
 const AdminTest = lazy(() => import('./pages/AdminTest'));
 const AdminDashboardSimple = lazy(() => import('./pages/AdminDashboardSimple'));
 const LoginDebug = lazy(() => import('./pages/LoginDebug'));
@@ -100,14 +95,6 @@ function App() {
               <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<Home />} />
-                <Route path="/demo" element={<Demo />} />
-                <Route path="/admin-test" element={<AdminTest />} />
-                <Route path="/admin-debug" element={<AdminDebug />} />
-                <Route path="/token-test" element={<TokenTest />} />
-                <Route path="/image-test" element={<ImageTest />} />
-                <Route path="/admin-simple" element={<AdminDashboardSimple />} />
-                <Route path="/login-debug" element={<LoginDebug />} />
-                <Route path="/debug" element={<Debug />} />
                 
                 {/* Trips Routes */}
                 <Route path="/trips" element={<Trips />} />

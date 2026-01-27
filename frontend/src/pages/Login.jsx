@@ -3,7 +3,6 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../components/layout/Layout';
 import LoginForm from '../components/forms/LoginForm';
-import AdminLoginHelper from '../components/AdminLoginHelper';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import api, { endpoints } from '../config/api';
 
@@ -79,9 +78,6 @@ const Login = () => {
             {/* Form Container */}
             <div className="bg-white rounded-2xl">
               <LoginForm onSubmit={handleLogin} />
-              
-              <div className="mt-8 pt-6 border-t border-gray-100">
-                <AdminLoginHelper onAdminLogin={handleLogin} />
               </div>
             </div>
 
