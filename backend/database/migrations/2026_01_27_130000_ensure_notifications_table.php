@@ -16,7 +16,7 @@ return new class extends Migration
             Schema::create('notifications', function (Blueprint $table) {
                 $table->uuid('id')->primary();
                 $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
-                $table->string('type'); // order_created, payment_paid, payment_failed
+                 $table->string('type'); // order_created, payment_paid, payment_failed
                 $table->string('title');
                 $table->text('message');
                 $table->boolean('is_read')->default(false);
