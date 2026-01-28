@@ -18,6 +18,7 @@ const PaymentFailed = lazy(() => import('./pages/PaymentFailed'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminTrips = lazy(() => import('./pages/AdminTrips'));
 const AdminTravels = lazy(() => import('./pages/AdminTravels'));
+const AdminTransactions = lazy(() => import('./pages/AdminTransactions'));
 const AdminNotifications = lazy(() => import('./pages/AdminNotifications'));
 const MyBookings = lazy(() => import('./pages/MyBookings'));
 const TripBooking = lazy(() => import('./pages/TripBooking'));
@@ -182,6 +183,14 @@ function App() {
                   element={
                     <AdminRoute>
                       <AdminTravels />
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/transactions" 
+                  element={
+                    <AdminRoute>
+                      <AdminTransactions />
                     </AdminRoute>
                   } 
                 />
