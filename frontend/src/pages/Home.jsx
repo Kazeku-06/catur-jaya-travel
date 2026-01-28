@@ -90,20 +90,7 @@ const Home = () => {
           >
             {/* Company Logo/Name */}
             <div className="mb-8">
-              <div className="flex items-center justify-center mb-4">
-                <div className="w-12 h-12 bg-primary-600 rounded-lg flex items-center justify-center mr-3">
-                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <div className="text-left">
-                  <h3 className="text-xl font-bold">Catur Jaya Mandiri</h3>
-                  <p className="text-sm text-gray-300">Travel Services</p>
-                </div>
-              </div>
             </div>
-
             <p className="text-lg text-gray-300 mb-2">Welcome To Catur Jaya Mandiri Travel Services</p>
             
             <h1 className="text-4xl md:text-6xl font-bold mb-8 leading-tight">

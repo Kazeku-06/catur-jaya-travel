@@ -14,7 +14,7 @@ class AdminTransactionController extends Controller
     public function index(Request $request)
     {
         try {
-            $perPage = $request->get('per_page', 5); // Default 5 items per page
+            $perPage = $request->get('per_page', 10); // Default 10 items per page
             $page = $request->get('page', 1);
             
             // Validate per_page parameter
@@ -41,6 +41,18 @@ class AdminTransactionController extends Controller
 
             if ($request->has('end_date')) {
                 $query->whereDate('created_at', '<=', $request->end_date);
+            }
+
+            // Search functionality
+            if ($request->has('search') && !empty($request->search)) {
+                $searchTerm = $request->search;
+                $query->where(function($q) use ($searchTerm) {
+                    $q->where('midtrans_order_id', 'like', '%' . $searchTerm . '%')
+                      ->orWhereHas('user', function($userQuery) use ($searchTerm) {
+                          $userQuery->where('name', 'like', '%' . $searchTerm . '%')
+                                   ->orWhere('email', 'like', '%' . $searchTerm . '%');
+                      });
+                });
             }
 
             $transactions = $query->orderBy('created_at', 'desc')->paginate($perPage);
