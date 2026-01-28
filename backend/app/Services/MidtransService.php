@@ -28,6 +28,19 @@ class MidtransService
             ],
             'customer_details' => $customerDetails,
             'item_details' => $itemDetails,
+            'enabled_payments' => [
+                'bri_va',      // Bank BRI Virtual Account
+                'bca_va',      // Bank BCA Virtual Account
+                'qris'         // QRIS
+            ],
+            'custom_expiry' => [
+                'order_time' => date('Y-m-d H:i:s O'),
+                'expiry_duration' => 60,
+                'unit' => 'minute'
+            ],
+            'callbacks' => [
+                'finish' => config('app.url') . '/payment/success'
+            ]
         ];
 
         try {

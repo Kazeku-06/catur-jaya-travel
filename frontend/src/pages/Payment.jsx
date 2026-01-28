@@ -306,27 +306,30 @@ const Payment = () => {
 
                   {/* Payment Methods Info */}
                   <div className="mt-6 pt-6 border-t border-gray-200">
-                    <p className="text-sm text-gray-600 mb-3">Metode Pembayaran:</p>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div className="text-center">
-                        <div className="bg-gray-100 rounded p-2 mb-1">
-                          <span className="text-xs font-medium">BANK</span>
+                    <p className="text-sm text-gray-600 mb-3">Metode Pembayaran Tersedia:</p>
+                    <div className="space-y-2">
+                      <div className="flex items-center p-2 bg-gray-50 rounded-lg">
+                        <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center mr-3">
+                          <span className="text-white text-xs font-bold">BRI</span>
                         </div>
-                        <span className="text-xs text-gray-600">Transfer</span>
+                        <span className="text-sm font-medium text-gray-900">Bank BRI Virtual Account</span>
                       </div>
-                      <div className="text-center">
-                        <div className="bg-gray-100 rounded p-2 mb-1">
-                          <span className="text-xs font-medium">CARD</span>
+                      <div className="flex items-center p-2 bg-gray-50 rounded-lg">
+                        <div className="w-8 h-8 bg-blue-800 rounded flex items-center justify-center mr-3">
+                          <span className="text-white text-xs font-bold">BCA</span>
                         </div>
-                        <span className="text-xs text-gray-600">Kartu</span>
+                        <span className="text-sm font-medium text-gray-900">Bank BCA Virtual Account</span>
                       </div>
-                      <div className="text-center">
-                        <div className="bg-gray-100 rounded p-2 mb-1">
-                          <span className="text-xs font-medium">E-WALLET</span>
+                      <div className="flex items-center p-2 bg-gray-50 rounded-lg">
+                        <div className="w-8 h-8 bg-gradient-to-r from-red-500 to-blue-500 rounded flex items-center justify-center mr-3">
+                          <span className="text-white text-xs font-bold">QR</span>
                         </div>
-                        <span className="text-xs text-gray-600">Digital</span>
+                        <span className="text-sm font-medium text-gray-900">QRIS (Scan QR Code)</span>
                       </div>
                     </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      * Metode pembayaran dikonfigurasi melalui Midtrans
+                    </p>
                   </div>
 
                   {/* Security Info */}
