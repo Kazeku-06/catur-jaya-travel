@@ -7,6 +7,7 @@ import Badge from '../components/ui/Badge';
 import Breadcrumb from '../components/navigation/Breadcrumb';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { transactionService } from '../services/transactionService';
+import { paymentService } from '../services/paymentService';
 import api, { endpoints } from '../config/api';
 import { formatCurrency, formatDate, getImageUrl } from '../utils/helpers';
 
@@ -31,7 +32,10 @@ const Payment = () => {
     }
     
     fetchTransactionDetail();
-    fetchMidtransConfig();
+    // Pre-load Midtrans script (optional, but good for UX)
+    import('../services/paymentService').then(({ paymentService }) => {
+      paymentService.loadMidtransScript().catch(console.error);
+    });
   }, [transactionId, authToken, navigate]);
 
   const fetchTransactionDetail = async () => {
@@ -60,24 +64,7 @@ const Payment = () => {
     }
   };
 
-  const fetchMidtransConfig = async () => {
-    try {
-      const response = await api.get(endpoints.midtransConfig);
-      setMidtransConfig(response.data);
-      
-      // Load Midtrans Snap script
-      const script = document.createElement('script');
-      script.src = response.data.is_production 
-        ? 'https://app.midtrans.com/snap/snap.js'
-        : 'https://app.sandbox.midtrans.com/snap/snap.js';
-      script.setAttribute('data-client-key', response.data.client_key);
-      document.head.appendChild(script);
-    } catch (error) {
-      console.error('Error fetching Midtrans config:', error);
-    }
-  };
-
-  const handlePayment = () => {
+  const handlePayment = async () => {
     if (!transaction?.snap_token) {
       alert('Token pembayaran tidak tersedia. Silakan coba lagi.');
       return;
@@ -85,27 +72,36 @@ const Payment = () => {
 
     setPaymentLoading(true);
 
-    window.snap.pay(transaction.snap_token, {
-      onSuccess: function(result) {
-        console.log('Payment success:', result);
-        setPaymentLoading(false);
-        navigate(`/payment/success?transaction_id=${transactionId}`);
-      },
-      onPending: function(result) {
-        console.log('Payment pending:', result);
-        setPaymentLoading(false);
-        navigate(`/payment/pending?transaction_id=${transactionId}`);
-      },
-      onError: function(result) {
-        console.log('Payment error:', result);
-        setPaymentLoading(false);
-        navigate(`/payment/failed?transaction_id=${transactionId}`);
-      },
-      onClose: function() {
-        console.log('Payment popup closed');
-        setPaymentLoading(false);
-      }
-    });
+    try {
+      // Import paymentService dynamically or use the imported one
+      const { paymentService } = await import('../services/paymentService');
+      
+      console.log('[Payment] Starting payment with token:', transaction.snap_token);
+      
+      await paymentService.processPayment(transaction.snap_token)
+        .then(({ status, result }) => {
+          console.log(`[Payment] Result: ${status}`, result);
+          if (status === 'success') {
+            navigate(`/payment/success?transaction_id=${transactionId}`);
+          } else if (status === 'pending') {
+            navigate(`/payment/pending?transaction_id=${transactionId}`);
+          }
+        })
+        .catch((error) => {
+          console.error('[Payment] Error:', error);
+          if (error.status === 'closed') {
+             // Just stop loading
+          } else {
+             navigate(`/payment/failed?transaction_id=${transactionId}`);
+          }
+        });
+        
+    } catch (err) {
+      console.error('Payment processing failed:', err);
+      // Fallback alert?
+    } finally {
+      setPaymentLoading(false);
+    }
   };
 
   const breadcrumbItems = [
