@@ -106,7 +106,7 @@ const AdminDashboard = () => {
   };
 
   // Handle form success
-  const handleFormSuccess = (data) => {
+  const handleFormSuccess = () => {
     showAlert('success', `${activeTab === 'trips' ? 'Trip' : 'Travel'} berhasil disimpan`);
     setShowForm(false);
     setEditItem(null);
@@ -146,62 +146,62 @@ const AdminDashboard = () => {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 lg:space-y-6 min-w-0">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
           <motion.div
-            className="bg-white rounded-lg shadow p-6"
+            className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 lg:p-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
             <div className="flex items-center">
               <div className="p-2 bg-blue-100 rounded-lg">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 lg:w-6 lg:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 </svg>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Trips</p>
-                <p className="text-2xl font-bold text-gray-900">{trips.length}</p>
+              <div className="ml-2 lg:ml-4 min-w-0 flex-1">
+                <p className="text-xs lg:text-sm font-medium text-gray-600 truncate">Total Trips</p>
+                <p className="text-lg lg:text-2xl font-bold text-gray-900">{trips.length}</p>
               </div>
             </div>
           </motion.div>
 
           <motion.div
-            className="bg-white rounded-lg shadow p-6"
+            className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 lg:p-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
             <div className="flex items-center">
               <div className="p-2 bg-green-100 rounded-lg">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 lg:w-6 lg:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                 </svg>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Travels</p>
-                <p className="text-2xl font-bold text-gray-900">{travels.length}</p>
+              <div className="ml-2 lg:ml-4 min-w-0 flex-1">
+                <p className="text-xs lg:text-sm font-medium text-gray-600 truncate">Total Travels</p>
+                <p className="text-lg lg:text-2xl font-bold text-gray-900">{travels.length}</p>
               </div>
             </div>
           </motion.div>
 
           <motion.div
-            className="bg-white rounded-lg shadow p-6"
+            className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 lg:p-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
             <div className="flex items-center">
               <div className="p-2 bg-yellow-100 rounded-lg">
-                <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 lg:w-6 lg:h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Trips Aktif</p>
-                <p className="text-2xl font-bold text-gray-900">
+              <div className="ml-2 lg:ml-4 min-w-0 flex-1">
+                <p className="text-xs lg:text-sm font-medium text-gray-600 truncate">Trips Aktif</p>
+                <p className="text-lg lg:text-2xl font-bold text-gray-900">
                   {trips.filter(trip => trip.is_active).length}
                 </p>
               </div>
@@ -209,20 +209,20 @@ const AdminDashboard = () => {
           </motion.div>
 
           <motion.div
-            className="bg-white rounded-lg shadow p-6"
+            className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 lg:p-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
             <div className="flex items-center">
               <div className="p-2 bg-purple-100 rounded-lg">
-                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 lg:w-6 lg:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Travels Aktif</p>
-                <p className="text-2xl font-bold text-gray-900">
+              <div className="ml-2 lg:ml-4 min-w-0 flex-1">
+                <p className="text-xs lg:text-sm font-medium text-gray-600 truncate">Travels Aktif</p>
+                <p className="text-lg lg:text-2xl font-bold text-gray-900">
                   {travels.filter(travel => travel.is_active).length}
                 </p>
               </div>
@@ -231,9 +231,9 @@ const AdminDashboard = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="bg-white rounded-lg shadow mb-6">
+        <div className="bg-white rounded-lg shadow mb-4 lg:mb-6">
           <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8 px-6">
+            <nav className="-mb-px flex space-x-4 lg:space-x-8 px-4 lg:px-6">
               <button
                 onClick={() => setActiveTab('trips')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
@@ -273,7 +273,7 @@ const AdminDashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <div className="p-6">
+          <div className="p-4 lg:p-6">
             {showForm ? (
               <div>
                 {activeTab === 'trips' ? (
@@ -299,138 +299,324 @@ const AdminDashboard = () => {
             ) : (
               <div>
                 {/* Add Button */}
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-3 sm:space-y-0">
+                  <h2 className="text-lg lg:text-xl font-semibold text-gray-900">
                     {activeTab === 'trips' ? 'Daftar Trips' : 'Daftar Travels'}
                   </h2>
                   
+                  {/* Desktop Add Button */}
+                  <button
+                    onClick={() => setShowForm(true)}
+                    className="hidden sm:inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Tambah {activeTab === 'trips' ? 'Trip' : 'Travel'}
+                  </button>
                 </div>
 
                 {/* Data Table */}
                 {loading ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
-                    <p className="text-gray-500 mt-2">Memuat data...</p>
+                  <div className="text-center py-12 lg:py-16">
+                    <div className="max-w-sm mx-auto">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+                      <p className="text-gray-500 text-sm">Memuat data {activeTab === 'trips' ? 'trips' : 'travels'}...</p>
+                    </div>
                   </div>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Gambar
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            {activeTab === 'trips' ? 'Nama Trip' : 'Rute'}
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Harga
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Status
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Aksi
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {activeTab === 'trips' ? (
-                          trips.map((trip) => (
-                            <tr key={trip.id}>
-                              <td className="px-6 py-4 whitespace-nowrap">
+                  <>
+                    {/* Desktop Table View */}
+                    <div className="hidden lg:block overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Gambar
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {activeTab === 'trips' ? 'Nama Trip' : 'Rute'}
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Harga
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Status
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Aksi
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {activeTab === 'trips' ? (
+                            trips.map((trip) => (
+                              <tr key={trip.id}>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <Image
+                                    src={trip.image_url || trip.image}
+                                    alt={trip.title}
+                                    className="h-12 w-12 object-cover rounded-lg"
+                                    fallback="/images/trip-placeholder.jpg"
+                                  />
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="text-sm font-medium text-gray-900">{trip.title}</div>
+                                  <div className="text-sm text-gray-500">{trip.location}</div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                  {formatCurrency(trip.price)}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                    trip.is_active 
+                                      ? 'bg-green-100 text-green-800' 
+                                      : 'bg-red-100 text-red-800'
+                                  }`}>
+                                    {trip.is_active ? 'Aktif' : 'Nonaktif'}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                  <button
+                                    onClick={() => handleEdit(trip)}
+                                    className="text-primary-600 hover:text-primary-900"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    onClick={() => handleDelete(trip.id, 'trip')}
+                                    className="text-red-600 hover:text-red-900"
+                                  >
+                                    Hapus
+                                  </button>
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            travels.map((travel) => (
+                              <tr key={travel.id}>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <Image
+                                    src={travel.image_url || travel.image}
+                                    alt={`${travel.origin} - ${travel.destination}`}
+                                    className="h-12 w-12 object-cover rounded-lg"
+                                    fallback="/images/travel-placeholder.jpg"
+                                  />
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {travel.origin} - {travel.destination}
+                                  </div>
+                                  <div className="text-sm text-gray-500">{travel.vehicle_type}</div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                  {formatCurrency(travel.price_per_person)}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                    travel.is_active 
+                                      ? 'bg-green-100 text-green-800' 
+                                      : 'bg-red-100 text-red-800'
+                                  }`}>
+                                    {travel.is_active ? 'Aktif' : 'Nonaktif'}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                  <button
+                                    onClick={() => handleEdit(travel)}
+                                    className="text-primary-600 hover:text-primary-900"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    onClick={() => handleDelete(travel.id, 'travel')}
+                                    className="text-red-600 hover:text-red-900"
+                                  >
+                                    Hapus
+                                  </button>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="lg:hidden space-y-4">
+                      {activeTab === 'trips' ? (
+                        trips.map((trip) => (
+                          <div key={trip.id} className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                            <div className="flex">
+                              {/* Image Section */}
+                              <div className="flex-shrink-0 w-24 h-24 relative">
                                 <Image
                                   src={trip.image_url || trip.image}
                                   alt={trip.title}
-                                  className="h-12 w-12 object-cover rounded-lg"
+                                  className="w-full h-full object-cover"
                                   fallback="/images/trip-placeholder.jpg"
                                 />
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm font-medium text-gray-900">{trip.title}</div>
-                                <div className="text-sm text-gray-500">{trip.location}</div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {formatCurrency(trip.price)}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                  trip.is_active 
-                                    ? 'bg-green-100 text-green-800' 
-                                    : 'bg-red-100 text-red-800'
-                                }`}>
-                                  {trip.is_active ? 'Aktif' : 'Nonaktif'}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                <button
-                                  onClick={() => handleEdit(trip)}
-                                  className="text-primary-600 hover:text-primary-900"
-                                >
-                                  Edit
-                                </button>
-                                <button
-                                  onClick={() => handleDelete(trip.id, 'trip')}
-                                  className="text-red-600 hover:text-red-900"
-                                >
-                                  Hapus
-                                </button>
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          travels.map((travel) => (
-                            <tr key={travel.id}>
-                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="absolute top-1 right-1">
+                                  <span className={`inline-flex px-1.5 py-0.5 text-xs font-semibold rounded-full ${
+                                    trip.is_active 
+                                      ? 'bg-green-100 text-green-800' 
+                                      : 'bg-red-100 text-red-800'
+                                  }`}>
+                                    {trip.is_active ? 'Aktif' : 'Nonaktif'}
+                                  </span>
+                                </div>
+                              </div>
+                              
+                              {/* Content Section */}
+                              <div className="flex-1 p-3 min-w-0">
+                                <div className="flex flex-col h-full">
+                                  {/* Title and Location */}
+                                  <div className="flex-1">
+                                    <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 mb-1">
+                                      {trip.title}
+                                    </h3>
+                                    <div className="space-y-1">
+                                      <p className="text-xs text-gray-600 flex items-center">
+                                        <svg className="w-3 h-3 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        </svg>
+                                        <span className="truncate">{trip.location}</span>
+                                      </p>
+                                      <p className="text-xs text-gray-600 flex items-center">
+                                        <svg className="w-3 h-3 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span>{trip.duration}</span>
+                                      </p>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Price and Actions */}
+                                  <div className="flex items-end justify-between mt-2">
+                                    <div>
+                                      <p className="text-sm font-bold text-primary-600">
+                                        {formatCurrency(trip.price)}
+                                      </p>
+                                      <p className="text-xs text-gray-500">
+                                        Kuota: {trip.quota} orang
+                                      </p>
+                                    </div>
+                                    
+                                    <div className="flex space-x-1">
+                                      <button
+                                        onClick={() => handleEdit(trip)}
+                                        className="px-2 py-1 text-xs font-medium text-primary-600 bg-primary-50 rounded hover:bg-primary-100 transition-colors"
+                                      >
+                                        Edit
+                                      </button>
+                                      <button
+                                        onClick={() => handleDelete(trip.id, 'trip')}
+                                        className="px-2 py-1 text-xs font-medium text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors"
+                                      >
+                                        Hapus
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        travels.map((travel) => (
+                          <div key={travel.id} className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                            <div className="flex">
+                              {/* Image Section */}
+                              <div className="flex-shrink-0 w-24 h-24 relative">
                                 <Image
                                   src={travel.image_url || travel.image}
                                   alt={`${travel.origin} - ${travel.destination}`}
-                                  className="h-12 w-12 object-cover rounded-lg"
+                                  className="w-full h-full object-cover"
                                   fallback="/images/travel-placeholder.jpg"
                                 />
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm font-medium text-gray-900">
-                                  {travel.origin} - {travel.destination}
+                                <div className="absolute top-1 right-1">
+                                  <span className={`inline-flex px-1.5 py-0.5 text-xs font-semibold rounded-full ${
+                                    travel.is_active 
+                                      ? 'bg-green-100 text-green-800' 
+                                      : 'bg-red-100 text-red-800'
+                                  }`}>
+                                    {travel.is_active ? 'Aktif' : 'Nonaktif'}
+                                  </span>
                                 </div>
-                                <div className="text-sm text-gray-500">{travel.vehicle_type}</div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {formatCurrency(travel.price_per_person)}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                  travel.is_active 
-                                    ? 'bg-green-100 text-green-800' 
-                                    : 'bg-red-100 text-red-800'
-                                }`}>
-                                  {travel.is_active ? 'Aktif' : 'Nonaktif'}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                <button
-                                  onClick={() => handleEdit(travel)}
-                                  className="text-primary-600 hover:text-primary-900"
-                                >
-                                  Edit
-                                </button>
-                                <button
-                                  onClick={() => handleDelete(travel.id, 'travel')}
-                                  className="text-red-600 hover:text-red-900"
-                                >
-                                  Hapus
-                                </button>
-                              </td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
+                              </div>
+                              
+                              {/* Content Section */}
+                              <div className="flex-1 p-3 min-w-0">
+                                <div className="flex flex-col h-full">
+                                  {/* Route and Vehicle */}
+                                  <div className="flex-1">
+                                    <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                                      {travel.origin} - {travel.destination}
+                                    </h3>
+                                    <div className="space-y-1">
+                                      <p className="text-xs text-gray-600 flex items-center">
+                                        <svg className="w-3 h-3 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                        </svg>
+                                        <span>{travel.vehicle_type}</span>
+                                      </p>
+                                      {travel.departure_time && (
+                                        <p className="text-xs text-gray-600 flex items-center">
+                                          <svg className="w-3 h-3 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                          </svg>
+                                          <span>{travel.departure_time}</span>
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Price and Actions */}
+                                  <div className="flex items-end justify-between mt-2">
+                                    <div>
+                                      <p className="text-sm font-bold text-primary-600">
+                                        {formatCurrency(travel.price_per_person)}
+                                      </p>
+                                      <p className="text-xs text-gray-500">
+                                        Per orang
+                                      </p>
+                                    </div>
+                                    
+                                    <div className="flex space-x-1">
+                                      <button
+                                        onClick={() => handleEdit(travel)}
+                                        className="px-2 py-1 text-xs font-medium text-primary-600 bg-primary-50 rounded hover:bg-primary-100 transition-colors"
+                                      >
+                                        Edit
+                                      </button>
+                                      <button
+                                        onClick={() => handleDelete(travel.id, 'travel')}
+                                        className="px-2 py-1 text-xs font-medium text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors"
+                                      >
+                                        Hapus
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </>
+                )}
 
-                    {/* Pagination */}
-                    {((activeTab === 'trips' && trips.length > 0) || 
-                      (activeTab === 'travels' && travels.length > 0)) && (
-                      <div className="px-6 py-4 border-t border-gray-200">
+                {/* Pagination */}
+                {((activeTab === 'trips' && trips.length > 0) || 
+                  (activeTab === 'travels' && travels.length > 0)) && (
+                  <div className="px-4 lg:px-6 py-4 border-t border-gray-200 bg-gray-50">
+                    <div className="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
+                      <div className="text-sm text-gray-700 text-center sm:text-left">
+                        Menampilkan {activeTab === 'trips' ? tripsPagination.from : travelsPagination.from || 0} - {activeTab === 'trips' ? tripsPagination.to : travelsPagination.to || 0} dari {activeTab === 'trips' ? tripsPagination.total : travelsPagination.total} {activeTab === 'trips' ? 'trips' : 'travels'}
+                      </div>
+                      
+                      <div className="flex items-center justify-center">
                         <Pagination
                           currentPage={activeTab === 'trips' ? tripsPagination.current_page : travelsPagination.current_page}
                           totalPages={activeTab === 'trips' ? tripsPagination.last_page : travelsPagination.last_page}
@@ -440,22 +626,60 @@ const AdminDashboard = () => {
                           total={activeTab === 'trips' ? tripsPagination.total : travelsPagination.total}
                         />
                       </div>
-                    )}
+                    </div>
+                  </div>
+                )}
 
-                    {((activeTab === 'trips' && trips.length === 0) || 
-                      (activeTab === 'travels' && travels.length === 0)) && (
-                      <div className="text-center py-8">
-                        <p className="text-gray-500">
-                          Belum ada {activeTab === 'trips' ? 'trips' : 'travels'} yang tersedia
-                        </p>
-                      </div>
-                    )}
+                {((activeTab === 'trips' && trips.length === 0) || 
+                  (activeTab === 'travels' && travels.length === 0)) && !loading && (
+                  <div className="text-center py-12 lg:py-16">
+                    <div className="max-w-sm mx-auto">
+                      <svg className="w-16 h-16 lg:w-20 lg:h-20 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {activeTab === 'trips' ? (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        ) : (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        )}
+                      </svg>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        Belum ada {activeTab === 'trips' ? 'trips' : 'travels'}
+                      </h3>
+                      <p className="text-gray-500 text-sm mb-6">
+                        {activeTab === 'trips' 
+                          ? 'Mulai dengan menambahkan paket trip wisata pertama Anda'
+                          : 'Mulai dengan menambahkan layanan travel pertama Anda'
+                        }
+                      </p>
+                      <button
+                        onClick={() => setShowForm(true)}
+                        className="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors"
+                      >
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Tambah {activeTab === 'trips' ? 'Trip' : 'Travel'} Pertama
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
             )}
           </div>
         </motion.div>
+
+        {/* Mobile Floating Action Button */}
+        {!showForm && (
+          <div className="sm:hidden fixed bottom-6 right-6 z-40">
+            <button
+              onClick={() => setShowForm(true)}
+              className="w-14 h-14 bg-primary-600 text-white rounded-full shadow-lg hover:bg-primary-700 transition-colors flex items-center justify-center"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
     </AdminLayout>
   );

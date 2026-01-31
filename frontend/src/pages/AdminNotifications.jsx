@@ -85,34 +85,37 @@ const AdminNotifications = () => {
 
   return (
     <AdminLayout>
-      <div className="bg-gray-50 py-8">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Notifikasi Admin</h1>
-              <p className="text-gray-600 mt-2">
-                Kelola notifikasi order dan pembayaran
-              </p>
+      <div className="space-y-4 lg:space-y-6 min-w-0">
+        {/* Statistics */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+          <div className="bg-white p-3 lg:p-4 rounded-lg shadow-sm border border-gray-200">
+            <div className="text-lg lg:text-2xl font-bold text-gray-900">{notifications.length}</div>
+            <div className="text-xs lg:text-sm text-gray-600">Total Notifikasi</div>
+          </div>
+          
+          <div className="bg-white p-3 lg:p-4 rounded-lg shadow-sm border border-gray-200">
+            <div className="text-lg lg:text-2xl font-bold text-blue-600">{unreadCount}</div>
+            <div className="text-xs lg:text-sm text-gray-600">Belum Dibaca</div>
+          </div>
+          
+          <div className="bg-white p-3 lg:p-4 rounded-lg shadow-sm border border-gray-200">
+            <div className="text-lg lg:text-2xl font-bold text-green-600">
+              {notifications.filter(n => n.type === 'payment_paid').length}
             </div>
-            
-            {unreadCount > 0 && (
-              <motion.button
-                onClick={handleMarkAllAsRead}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                Tandai Semua Dibaca ({unreadCount})
-              </motion.button>
-            )}
+            <div className="text-xs lg:text-sm text-gray-600">Pembayaran Berhasil</div>
+          </div>
+          
+          <div className="bg-white p-3 lg:p-4 rounded-lg shadow-sm border border-gray-200">
+            <div className="text-lg lg:text-2xl font-bold text-red-600">
+              {notifications.filter(n => n.type === 'payment_failed').length}
+            </div>
+            <div className="text-xs lg:text-sm text-gray-600">Pembayaran Gagal</div>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Status Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -147,6 +150,21 @@ const AdminNotifications = () => {
             </div>
           </div>
         </div>
+
+        {/* Mark All Read Button */}
+        {unreadCount > 0 && (
+          <div className="flex justify-end">
+            <motion.button
+              onClick={handleMarkAllAsRead}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm lg:text-base"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span className="hidden sm:inline">Tandai Semua Dibaca ({unreadCount})</span>
+              <span className="sm:hidden">Tandai Dibaca ({unreadCount})</span>
+            </motion.button>
+          </div>
+        )}
 
         {/* Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -251,7 +269,6 @@ const AdminNotifications = () => {
           )}
         </div>
       </div>
-    </div>
     </AdminLayout>
   );
 };
