@@ -26,6 +26,7 @@ const Header = () => {
 
   useEffect(() => {
     setIsMenuOpen(false);
+    setShowProfileMenu(false);
   }, [location]);
 
   const handleLogout = () => {
@@ -34,6 +35,8 @@ const Header = () => {
     navigate('/');
     setShowProfileMenu(false);
     setIsMenuOpen(false);
+    // Reload opsional jika state localstorage tidak auto-update di komponen lain
+    window.location.reload();
   };
 
   const navigation = [
@@ -82,7 +85,6 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-8 flex-1 ml-60">
-
             {navigation.map((item) => (
               <Link
                 key={item.name}
@@ -146,31 +148,33 @@ const Header = () => {
                     </div>
 
                     <div className="bg-white">
-                      {authToken && userData?.role === 'admin' && (
+                      {/* JIKA ADMIN: Hanya Admin Dashboard yang muncul */}
+                      {authToken && userData?.role === 'admin' ? (
                         <Link to="/admin" onClick={() => setShowProfileMenu(false)} className="flex items-center space-x-4 px-5 py-4 text-primary-600 hover:bg-primary-50 border-b border-gray-100 transition-colors">
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                           </svg>
                           <span className="font-bold">Admin Dashboard</span>
                         </Link>
+                      ) : (
+                        /* JIKA BUKAN ADMIN (USER ATAU GUEST): Tampil Booking (jika login), Contact, dan About */
+                        <>
+                          {authToken && (
+                            <Link to="/my-bookings" onClick={() => setShowProfileMenu(false)} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
+                              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                              <span className="font-medium">My Bookings</span>
+                            </Link>
+                          )}
+                          <Link to="/contact" onClick={() => setShowProfileMenu(false)} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
+                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                            <span className="font-medium">Contact</span>
+                          </Link>
+                          <Link to="/about" onClick={() => setShowProfileMenu(false)} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
+                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <span className="font-medium">About Us</span>
+                          </Link>
+                        </>
                       )}
-                      
-                      {authToken && (
-                        <Link to="/my-bookings" onClick={() => setShowProfileMenu(false)} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
-                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                          <span className="font-medium">My Bookings</span>
-                        </Link>
-                      )}
-                      
-                      <Link to="/contact" onClick={() => setShowProfileMenu(false)} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-                        <span className="font-medium">Contact</span>
-                      </Link>
-                      
-                      <Link to="/about" onClick={() => setShowProfileMenu(false)} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <span className="font-medium">About Us</span>
-                      </Link>
                     </div>
 
                     <div className="p-4 bg-gray-50/50">
@@ -211,7 +215,7 @@ const Header = () => {
           </button>
         </div>
 
-        {/* Mobile Menu - MODIFIED TO MATCH DESIRED STYLE */}
+        {/* Mobile Menu */}
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
@@ -234,7 +238,6 @@ const Header = () => {
                 ))}
 
                 <div className="mt-6 rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-                  {/* Header Biru Versi Mobile */}
                   <div className="bg-[#0095f6] p-4 flex items-center space-x-3">
                     <div className="w-10 h-10 bg-gray-300 rounded-full border-2 border-white/50 flex items-center justify-center overflow-hidden">
                       <svg className="w-6 h-6 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
@@ -255,24 +258,40 @@ const Header = () => {
                     </div>
                   </div>
 
-                  {/* Menu List Versi Mobile */}
                   <div className="bg-white">
-                    {authToken && userData?.role === 'admin' && (
-                      <Link to="/admin" className="flex items-center space-x-4 px-5 py-4 text-primary-600 hover:bg-primary-50 border-b border-gray-100 transition-colors">
+                    {/* LOGIKA MOBILE SAMA DENGAN DESKTOP */}
+                    {authToken && userData?.role === 'admin' ? (
+                      <Link to="/admin" onClick={() => setIsMenuOpen(false)} className="flex items-center space-x-4 px-5 py-4 text-primary-600 hover:bg-primary-50 border-b border-gray-100 transition-colors">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                         </svg>
                         <span className="font-bold">Admin Dashboard</span>
                       </Link>
+                    ) : (
+                      <>
+                        {authToken && (
+                          <Link to="/my-bookings" onClick={() => setIsMenuOpen(false)} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
+                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            <span className="font-medium">My Bookings</span>
+                          </Link>
+                        )}
+                        <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
+                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                          <span className="font-medium">Contact</span>
+                        </Link>
+                        <Link to="/about" onClick={() => setIsMenuOpen(false)} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
+                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                          <span className="font-medium">About Us</span>
+                        </Link>
+                      </>
                     )}
                   </div>
 
-                  {/* Tombol Logout/Masuk Versi Mobile */}
                   <div className="p-4 bg-gray-50/50">
                     {authToken ? (
                       <button
                         onClick={handleLogout}
-                        className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2.5 rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center space-x-2"
+                        className="w-full bg-[#0095f6] hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center space-x-2"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                         <span>Keluar</span>
