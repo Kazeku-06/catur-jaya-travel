@@ -14,10 +14,10 @@ use App\Http\Controllers\Api\V1\Admin\AdminBookingController;
 use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
 
 // API Version 1 Routes
-Route::prefix('v1')->group(function () {
+Route::prefix('v1')->middleware('throttle:api')->group(function () {
 
     // Authentication Routes
-    Route::prefix('auth')->group(function () {
+    Route::prefix('auth')->middleware('throttle:auth')->group(function () {
         Route::post('register', [AuthController::class, 'register']);
         Route::post('login', [AuthController::class, 'login']);
 
@@ -52,7 +52,7 @@ Route::prefix('v1')->group(function () {
                 if (!$booking) {
                     return response()->json(['error' => 'Booking not found'], 404);
                 }
-                
+
                 return response()->json([
                     'booking_id' => $booking->id,
                     'booking_code' => $booking->booking_code,
@@ -65,7 +65,7 @@ Route::prefix('v1')->group(function () {
                 return response()->json(['error' => $e->getMessage()], 500);
             }
         });
-        
+
         // Booking endpoints
         Route::post('bookings/trip/{id}', [BookingController::class, 'createTripBooking']);
         Route::post('bookings/travel/{id}', [BookingController::class, 'createTravelBooking']);
@@ -77,7 +77,7 @@ Route::prefix('v1')->group(function () {
 
     // Admin Routes (Requires admin role)
     Route::prefix('admin')->middleware(['auth:sanctum', 'log_sanctum', 'role:admin'])->group(function () {
-        
+
         // Test endpoint for debugging
         Route::get('test-auth', function (Request $request) {
             return response()->json([
@@ -96,10 +96,10 @@ Route::prefix('v1')->group(function () {
 
         // Admin Booking Management
         Route::get('bookings', [AdminBookingController::class, 'index']);
-        Route::get('bookings/{id}', [AdminBookingController::class, 'show']);
         Route::get('bookings/statistics', [AdminBookingController::class, 'statistics']);
-        Route::put('bookings/{id}/approve', [AdminBookingController::class, 'approve']);
-        Route::put('bookings/{id}/reject', [AdminBookingController::class, 'reject']);
+        Route::get('bookings/{id}', [AdminBookingController::class, 'show']);
+        Route::post('bookings/{id}/approve', [AdminBookingController::class, 'approve']);
+        Route::post('bookings/{id}/reject', [AdminBookingController::class, 'reject']);
 
         // Admin Notification Management
         Route::prefix('notifications')->group(function () {

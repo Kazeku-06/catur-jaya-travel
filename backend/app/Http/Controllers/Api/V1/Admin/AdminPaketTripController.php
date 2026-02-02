@@ -190,7 +190,8 @@ class AdminPaketTripController extends Controller
             }
 
 
-            $trip->update(array_filter($data)); // Only update provided fields
+            // Perform update with only the fields provided in request
+            $trip->update(collect($data)->reject(fn($v) => is_null($v))->toArray());
             $trip->image_url = $trip->image ? $this->fileUploadService->getImageUrl($trip->image) : null;
 
             return response()->json([

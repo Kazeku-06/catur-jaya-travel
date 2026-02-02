@@ -66,13 +66,25 @@ class AdminBookingController extends Controller
 
             $bookings = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
+            // Manual Eager Loading to solve N+1 Problem
+            $tripIds = $bookings->where('catalog_type', 'trip')->pluck('catalog_id')->unique();
+            $travelIds = $bookings->where('catalog_type', 'travel')->pluck('catalog_id')->unique();
+
+            $trips = \App\Models\PaketTrip::whereIn('id', $tripIds)->get()->keyBy('id');
+            $travels = \App\Models\Travel::whereIn('id', $travelIds)->get()->keyBy('id');
+
             // Add catalog information to each booking
-            $bookingsWithCatalog = $bookings->getCollection()->map(function ($booking) {
+            $bookingsWithCatalog = $bookings->getCollection()->map(function ($booking) use ($trips, $travels) {
+                $catalog = $booking->catalog_type === 'trip'
+                    ? ($trips[$booking->catalog_id] ?? null)
+                    : ($travels[$booking->catalog_id] ?? null);
+
                 return [
                     'id' => $booking->id,
+                    'booking_code' => $booking->booking_code,
                     'user' => $booking->user,
                     'catalog_type' => $booking->catalog_type,
-                    'catalog' => $booking->catalog,
+                    'catalog' => $catalog,
                     'booking_data' => $booking->booking_data,
                     'total_price' => $booking->total_price,
                     'status' => $booking->status,
@@ -81,6 +93,7 @@ class AdminBookingController extends Controller
                     'updated_at' => $booking->updated_at,
                     'payment_proof' => $booking->latestPaymentProof,
                     'is_expired' => $booking->isExpired(),
+                    'can_download_ticket' => $booking->canDownloadTicket(),
                 ];
             });
 
@@ -115,6 +128,7 @@ class AdminBookingController extends Controller
 
             $bookingData = [
                 'id' => $booking->id,
+                'booking_code' => $booking->booking_code,
                 'user' => $booking->user,
                 'catalog_type' => $booking->catalog_type,
                 'catalog' => $booking->catalog,
@@ -126,6 +140,7 @@ class AdminBookingController extends Controller
                 'updated_at' => $booking->updated_at,
                 'payment_proofs' => $booking->paymentProofs,
                 'is_expired' => $booking->isExpired(),
+                'can_download_ticket' => $booking->canDownloadTicket(),
             ];
 
             return response()->json([
@@ -240,21 +255,31 @@ class AdminBookingController extends Controller
     public function statistics()
     {
         try {
-            $stats = [
-                'total_bookings' => Booking::count(),
-                'menunggu_pembayaran' => Booking::menungguPembayaran()->count(),
-                'menunggu_validasi' => Booking::menungguValidasi()->count(),
-                'lunas' => Booking::lunas()->count(),
-                'ditolak' => Booking::ditolak()->count(),
-                'expired' => Booking::expired()->count(),
-                'total_revenue' => Booking::lunas()->sum('total_price'),
-                'trip_bookings' => Booking::where('catalog_type', 'trip')->count(),
-                'travel_bookings' => Booking::where('catalog_type', 'travel')->count(),
-            ];
+            $statsRaw = Booking::selectRaw("
+                COUNT(*) as total_bookings,
+                COUNT(CASE WHEN status = 'menunggu_pembayaran' THEN 1 END) as menunggu_pembayaran,
+                COUNT(CASE WHEN status = 'menunggu_validasi' THEN 1 END) as menunggu_validasi,
+                COUNT(CASE WHEN status = 'lunas' THEN 1 END) as lunas,
+                COUNT(CASE WHEN status = 'ditolak' THEN 1 END) as ditolak,
+                COUNT(CASE WHEN status = 'expired' THEN 1 END) as expired,
+                SUM(CASE WHEN status = 'lunas' THEN total_price ELSE 0 END) as total_revenue,
+                COUNT(CASE WHEN catalog_type = 'trip' THEN 1 END) as trip_bookings,
+                COUNT(CASE WHEN catalog_type = 'travel' THEN 1 END) as travel_bookings
+            ")->first();
 
             return response()->json([
                 'message' => 'Statistics retrieved successfully',
-                'data' => $stats
+                'data' => [
+                    'total_bookings' => (int) $statsRaw->total_bookings,
+                    'menunggu_pembayaran' => (int) $statsRaw->menunggu_pembayaran,
+                    'menunggu_validasi' => (int) $statsRaw->menunggu_validasi,
+                    'lunas' => (int) $statsRaw->lunas,
+                    'ditolak' => (int) $statsRaw->ditolak,
+                    'expired' => (int) $statsRaw->expired,
+                    'total_revenue' => (float) $statsRaw->total_revenue,
+                    'trip_bookings' => (int) $statsRaw->trip_bookings,
+                    'travel_bookings' => (int) $statsRaw->travel_bookings,
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json([

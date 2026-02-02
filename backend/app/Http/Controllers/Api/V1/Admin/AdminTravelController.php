@@ -186,7 +186,8 @@ class AdminTravelController extends Controller
             }
 
 
-            $travel->update(array_filter($data)); // Only update provided fields
+            // Perform update with only the fields provided in request
+            $travel->update(collect($data)->reject(fn($v) => is_null($v))->toArray());
             $travel->image_url = $travel->image ? $this->fileUploadService->getImageUrl($travel->image) : null;
 
             return response()->json([

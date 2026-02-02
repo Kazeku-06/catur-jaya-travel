@@ -17,8 +17,9 @@ class FileUploadService
         // Validate file
         $this->validatePaymentProofFile($file);
 
-        // Generate unique filename
-        $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+        // Generate unique filename and use guessed extension for security
+        $extension = $file->guessExtension() ?: $file->getClientOriginalExtension();
+        $filename = Str::uuid() . '.' . $extension;
 
         // Upload to cloud storage (public disk)
         $path = $file->storeAs('payment-proofs', $filename, 'public');
@@ -43,7 +44,8 @@ class FileUploadService
         }
 
         // Generate unique filename
-        $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+        $extension = $file->guessExtension() ?: $file->getClientOriginalExtension();
+        $filename = Str::uuid() . '.' . $extension;
 
         // Store file
         $path = $file->storeAs($directory, $filename, 'public');

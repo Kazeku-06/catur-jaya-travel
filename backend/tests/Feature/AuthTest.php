@@ -120,15 +120,15 @@ class AuthTest extends TestCase
     public function test_admin_can_login(): void
     {
         $response = $this->postJson('/api/v1/auth/login', [
-            'email' => 'admin@travel.com',
-            'password' => 'password123',
+            'email' => 'admin@caturjaya.com',
+            'password' => 'admin123',
         ]);
 
         $response->assertStatus(200)
                 ->assertJson([
                     'message' => 'Login successful',
                     'user' => [
-                        'email' => 'admin@travel.com',
+                        'email' => 'admin@caturjaya.com',
                         'role' => 'admin'
                     ]
                 ]);
@@ -186,6 +186,10 @@ class AuthTest extends TestCase
                 ->assertJson([
                     'message' => 'Logout successful'
                 ]);
+
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+
+        $this->refreshApplication();
 
         // Test that token is revoked
         $profileResponse = $this->withHeaders([

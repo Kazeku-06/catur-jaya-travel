@@ -157,8 +157,8 @@ class BookingService
 
         // Create notification for admins about payment proof upload
         $catalog = $booking->catalog;
-        $catalogName = $booking->catalog_type === 'trip' 
-            ? $catalog->title 
+        $catalogName = $booking->catalog_type === 'trip'
+            ? $catalog->title
             : $catalog->origin . ' - ' . $catalog->destination;
 
         $this->notificationService->createPaymentProofNotification(
@@ -183,8 +183,17 @@ class BookingService
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return $bookings->map(function ($booking) {
-            $catalog = $booking->catalog;
+        // Manual Eager Loading to solve N+1 Problem
+        $tripIds = $bookings->where('catalog_type', 'trip')->pluck('catalog_id')->unique();
+        $travelIds = $bookings->where('catalog_type', 'travel')->pluck('catalog_id')->unique();
+
+        $trips = PaketTrip::whereIn('id', $tripIds)->get()->keyBy('id');
+        $travels = Travel::whereIn('id', $travelIds)->get()->keyBy('id');
+
+        return $bookings->map(function ($booking) use ($trips, $travels) {
+            $catalog = $booking->catalog_type === 'trip'
+                ? ($trips[$booking->catalog_id] ?? null)
+                : ($travels[$booking->catalog_id] ?? null);
 
             return [
                 'id' => $booking->id,
@@ -260,7 +269,7 @@ class BookingService
     private function validateTripBookingData($data)
     {
         $required = ['nama_pemesan', 'nomor_hp', 'tanggal_keberangkatan', 'participants'];
-        
+
         foreach ($required as $field) {
             if (empty($data[$field])) {
                 throw new \InvalidArgumentException("Field {$field} wajib diisi");
@@ -283,7 +292,7 @@ class BookingService
     private function validateTravelBookingData($data)
     {
         $required = ['nama_pemesan', 'nomor_hp', 'tanggal_keberangkatan', 'passengers'];
-        
+
         foreach ($required as $field) {
             if (empty($data[$field])) {
                 throw new \InvalidArgumentException("Field {$field} wajib diisi");

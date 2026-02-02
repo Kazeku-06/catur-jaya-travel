@@ -17,7 +17,11 @@ class TravelFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'origin' => $this->faker->city(),
+            'destination' => $this->faker->city(),
+            'vehicle_type' => $this->faker->randomElement(['Bus Executive', 'Bus Super Executive', 'Hiace', 'Elf']),
+            'price_per_person' => $this->faker->numberBetween(50000, 500000),
+            'is_active' => $this->faker->boolean(80),
         ];
     }
 }
