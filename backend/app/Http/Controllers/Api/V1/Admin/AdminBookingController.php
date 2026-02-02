@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\PaymentProof;
 use App\Services\NotificationService;
+use App\Http\Resources\V1\BookingResource;
 use Illuminate\Http\Request;
 
 class AdminBookingController extends Controller
@@ -66,40 +67,12 @@ class AdminBookingController extends Controller
 
             $bookings = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
-            // Manual Eager Loading to solve N+1 Problem
-            $tripIds = $bookings->where('catalog_type', 'trip')->pluck('catalog_id')->unique();
-            $travelIds = $bookings->where('catalog_type', 'travel')->pluck('catalog_id')->unique();
-
-            $trips = \App\Models\PaketTrip::whereIn('id', $tripIds)->get()->keyBy('id');
-            $travels = \App\Models\Travel::whereIn('id', $travelIds)->get()->keyBy('id');
-
-            // Add catalog information to each booking
-            $bookingsWithCatalog = $bookings->getCollection()->map(function ($booking) use ($trips, $travels) {
-                $catalog = $booking->catalog_type === 'trip'
-                    ? ($trips[$booking->catalog_id] ?? null)
-                    : ($travels[$booking->catalog_id] ?? null);
-
-                return [
-                    'id' => $booking->id,
-                    'booking_code' => $booking->booking_code,
-                    'user' => $booking->user,
-                    'catalog_type' => $booking->catalog_type,
-                    'catalog' => $catalog,
-                    'booking_data' => $booking->booking_data,
-                    'total_price' => $booking->total_price,
-                    'status' => $booking->status,
-                    'expired_at' => $booking->expired_at,
-                    'created_at' => $booking->created_at,
-                    'updated_at' => $booking->updated_at,
-                    'payment_proof' => $booking->latestPaymentProof,
-                    'is_expired' => $booking->isExpired(),
-                    'can_download_ticket' => $booking->canDownloadTicket(),
-                ];
-            });
+            // Ensure results are loaded
+            $bookings->getCollection();
 
             return response()->json([
                 'message' => 'Bookings retrieved successfully',
-                'data' => $bookingsWithCatalog,
+                'data' => BookingResource::collection($bookings),
                 'pagination' => [
                     'current_page' => $bookings->currentPage(),
                     'per_page' => $bookings->perPage(),
@@ -126,26 +99,10 @@ class AdminBookingController extends Controller
         try {
             $booking = Booking::with(['user', 'paymentProofs'])->findOrFail($id);
 
-            $bookingData = [
-                'id' => $booking->id,
-                'booking_code' => $booking->booking_code,
-                'user' => $booking->user,
-                'catalog_type' => $booking->catalog_type,
-                'catalog' => $booking->catalog,
-                'booking_data' => $booking->booking_data,
-                'total_price' => $booking->total_price,
-                'status' => $booking->status,
-                'expired_at' => $booking->expired_at,
-                'created_at' => $booking->created_at,
-                'updated_at' => $booking->updated_at,
-                'payment_proofs' => $booking->paymentProofs,
-                'is_expired' => $booking->isExpired(),
-                'can_download_ticket' => $booking->canDownloadTicket(),
-            ];
 
             return response()->json([
                 'message' => 'Booking retrieved successfully',
-                'data' => $bookingData
+                'data' => new BookingResource($booking)
             ]);
         } catch (\Exception $e) {
             return response()->json([

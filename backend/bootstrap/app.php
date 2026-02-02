@@ -21,4 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
+    })
+    ->withSchedule(function ($schedule) {
+        $schedule->command('bookings:mark-expired')->hourly();
     })->create();
