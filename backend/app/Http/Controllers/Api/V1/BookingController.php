@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Services\BookingService;
 use App\Services\TicketService;
 use App\Models\Booking;
-use App\Http\Resources\V1\BookingResource;
 use Illuminate\Http\Request;
 
 /**
@@ -54,7 +53,13 @@ class BookingController extends Controller
 
             return response()->json([
                 'message' => 'Booking berhasil dibuat',
-                'data' => new BookingResource($result['booking'])
+                'data' => [
+                    'booking_id' => $result['booking']->id,
+                    'total_price' => $result['booking']->total_price,
+                    'status' => $result['booking']->status,
+                    'expired_at' => $result['booking']->expired_at,
+                    'catalog' => $result['catalog']
+                ]
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -95,7 +100,13 @@ class BookingController extends Controller
 
             return response()->json([
                 'message' => 'Booking berhasil dibuat',
-                'data' => new BookingResource($result['booking'])
+                'data' => [
+                    'booking_id' => $result['booking']->id,
+                    'total_price' => $result['booking']->total_price,
+                    'status' => $result['booking']->status,
+                    'expired_at' => $result['booking']->expired_at,
+                    'catalog' => $result['catalog']
+                ]
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -117,7 +128,8 @@ class BookingController extends Controller
             $bookings = $this->bookingService->getUserBookings($request->user()->id);
 
             return response()->json([
-                'data' => BookingResource::collection($bookings)
+                'message' => 'Booking berhasil diambil',
+                'data' => $bookings
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -142,7 +154,8 @@ class BookingController extends Controller
             );
 
             return response()->json([
-                'data' => new BookingResource($booking)
+                'message' => 'Detail booking berhasil diambil',
+                'data' => $booking
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -176,7 +189,7 @@ class BookingController extends Controller
             return response()->json([
                 'message' => 'Bukti pembayaran berhasil diupload',
                 'data' => [
-                    'booking' => new BookingResource($result['booking']),
+                    'booking' => $result['booking'],
                     'payment_proof' => $result['payment_proof']
                 ]
             ], 200);

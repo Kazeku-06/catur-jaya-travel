@@ -66,6 +66,31 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
             }
         });
 
+        // Test user bookings
+        Route::get('test-my-bookings', function (Request $request) {
+            try {
+                $user = $request->user();
+                $bookings = \App\Models\Booking::where('user_id', $user->id)->get();
+                
+                return response()->json([
+                    'user_id' => $user->id,
+                    'user_email' => $user->email,
+                    'bookings_count' => $bookings->count(),
+                    'bookings' => $bookings->map(function($booking) {
+                        return [
+                            'id' => $booking->id,
+                            'booking_code' => $booking->booking_code,
+                            'status' => $booking->status,
+                            'catalog_type' => $booking->catalog_type,
+                            'created_at' => $booking->created_at,
+                        ];
+                    })
+                ]);
+            } catch (\Exception $e) {
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
+        });
+
         // Booking endpoints
         Route::post('bookings/trip/{id}', [BookingController::class, 'createTripBooking']);
         Route::post('bookings/travel/{id}', [BookingController::class, 'createTravelBooking']);

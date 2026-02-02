@@ -22,18 +22,14 @@ class BookingResource extends JsonResource
             'total_price_formatted' => 'Rp ' . number_format($this->total_price, 0, ',', '.'),
             'catalog_type' => $this->catalog_type,
 
-            // Conditional data loading
+            // Booking data
             'booking_data' => $this->booking_data,
 
-            // Reusable Catalog Data
-            'catalog' => $this->when($this->catalog_type === 'trip', function() {
-                return new PaketTripResource($this->catalog);
-            }, function() {
-                return new TravelResource($this->catalog);
-            }),
+            // Catalog data
+            'catalog' => $this->catalog,
 
             // Relationships
-            'user' => new UserResource($this->whenLoaded('user')),
+            'user' => $this->whenLoaded('user'),
             'payment_proof' => $this->whenLoaded('latestPaymentProof'),
 
             // Helper flags
