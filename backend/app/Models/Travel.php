@@ -26,6 +26,21 @@ class Travel extends Model
         'is_active' => 'boolean',
     ];
 
+    protected $appends = ['image_url'];
+
+    /**
+     * Get the image URL attribute
+     */
+    public function getImageUrlAttribute()
+    {
+        if (!$this->image) {
+            return null;
+        }
+
+        // Use Laravel's Storage facade to get proper URL
+        return \Storage::disk('public')->url($this->image);
+    }
+
     /**
      * Scope for active travels
      */

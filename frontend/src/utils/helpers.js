@@ -158,6 +158,13 @@ export const getImageUrl = (imagePath, fallback = '/images/placeholder.jpg') => 
   }
 };
 
+// Handle image error with fallback
+export const handleImageError = (event, fallback = '/images/placeholder.jpg') => {
+  if (event.target.src !== fallback) {
+    event.target.src = fallback;
+  }
+};
+
 // Copy text to clipboard
 export const copyToClipboard = async (text) => {
   try {
