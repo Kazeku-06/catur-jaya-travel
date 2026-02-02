@@ -38,6 +38,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'email_verified_at',
     ];
 
     /**
@@ -80,10 +81,10 @@ class User extends Authenticatable
     }
 
     /**
-     * Relationship with transactions
+     * Relationship with bookings
      */
-    public function transactions()
+    public function bookings()
     {
-        return $this->hasMany(Transaction::class);
+        return $this->hasMany(Booking::class);
     }
 }

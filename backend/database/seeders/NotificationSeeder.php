@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Notification;
 use App\Models\User;
-use App\Models\Transaction;
+use App\Models\Booking;
 use Carbon\Carbon;
 
 class NotificationSeeder extends Seeder
@@ -16,7 +16,7 @@ class NotificationSeeder extends Seeder
     public function run(): void
     {
         $admins = User::where('role', 'admin')->get();
-        $transactions = Transaction::all();
+        $bookings = Booking::all();
 
         if ($admins->isEmpty()) {
             $this->command->warn('No admin users found. Please seed users first.');
@@ -25,46 +25,39 @@ class NotificationSeeder extends Seeder
 
         // Create notifications for each admin
         foreach ($admins as $admin) {
-            // Create order notifications
-            $this->createOrderNotifications($admin, $transactions);
-            
+            // Create booking notifications
+            $this->createBookingNotifications($admin);
+
             // Create payment notifications
-            $this->createPaymentNotifications($admin, $transactions);
-            
-            // Create some general notifications
-            $this->createGeneralNotifications($admin);
+            $this->createPaymentNotifications($admin);
+
+            // Create some general notifications from actual bookings
+            $this->createGeneralNotifications($admin, $bookings);
         }
 
         $this->command->info('Notifications seeded successfully');
     }
 
-    private function createOrderNotifications($admin, $transactions)
+    private function createBookingNotifications($admin)
     {
-        $orderNotifications = [
+        $notifications = [
             [
-                'type' => Notification::TYPE_ORDER_CREATED,
-                'title' => 'Order Baru Masuk',
-                'message' => 'Order dengan ID TRIP-1642834782-ABC123 (Trip: Wisata Bromo Tengger Semeru) senilai Rp 1.500.000 menunggu pembayaran',
+                'type' => Notification::TYPE_BOOKING_CREATED,
+                'title' => 'Booking Baru Masuk',
+                'message' => 'Booking baru untuk Wisata Bromo senilai Rp 1.500.000 menunggu validasi.',
                 'is_read' => false,
                 'created_at' => Carbon::now()->subHours(2),
             ],
             [
-                'type' => Notification::TYPE_ORDER_CREATED,
-                'title' => 'Order Baru Masuk',
-                'message' => 'Order dengan ID TRAVEL-1642834782-XYZ456 (Travel: Jakarta - Bandung) senilai Rp 75.000 menunggu pembayaran',
+                'type' => Notification::TYPE_BOOKING_CREATED,
+                'title' => 'Booking Baru Masuk',
+                'message' => 'Booking baru untuk Travel Jakarta - Bandung senilai Rp 75.000 menunggu validasi.',
                 'is_read' => true,
                 'created_at' => Carbon::now()->subHours(5),
             ],
-            [
-                'type' => Notification::TYPE_ORDER_CREATED,
-                'title' => 'Order Baru Masuk',
-                'message' => 'Order dengan ID TRIP-1642834782-DEF789 (Trip: Paket Wisata Bali 4D3N) senilai Rp 5.000.000 menunggu pembayaran',
-                'is_read' => false,
-                'created_at' => Carbon::now()->subHours(8),
-            ],
         ];
 
-        foreach ($orderNotifications as $notification) {
+        foreach ($notifications as $notification) {
             Notification::create([
                 'user_id' => $admin->id,
                 'type' => $notification['type'],
@@ -77,40 +70,26 @@ class NotificationSeeder extends Seeder
         }
     }
 
-    private function createPaymentNotifications($admin, $transactions)
+    private function createPaymentNotifications($admin)
     {
-        $paymentNotifications = [
+        $notifications = [
             [
-                'type' => Notification::TYPE_PAYMENT_PAID,
-                'title' => 'Pembayaran Berhasil',
-                'message' => 'Pembayaran untuk order TRIP-1642834782-GHI012 (Trip: Yogyakarta Heritage Tour) senilai Rp 1.700.000 telah berhasil',
+                'type' => Notification::TYPE_PAYMENT_APPROVED,
+                'title' => 'Pembayaran Disetujui',
+                'message' => 'Pembayaran untuk booking Yogyakarta Heritage telah berhasil divalidasi.',
                 'is_read' => true,
                 'created_at' => Carbon::now()->subHours(1),
             ],
             [
-                'type' => Notification::TYPE_PAYMENT_PAID,
-                'title' => 'Pembayaran Berhasil',
-                'message' => 'Pembayaran untuk order TRAVEL-1642834782-JKL345 (Travel: Surabaya - Jakarta) senilai Rp 200.000 telah berhasil',
-                'is_read' => false,
-                'created_at' => Carbon::now()->subHours(3),
-            ],
-            [
-                'type' => Notification::TYPE_PAYMENT_FAILED,
-                'title' => 'Pembayaran Gagal',
-                'message' => 'Pembayaran untuk order TRIP-1642834782-MNO678 (Trip: Lombok Gili Trawangan) senilai Rp 3.600.000 gagal (expired)',
+                'type' => Notification::TYPE_PAYMENT_REJECTED,
+                'title' => 'Pembayaran Ditolak',
+                'message' => 'Bukti pembayaran untuk booking Lombok Gili tidak valid.',
                 'is_read' => false,
                 'created_at' => Carbon::now()->subHours(6),
             ],
-            [
-                'type' => Notification::TYPE_PAYMENT_FAILED,
-                'title' => 'Pembayaran Gagal',
-                'message' => 'Pembayaran untuk order TRAVEL-1642834782-PQR901 (Travel: Jakarta - Yogyakarta) senilai Rp 300.000 gagal (cancelled)',
-                'is_read' => true,
-                'created_at' => Carbon::now()->subHours(12),
-            ],
         ];
 
-        foreach ($paymentNotifications as $notification) {
+        foreach ($notifications as $notification) {
             Notification::create([
                 'user_id' => $admin->id,
                 'type' => $notification['type'],
@@ -123,44 +102,34 @@ class NotificationSeeder extends Seeder
         }
     }
 
-    private function createGeneralNotifications($admin)
+    private function createGeneralNotifications($admin, $bookings)
     {
-        // Create some additional notifications from recent transactions
-        $recentTransactions = Transaction::orderBy('created_at', 'desc')->take(3)->get();
-        
-        foreach ($recentTransactions as $transaction) {
-            $itemName = $transaction->transaction_type === 'trip' ? 'Trip Package' : 'Travel Service';
-            
+        // Create some additional notifications from recent bookings
+        $recentBookings = $bookings->sortByDesc('created_at')->take(3);
+
+        foreach ($recentBookings as $booking) {
+            $itemName = $booking->catalog_type === 'trip' ? 'Trip Package' : 'Travel Service';
+            $bookingData = is_string($booking->booking_data) ? json_decode($booking->booking_data, true) : $booking->booking_data;
+
             Notification::create([
                 'user_id' => $admin->id,
-                'type' => Notification::TYPE_ORDER_CREATED,
-                'title' => 'Order Baru Masuk',
-                'message' => "Order dengan ID {$transaction->midtrans_order_id} ({$itemName}) senilai Rp " . number_format($transaction->total_price, 0, ',', '.') . " menunggu pembayaran",
+                'type' => Notification::TYPE_BOOKING_CREATED,
+                'title' => 'Pesanan Baru',
+                'message' => "Ada pesanan baru dari " . ($bookingData['nama_pemesan'] ?? 'Pelanggan') . " untuk {$itemName}.",
                 'is_read' => rand(0, 1) == 1,
-                'created_at' => $transaction->created_at->addMinutes(5),
-                'updated_at' => $transaction->created_at->addMinutes(5),
+                'created_at' => $booking->created_at->addMinutes(5),
+                'updated_at' => $booking->created_at->addMinutes(5),
             ]);
 
-            // Create payment notification if transaction is paid
-            if ($transaction->payment_status === 'paid') {
+            if ($booking->status === 'lunas') {
                 Notification::create([
                     'user_id' => $admin->id,
-                    'type' => Notification::TYPE_PAYMENT_PAID,
-                    'title' => 'Pembayaran Berhasil',
-                    'message' => "Pembayaran untuk order {$transaction->midtrans_order_id} ({$itemName}) senilai Rp " . number_format($transaction->total_price, 0, ',', '.') . " telah berhasil",
+                    'type' => Notification::TYPE_PAYMENT_APPROVED,
+                    'title' => 'Pembayaran Terverifikasi',
+                    'message' => "Pembayaran untuk pesanan ({$itemName}) telah divalidasi oleh sistem.",
                     'is_read' => rand(0, 1) == 1,
-                    'created_at' => $transaction->created_at->addHours(2),
-                    'updated_at' => $transaction->created_at->addHours(2),
-                ]);
-            } elseif (in_array($transaction->payment_status, ['failed', 'expired'])) {
-                Notification::create([
-                    'user_id' => $admin->id,
-                    'type' => Notification::TYPE_PAYMENT_FAILED,
-                    'title' => 'Pembayaran Gagal',
-                    'message' => "Pembayaran untuk order {$transaction->midtrans_order_id} ({$itemName}) senilai Rp " . number_format($transaction->total_price, 0, ',', '.') . " gagal ({$transaction->payment_status})",
-                    'is_read' => rand(0, 1) == 1,
-                    'created_at' => $transaction->created_at->addHours(1),
-                    'updated_at' => $transaction->created_at->addHours(1),
+                    'created_at' => $booking->created_at->addHours(2),
+                    'updated_at' => $booking->created_at->addHours(2),
                 ]);
             }
         }

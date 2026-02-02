@@ -8,8 +8,6 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
      */
@@ -19,7 +17,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             PaketTripSeeder::class,
             TravelSeeder::class,
-            TransactionSeeder::class,
+            BookingSeeder::class,
             NotificationSeeder::class,
         ]);
 

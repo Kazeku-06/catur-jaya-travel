@@ -25,7 +25,7 @@ class AdminPaketTripController extends Controller
         try {
             $perPage = $request->get('per_page', 5); // Default 5 items per page
             $page = $request->get('page', 1);
-            
+
             // Validate per_page parameter
             if ($perPage > 50) {
                 $perPage = 50; // Max 50 items per page
@@ -89,7 +89,7 @@ class AdminPaketTripController extends Controller
 
         try {
             $data = $request->only([
-                'title', 'description', 'rundown', 'facilities', 'price', 'duration', 
+                'title', 'description', 'rundown', 'facilities', 'price', 'duration',
                 'location', 'quota', 'is_active'
             ]);
 
@@ -97,117 +97,16 @@ class AdminPaketTripController extends Controller
             $data['is_active'] = $request->has('is_active') ? $request->is_active : true;
 
             // Handle image processing
-            if ($request->has('image_base64') && $request->image_base64) {
-                // Handle base64 image
-                $imageBase64 = $request->image_base64;
+            // Handle image processing using Service (GEMINI.MD #1 & #2)
+            $imagePath = $this->fileUploadService->processImageSource(
+                $request->only(['image_base64', 'image_url', 'image_name']),
+                'trips'
+            );
 
-                // Validate base64 format
-                if (!preg_match('/^data:image\/(\w+);base64,/', $imageBase64, $matches)) {
-                    return response()->json([
-                        'message' => 'Invalid image format. Must be base64 with data:image prefix',
-                        'error' => 'Expected format: data:image/jpeg;base64,{base64_string}'
-                    ], 400);
-                }
-
-                $imageType = $matches[1];
-                $allowedTypes = ['jpeg', 'jpg', 'png', 'webp'];
-                
-                if (!in_array(strtolower($imageType), $allowedTypes)) {
-                    return response()->json([
-                        'message' => 'Invalid image type. Allowed: JPEG, JPG, PNG, WEBP',
-                        'error' => "Received type: $imageType"
-                    ], 400);
-                }
-
-                // Remove data:image/xxx;base64, prefix
-                $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $imageBase64);
-                $imageData = base64_decode($imageData);
-
-                if ($imageData === false) {
-                    return response()->json([
-                        'message' => 'Failed to decode base64 image',
-                        'error' => 'Invalid base64 encoding'
-                    ], 400);
-                }
-
-                // Check image size (max 5MB)
-                if (strlen($imageData) > 5 * 1024 * 1024) {
-                    return response()->json([
-                        'message' => 'Image too large. Maximum size is 5MB',
-                        'error' => 'Current size: ' . round(strlen($imageData) / 1024 / 1024, 2) . 'MB'
-                    ], 400);
-                }
-
-                // Generate unique filename
-                $extension = strtolower($imageType) === 'jpeg' ? 'jpg' : strtolower($imageType);
-                $filename = \Illuminate\Support\Str::uuid() . '.' . $extension;
-                $imagePath = 'trips/' . $filename;
-
-                // Save image to storage
-                \Storage::disk('public')->put($imagePath, $imageData);
+            if ($imagePath) {
                 $data['image'] = $imagePath;
-
-            } elseif ($request->has('image_url') && $request->image_url) {
-                // Handle image URL - download and save locally
-                try {
-                    $imageUrl = $request->image_url;
-                    $imageContent = file_get_contents($imageUrl);
-                    
-                    if ($imageContent === false) {
-                        return response()->json([
-                            'message' => 'Failed to download image from URL',
-                            'error' => 'Could not access the provided image URL'
-                        ], 400);
-                    }
-
-                    // Check image size (max 5MB)
-                    if (strlen($imageContent) > 5 * 1024 * 1024) {
-                        return response()->json([
-                            'message' => 'Image too large. Maximum size is 5MB',
-                            'error' => 'Current size: ' . round(strlen($imageContent) / 1024 / 1024, 2) . 'MB'
-                        ], 400);
-                    }
-
-                    // Get image info
-                    $imageInfo = getimagesizefromstring($imageContent);
-                    if ($imageInfo === false) {
-                        return response()->json([
-                            'message' => 'Invalid image file',
-                            'error' => 'The URL does not point to a valid image'
-                        ], 400);
-                    }
-
-                    // Get extension from mime type
-                    $mimeToExt = [
-                        'image/jpeg' => 'jpg',
-                        'image/png' => 'png',
-                        'image/webp' => 'webp',
-                        'image/jpg' => 'jpg'
-                    ];
-
-                    $extension = $mimeToExt[$imageInfo['mime']] ?? null;
-                    if (!$extension) {
-                        return response()->json([
-                            'message' => 'Unsupported image type',
-                            'error' => 'Allowed types: JPEG, PNG, WEBP'
-                        ], 400);
-                    }
-
-                    // Generate unique filename
-                    $filename = \Illuminate\Support\Str::uuid() . '.' . $extension;
-                    $imagePath = 'trips/' . $filename;
-
-                    // Save image to storage
-                    \Storage::disk('public')->put($imagePath, $imageContent);
-                    $data['image'] = $imagePath;
-
-                } catch (\Exception $e) {
-                    return response()->json([
-                        'message' => 'Failed to process image URL',
-                        'error' => $e->getMessage()
-                    ], 400);
-                }
             }
+
 
             $trip = PaketTrip::create($data);
             $trip->image_url = $trip->image ? $this->fileUploadService->getImageUrl($trip->image) : null;
@@ -272,134 +171,24 @@ class AdminPaketTripController extends Controller
 
         try {
             $trip = PaketTrip::findOrFail($id);
-            
+
             $data = $request->only([
-                'title', 'description', 'rundown', 'facilities', 'price', 'duration', 
+                'title', 'description', 'rundown', 'facilities', 'price', 'duration',
                 'location', 'quota', 'is_active'
             ]);
 
             // Handle image processing
-            if ($request->has('image_base64') && $request->image_base64) {
-                // Handle base64 image
-                $imageBase64 = $request->image_base64;
+            // Handle image processing using Service (GEMINI.MD #1 & #2)
+            $imagePath = $this->fileUploadService->processImageSource(
+                $request->only(['image_base64', 'image_url', 'image_name']),
+                'trips',
+                $trip->image
+            );
 
-                // Validate base64 format
-                if (!preg_match('/^data:image\/(\w+);base64,/', $imageBase64, $matches)) {
-                    return response()->json([
-                        'message' => 'Invalid image format. Must be base64 with data:image prefix',
-                        'error' => 'Expected format: data:image/jpeg;base64,{base64_string}'
-                    ], 400);
-                }
-
-                $imageType = $matches[1];
-                $allowedTypes = ['jpeg', 'jpg', 'png', 'webp'];
-                
-                if (!in_array(strtolower($imageType), $allowedTypes)) {
-                    return response()->json([
-                        'message' => 'Invalid image type. Allowed: JPEG, JPG, PNG, WEBP',
-                        'error' => "Received type: $imageType"
-                    ], 400);
-                }
-
-                // Remove data:image/xxx;base64, prefix
-                $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $imageBase64);
-                $imageData = base64_decode($imageData);
-
-                if ($imageData === false) {
-                    return response()->json([
-                        'message' => 'Failed to decode base64 image',
-                        'error' => 'Invalid base64 encoding'
-                    ], 400);
-                }
-
-                // Check image size (max 5MB)
-                if (strlen($imageData) > 5 * 1024 * 1024) {
-                    return response()->json([
-                        'message' => 'Image too large. Maximum size is 5MB',
-                        'error' => 'Current size: ' . round(strlen($imageData) / 1024 / 1024, 2) . 'MB'
-                    ], 400);
-                }
-
-                // Delete old image
-                if ($trip->image) {
-                    $this->fileUploadService->deleteImage($trip->image);
-                }
-
-                // Generate unique filename
-                $extension = strtolower($imageType) === 'jpeg' ? 'jpg' : strtolower($imageType);
-                $filename = \Illuminate\Support\Str::uuid() . '.' . $extension;
-                $imagePath = 'trips/' . $filename;
-
-                // Save new image to storage
-                \Storage::disk('public')->put($imagePath, $imageData);
+            if ($imagePath) {
                 $data['image'] = $imagePath;
-
-            } elseif ($request->has('image_url') && $request->image_url) {
-                // Handle image URL - download and save locally
-                try {
-                    $imageUrl = $request->image_url;
-                    $imageContent = file_get_contents($imageUrl);
-                    
-                    if ($imageContent === false) {
-                        return response()->json([
-                            'message' => 'Failed to download image from URL',
-                            'error' => 'Could not access the provided image URL'
-                        ], 400);
-                    }
-
-                    // Check image size (max 5MB)
-                    if (strlen($imageContent) > 5 * 1024 * 1024) {
-                        return response()->json([
-                            'message' => 'Image too large. Maximum size is 5MB',
-                            'error' => 'Current size: ' . round(strlen($imageContent) / 1024 / 1024, 2) . 'MB'
-                        ], 400);
-                    }
-
-                    // Get image info
-                    $imageInfo = getimagesizefromstring($imageContent);
-                    if ($imageInfo === false) {
-                        return response()->json([
-                            'message' => 'Invalid image file',
-                            'error' => 'The URL does not point to a valid image'
-                        ], 400);
-                    }
-
-                    // Get extension from mime type
-                    $mimeToExt = [
-                        'image/jpeg' => 'jpg',
-                        'image/png' => 'png',
-                        'image/webp' => 'webp',
-                        'image/jpg' => 'jpg'
-                    ];
-
-                    $extension = $mimeToExt[$imageInfo['mime']] ?? null;
-                    if (!$extension) {
-                        return response()->json([
-                            'message' => 'Unsupported image type',
-                            'error' => 'Allowed types: JPEG, PNG, WEBP'
-                        ], 400);
-                    }
-
-                    // Delete old image
-                    if ($trip->image) {
-                        $this->fileUploadService->deleteImage($trip->image);
-                    }
-
-                    // Generate unique filename
-                    $filename = \Illuminate\Support\Str::uuid() . '.' . $extension;
-                    $imagePath = 'trips/' . $filename;
-
-                    // Save image to storage
-                    \Storage::disk('public')->put($imagePath, $imageContent);
-                    $data['image'] = $imagePath;
-
-                } catch (\Exception $e) {
-                    return response()->json([
-                        'message' => 'Failed to process image URL',
-                        'error' => $e->getMessage()
-                    ], 400);
-                }
             }
+
 
             $trip->update(array_filter($data)); // Only update provided fields
             $trip->image_url = $trip->image ? $this->fileUploadService->getImageUrl($trip->image) : null;
@@ -423,12 +212,12 @@ class AdminPaketTripController extends Controller
     {
         try {
             $trip = PaketTrip::findOrFail($id);
-            
+
             // Delete associated image
             if ($trip->image) {
                 $this->fileUploadService->deleteImage($trip->image);
             }
-            
+
             $trip->delete();
 
             return response()->json([

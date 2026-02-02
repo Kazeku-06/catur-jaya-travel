@@ -16,8 +16,11 @@ return new class extends Migration
             $table->string('origin');
             $table->string('destination');
             $table->string('vehicle_type');
-            $table->decimal('price_per_person', 15, 2);
-            $table->boolean('is_active')->default(true);
+            $table->decimal('price_per_person', 15, 2)->index();
+            $table->string('image')->nullable();
+            $table->json('rundown')->nullable();
+            $table->json('facilities')->nullable();
+            $table->boolean('is_active')->default(true)->index();
             $table->timestamps();
         });
     }

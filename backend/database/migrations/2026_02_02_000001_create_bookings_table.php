@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('bookings', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
-            $table->enum('catalog_type', ['trip', 'travel']);
-            $table->uuid('catalog_id'); // ID Trip atau Travel
+            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade')->index();
+            $table->enum('catalog_type', ['trip', 'travel'])->index();
+            $table->uuid('catalog_id')->index(); // ID Trip atau Travel
             $table->json('booking_data'); // Data booking (nama, hp, tanggal, jumlah orang, catatan)
             $table->decimal('total_price', 15, 2);
-            $table->enum('status', ['menunggu_pembayaran', 'menunggu_validasi', 'lunas', 'ditolak', 'expired'])->default('menunggu_pembayaran');
-            $table->timestamp('expired_at');
+            $table->enum('status', ['menunggu_pembayaran', 'menunggu_validasi', 'lunas', 'ditolak', 'expired'])->default('menunggu_pembayaran')->index();
+            $table->timestamp('expired_at')->index();
             $table->timestamps();
         });
     }
