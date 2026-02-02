@@ -188,6 +188,7 @@ class BookingService
 
             return [
                 'id' => $booking->id,
+                'booking_code' => $booking->booking_code,
                 'catalog_type' => $booking->catalog_type,
                 'catalog' => $catalog,
                 'booking_data' => $booking->booking_data,
@@ -198,6 +199,7 @@ class BookingService
                 'updated_at' => $booking->updated_at,
                 'payment_proof' => $booking->latestPaymentProof,
                 'is_expired' => $booking->isExpired(),
+                'can_download_ticket' => $booking->canDownloadTicket(),
             ];
         });
     }
@@ -220,6 +222,7 @@ class BookingService
 
         return [
             'id' => $booking->id,
+            'booking_code' => $booking->booking_code,
             'catalog_type' => $booking->catalog_type,
             'catalog' => $catalog,
             'booking_data' => $booking->booking_data,
@@ -231,6 +234,7 @@ class BookingService
             'user' => $booking->user,
             'payment_proof' => $booking->latestPaymentProof,
             'is_expired' => $booking->isExpired(),
+            'can_download_ticket' => $booking->canDownloadTicket(),
         ];
     }
 

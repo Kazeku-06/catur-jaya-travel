@@ -15,6 +15,7 @@ const MyBookings = () => {
   
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [downloadingTicket, setDownloadingTicket] = useState(null);
   const [filter, setFilter] = useState('all'); // all, menunggu_pembayaran, menunggu_validasi, lunas, ditolak, expired
 
   useEffect(() => {
@@ -71,6 +72,19 @@ const MyBookings = () => {
       ? `/trips/${booking.catalog?.id}` 
       : `/travels/${booking.catalog?.id}`;
     navigate(path);
+  };
+
+  const handleDownloadTicket = async (booking) => {
+    try {
+      setDownloadingTicket(booking.id);
+      await bookingService.downloadTicket(booking.id);
+      // Success feedback could be added here if needed
+    } catch (error) {
+      console.error('Error downloading ticket:', error);
+      alert('Gagal mengunduh tiket. Silakan coba lagi.');
+    } finally {
+      setDownloadingTicket(null);
+    }
   };
 
   if (loading) {
@@ -200,6 +214,11 @@ const MyBookings = () => {
                           <p className="text-sm text-gray-600 mb-1">
                             Booking ID: {booking.id}
                           </p>
+                          {booking.booking_code && (
+                            <p className="text-sm text-gray-600 mb-1">
+                              Kode Booking: <span className="font-mono font-medium text-primary-600">{booking.booking_code}</span>
+                            </p>
+                          )}
                           <p className="text-sm text-gray-600">
                             Tanggal Booking: {formatDate(booking.created_at)}
                           </p>
@@ -290,16 +309,29 @@ const MyBookings = () => {
                         Lihat Detail
                       </Button>
 
-                      {booking.status === 'lunas' && (
+                      {booking.status === 'lunas' && booking.can_download_ticket && (
                         <Button
                           variant="secondary"
                           size="sm"
-                          onClick={() => {
-                            // You can implement download invoice/ticket functionality here
-                            alert('Fitur download tiket akan segera tersedia');
-                          }}
+                          disabled={downloadingTicket === booking.id}
+                          onClick={() => handleDownloadTicket(booking)}
                         >
-                          Download Tiket
+                          {downloadingTicket === booking.id ? (
+                            <>
+                              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Mengunduh...
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              Download Tiket
+                            </>
+                          )}
                         </Button>
                       )}
                     </div>

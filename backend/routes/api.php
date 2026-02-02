@@ -51,6 +51,7 @@ Route::prefix('v1')->group(function () {
         Route::get('bookings/my', [BookingController::class, 'getUserBookings']);
         Route::get('bookings/{id}', [BookingController::class, 'getBookingDetail']);
         Route::post('bookings/{id}/payment-proof', [BookingController::class, 'uploadPaymentProof']);
+        Route::get('bookings/{id}/download-ticket', [BookingController::class, 'downloadTicket']);
     });
 
     // Admin Routes (Requires admin role)

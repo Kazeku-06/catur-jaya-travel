@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class Booking extends Model
@@ -19,6 +20,7 @@ class Booking extends Model
         'total_price',
         'status',
         'expired_at',
+        'booking_code',
     ];
 
     protected $casts = [
@@ -160,5 +162,39 @@ class Booking extends Model
             self::STATUS_DITOLAK,
             self::STATUS_EXPIRED,
         ];
+    }
+
+    /**
+     * Generate unique booking code
+     */
+    public static function generateBookingCode()
+    {
+        do {
+            $code = 'TKT-' . strtoupper(Str::random(8));
+        } while (self::where('booking_code', $code)->exists());
+
+        return $code;
+    }
+
+    /**
+     * Boot method to auto-generate booking code
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($booking) {
+            if (empty($booking->booking_code)) {
+                $booking->booking_code = self::generateBookingCode();
+            }
+        });
+    }
+
+    /**
+     * Check if booking can download ticket
+     */
+    public function canDownloadTicket()
+    {
+        return $this->status === self::STATUS_LUNAS;
     }
 }
