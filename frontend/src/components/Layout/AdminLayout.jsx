@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { logout } from '../../utils/auth';
 import Button from '../ui/Button';
@@ -8,6 +8,7 @@ import Button from '../ui/Button';
 const AdminLayout = ({ children }) => {
   const location = useLocation();
   const [userData] = useLocalStorage('user_data', null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = () => {
     console.log('AdminLayout logout clicked');
@@ -72,9 +73,21 @@ const AdminLayout = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex overflow-hidden">
+      {/* Mobile sidebar backdrop */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <div className="w-64 bg-white shadow-lg flex flex-col relative border-r border-gray-200">
+      <div className={`
+        fixed lg:static inset-y-0 left-0 z-50 w-64 flex-shrink-0 bg-white shadow-lg flex flex-col border-r border-gray-200
+        transform transition-transform duration-300 ease-in-out lg:transform-none
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
         {/* Logo Section */}
         <div className="p-6">
           <Link to="/" className="flex items-center space-x-2">
@@ -109,8 +122,8 @@ const AdminLayout = ({ children }) => {
           </ul>
         </nav>
 
-        {/* User Info & Logout (Ditaruh Paling Bawah) */}
-        <div className="absolute bottom-0 left-0 right-0 w-64 p-4 border-t border-gray-200 bg-white">
+        {/* User Info & Logout - Fixed positioning issue */}
+        <div className="mt-auto p-4 border-t border-gray-200 bg-white">
           <div className="flex items-center space-x-3 mb-3">
             <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center">
               <span className="text-white font-medium">
@@ -143,9 +156,29 @@ const AdminLayout = ({ children }) => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Top Bar */}
-        <header className="bg-white shadow-sm border-b border-gray-200">
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Mobile Header */}
+        <div className="lg:hidden bg-white shadow-sm border-b border-gray-200 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <h1 className="text-lg font-semibold text-gray-900">Admin Panel</h1>
+            <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center">
+              <span className="text-white font-medium text-sm">
+                {userData?.name?.charAt(0)?.toUpperCase() || 'A'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Top Bar */}
+        <header className="hidden lg:block bg-white shadow-sm border-b border-gray-200">
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
@@ -185,7 +218,7 @@ const AdminLayout = ({ children }) => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-4 lg:p-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

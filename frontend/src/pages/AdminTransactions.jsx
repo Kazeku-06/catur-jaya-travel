@@ -10,10 +10,10 @@ const AdminTransactions = () => {
   const [transactions, setTransactions] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [statistics, setStatistics] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);  
   const [alert, setAlert] = useState({ show: false, type: '', message: '' });
   const [selectedTransaction, setSelectedTransaction] = useState(null);
-  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);     
   
   // Filters and pagination
   const [filters, setFilters] = useState({
@@ -156,82 +156,82 @@ const AdminTransactions = () => {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 lg:space-y-6 min-w-0">
         {/* Statistics Cards */}
         {statistics && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
             <motion.div
-              className="bg-white rounded-lg shadow p-6"
+              className="bg-white rounded-lg shadow p-3 lg:p-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
               <div className="flex items-center">
                 <div className="p-2 bg-blue-100 rounded-lg">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 lg:w-6 lg:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Transaksi</p>
-                  <p className="text-2xl font-bold text-gray-900">{statistics.total_transactions || 0}</p>
+                <div className="ml-3 lg:ml-4">
+                  <p className="text-xs lg:text-sm font-medium text-gray-600">Total Transaksi</p>
+                  <p className="text-lg lg:text-2xl font-bold text-gray-900">{statistics.total_transactions || 0}</p>
                 </div>
               </div>
             </motion.div>
 
             <motion.div
-              className="bg-white rounded-lg shadow p-6"
+              className="bg-white rounded-lg shadow p-3 lg:p-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
               <div className="flex items-center">
                 <div className="p-2 bg-green-100 rounded-lg">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 lg:w-6 lg:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Transaksi Lunas</p>
-                  <p className="text-2xl font-bold text-gray-900">{statistics.paid_transactions || 0}</p>
+                <div className="ml-3 lg:ml-4">
+                  <p className="text-xs lg:text-sm font-medium text-gray-600">Transaksi Lunas</p>
+                  <p className="text-lg lg:text-2xl font-bold text-gray-900">{statistics.paid_transactions || 0}</p>
                 </div>
               </div>
             </motion.div>
 
             <motion.div
-              className="bg-white rounded-lg shadow p-6"
+              className="bg-white rounded-lg shadow p-3 lg:p-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
               <div className="flex items-center">
                 <div className="p-2 bg-yellow-100 rounded-lg">
-                  <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 lg:w-6 lg:h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Menunggu Pembayaran</p>
-                  <p className="text-2xl font-bold text-gray-900">{statistics.pending_transactions || 0}</p>
+                <div className="ml-3 lg:ml-4">
+                  <p className="text-xs lg:text-sm font-medium text-gray-600">Menunggu Pembayaran</p>
+                  <p className="text-lg lg:text-2xl font-bold text-gray-900">{statistics.pending_transactions || 0}</p>
                 </div>
               </div>
             </motion.div>
 
             <motion.div
-              className="bg-white rounded-lg shadow p-6"
+              className="bg-white rounded-lg shadow p-3 lg:p-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
               <div className="flex items-center">
                 <div className="p-2 bg-purple-100 rounded-lg">
-                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 lg:w-6 lg:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                   </svg>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Pendapatan</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                <div className="ml-3 lg:ml-4">
+                  <p className="text-xs lg:text-sm font-medium text-gray-600">Total Pendapatan</p>
+                  <p className="text-lg lg:text-2xl font-bold text-gray-900">
                     {formatCurrency(statistics.total_revenue || 0)}
                   </p>
                 </div>
@@ -250,14 +250,14 @@ const AdminTransactions = () => {
 
         {/* Filters */}
         <motion.div
-          className="bg-white rounded-lg shadow p-6"
+          className="bg-white rounded-lg shadow p-4 lg:p-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Filter Transaksi</h3>
+          <h3 className="text-base lg:text-lg font-semibold text-gray-900 mb-4">Filter Transaksi</h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 lg:gap-4">
             {/* Payment Status Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -347,13 +347,13 @@ const AdminTransactions = () => {
 
         {/* Transactions Table */}
         <motion.div
-          className="bg-white rounded-lg shadow"
+          className="bg-white rounded-lg shadow overflow-hidden"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
         >
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Daftar Transaksi</h3>
+          <div className="px-4 lg:px-6 py-4 border-b border-gray-200">
+            <h3 className="text-base lg:text-lg font-semibold text-gray-900">Daftar Transaksi</h3>
           </div>
 
           {loading ? (
@@ -362,141 +362,208 @@ const AdminTransactions = () => {
               <p className="text-gray-500 mt-2">Memuat data transaksi...</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Order ID
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Customer
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Jenis
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Item
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Peserta/Penumpang
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Total
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Tanggal
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Aksi
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {transactions.map((transaction) => (
-                    <tr key={transaction.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden lg:block">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Order ID
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Customer
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Jenis
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Item
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Peserta/Penumpang
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Total
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Tanggal
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Aksi
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {transactions.map((transaction) => (
+                        <tr key={transaction.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">
+                              {transaction.midtrans_order_id}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">{transaction.user?.name}</div>
+                            <div className="text-sm text-gray-500">{transaction.user?.email}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {getTypeBadge(transaction.transaction_type)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">
+                              {transaction.transaction_type === 'trip' ? 'Trip Package' : 'Travel Service'}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              ID: {transaction.reference_id}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {transaction.participants || transaction.passengers || '-'} orang
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {formatCurrency(transaction.total_price)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {getStatusBadge(transaction.payment_status)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">{formatDate(transaction.created_at)}</div>
+                            {transaction.departure_date && (
+                              <div className="text-sm text-gray-500">
+                                Berangkat: {formatDate(transaction.departure_date)}
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button
+                              onClick={() => loadTransactionDetail(transaction.id)}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
+                              Detail
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="lg:hidden divide-y divide-gray-200">
+                {transactions.map((transaction) => (
+                  <div key={transaction.id} className="p-4 hover:bg-gray-50">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-gray-900 mb-1">
                           {transaction.midtrans_order_id}
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{transaction.user?.name}</div>
-                        <div className="text-sm text-gray-500">{transaction.user?.email}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-600">
+                          {transaction.user?.name}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {transaction.user?.email}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end space-y-1">
+                        {getStatusBadge(transaction.payment_status)}
                         {getTypeBadge(transaction.transaction_type)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3 text-sm mb-3">
+                      <div>
+                        <span className="text-gray-500">Total:</span>
+                        <div className="font-medium text-gray-900">
+                          {formatCurrency(transaction.total_price)}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Peserta:</span>
+                        <div className="font-medium text-gray-900">
+                          {transaction.participants || transaction.passengers || '-'} orang
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Tanggal:</span>
+                        <div className="font-medium text-gray-900">
+                          {formatDate(transaction.created_at)}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Item:</span>
+                        <div className="font-medium text-gray-900">
                           {transaction.transaction_type === 'trip' ? 'Trip Package' : 'Travel Service'}
                         </div>
-                        <div className="text-sm text-gray-500">
-                          ID: {transaction.reference_id}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {transaction.participants || transaction.passengers || '-'} orang
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {formatCurrency(transaction.total_price)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {getStatusBadge(transaction.payment_status)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{formatDate(transaction.created_at)}</div>
-                        {transaction.departure_date && (
-                          <div className="text-sm text-gray-500">
-                            Berangkat: {formatDate(transaction.departure_date)}
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button
-                          onClick={() => loadTransactionDetail(transaction.id)}
-                          className="text-blue-600 hover:text-blue-900"
-                        >
-                          Detail
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-end">
+                      <button
+                        onClick={() => loadTransactionDetail(transaction.id)}
+                        className="text-blue-600 hover:text-blue-900 text-sm font-medium"
+                      >
+                        Lihat Detail
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
 
-              {transactions.length === 0 && !loading && (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">Tidak ada transaksi yang ditemukan</p>
-                </div>
-              )}
+          {transactions.length === 0 && !loading && (
+            <div className="text-center py-8">
+              <p className="text-gray-500">Tidak ada transaksi yang ditemukan</p>
             </div>
           )}
 
           {/* Pagination */}
           {pagination && pagination.last_page > 1 && (
-            <div className="px-6 py-4 border-t border-gray-200">
-              <div className="flex items-center justify-between">
+            <div className="px-4 lg:px-6 py-4 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
                 <div className="text-sm text-gray-700">
                   Menampilkan {pagination.from || 0} - {pagination.to || 0} dari {pagination.total} transaksi
                 </div>
                 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-1 sm:space-x-2">
                   {/* Previous Button */}
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage <= 1}
-                    className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                    className={`px-2 sm:px-3 py-2 text-sm font-medium rounded-lg ${
                       currentPage <= 1
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                     }`}
                   >
-                    Sebelumnya
+                    <span className="hidden sm:inline">Sebelumnya</span>
+                    <span className="sm:hidden">‹</span>
                   </button>
 
                   {/* Page Numbers */}
                   <div className="flex items-center space-x-1">
-                    {Array.from({ length: Math.min(5, pagination.last_page) }, (_, i) => {
+                    {Array.from({ length: Math.min(3, pagination.last_page) }, (_, i) => {
                       let pageNum;
-                      if (pagination.last_page <= 5) {
+                      if (pagination.last_page <= 3) {
                         pageNum = i + 1;
-                      } else if (currentPage <= 3) {
+                      } else if (currentPage <= 2) {
                         pageNum = i + 1;
-                      } else if (currentPage >= pagination.last_page - 2) {
-                        pageNum = pagination.last_page - 4 + i;
+                      } else if (currentPage >= pagination.last_page - 1) {
+                        pageNum = pagination.last_page - 2 + i;
                       } else {
-                        pageNum = currentPage - 2 + i;
+                        pageNum = currentPage - 1 + i;
                       }
 
                       return (
                         <button
                           key={pageNum}
                           onClick={() => handlePageChange(pageNum)}
-                          className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                          className={`px-2 sm:px-3 py-2 text-sm font-medium rounded-lg ${
                             currentPage === pageNum
                               ? 'bg-blue-600 text-white'
                               : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
@@ -512,13 +579,14 @@ const AdminTransactions = () => {
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage >= pagination.last_page}
-                    className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                    className={`px-2 sm:px-3 py-2 text-sm font-medium rounded-lg ${
                       currentPage >= pagination.last_page
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                     }`}
                   >
-                    Selanjutnya
+                    <span className="hidden sm:inline">Selanjutnya</span>
+                    <span className="sm:hidden">›</span>
                   </button>
                 </div>
               </div>
@@ -528,32 +596,32 @@ const AdminTransactions = () => {
 
         {/* Transaction Detail Modal */}
         {showDetailModal && selectedTransaction && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <motion.div
-              className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-screen overflow-y-auto"
+              className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-screen overflow-y-auto"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
             >
-              <div className="px-6 py-4 border-b border-gray-200">
+              <div className="px-4 lg:px-6 py-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-base lg:text-lg font-semibold text-gray-900">
                     Detail Transaksi
                   </h3>
                   <button
                     onClick={() => setShowDetailModal(false)}
-                    className="text-gray-400 hover:text-gray-600"
+                    className="text-gray-400 hover:text-gray-600 p-1"
                   >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
                 </div>
               </div>
 
-              <div className="px-6 py-4 space-y-4">
+              <div className="px-4 lg:px-6 py-4 space-y-4">
                 {/* Transaction Info */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Order ID</label>
                     <p className="text-sm text-gray-900">{selectedTransaction.midtrans_order_id}</p>
@@ -581,10 +649,10 @@ const AdminTransactions = () => {
                 {/* Referenced Item Info */}
                 {selectedTransaction.referenced_item && (
                   <div>
-                    <h4 className="text-md font-semibold text-gray-900 mb-2">
+                    <h4 className="text-sm lg:text-base font-semibold text-gray-900 mb-2">
                       Informasi {selectedTransaction.transaction_type === 'trip' ? 'Trip' : 'Travel'}
                     </h4>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700">
                           {selectedTransaction.transaction_type === 'trip' ? 'Nama Trip' : 'Rute Travel'}
@@ -629,8 +697,8 @@ const AdminTransactions = () => {
 
                 {/* Customer Info */}
                 <div>
-                  <h4 className="text-md font-semibold text-gray-900 mb-2">Informasi Customer</h4>
-                  <div className="grid grid-cols-2 gap-4">
+                  <h4 className="text-sm lg:text-base font-semibold text-gray-900 mb-2">Informasi Customer</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Nama</label>
                       <p className="text-sm text-gray-900">{selectedTransaction.user?.name}</p>
@@ -644,8 +712,8 @@ const AdminTransactions = () => {
 
                 {/* Booking Details */}
                 <div>
-                  <h4 className="text-md font-semibold text-gray-900 mb-2">Detail Pemesanan</h4>
-                  <div className="grid grid-cols-2 gap-4">
+                  <h4 className="text-sm lg:text-base font-semibold text-gray-900 mb-2">Detail Pemesanan</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {selectedTransaction.participants && (
                       <div>
                         <label className="block text-sm font-medium text-gray-700">Peserta</label>
@@ -695,11 +763,11 @@ const AdminTransactions = () => {
                 {/* Payment Information */}
                 {selectedTransaction.payments && selectedTransaction.payments.length > 0 && (
                   <div>
-                    <h4 className="text-md font-semibold text-gray-900 mb-2">Informasi Pembayaran</h4>
+                    <h4 className="text-sm lg:text-base font-semibold text-gray-900 mb-2">Informasi Pembayaran</h4>
                     <div className="space-y-2">
                       {selectedTransaction.payments.map((payment, index) => (
                         <div key={index} className="bg-gray-50 p-3 rounded-lg">
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                               <label className="block text-sm font-medium text-gray-700">Jenis Pembayaran</label>
                               <p className="text-sm text-gray-900">{payment.payment_type}</p>
@@ -708,7 +776,7 @@ const AdminTransactions = () => {
                               <label className="block text-sm font-medium text-gray-700">Status Transaksi</label>
                               <p className="text-sm text-gray-900">{payment.transaction_status}</p>
                             </div>
-                            <div className="col-span-2">
+                            <div className="sm:col-span-2">
                               <label className="block text-sm font-medium text-gray-700">Waktu Pembayaran</label>
                               <p className="text-sm text-gray-900">{formatDate(payment.created_at)}</p>
                             </div>
@@ -721,8 +789,8 @@ const AdminTransactions = () => {
 
                 {/* Timestamps */}
                 <div>
-                  <h4 className="text-md font-semibold text-gray-900 mb-2">Waktu</h4>
-                  <div className="grid grid-cols-2 gap-4">
+                  <h4 className="text-sm lg:text-base font-semibold text-gray-900 mb-2">Waktu</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Dibuat</label>
                       <p className="text-sm text-gray-900">{formatDate(selectedTransaction.created_at)}</p>
@@ -735,11 +803,12 @@ const AdminTransactions = () => {
                 </div>
               </div>
 
-              <div className="px-6 py-4 border-t border-gray-200">
+              <div className="px-4 lg:px-6 py-4 border-t border-gray-200">
                 <div className="flex justify-end">
                   <Button
                     onClick={() => setShowDetailModal(false)}
                     variant="outline"
+                    className="w-full sm:w-auto"
                   >
                     Tutup
                   </Button>
