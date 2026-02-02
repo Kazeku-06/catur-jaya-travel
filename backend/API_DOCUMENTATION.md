@@ -1,4 +1,4 @@
-# API Documentation - Catur Jaya Travel (v1.1)
+# API Documentation - Catur Jaya Travel (v1.2)
 
 ## Base URL
 
@@ -30,6 +30,42 @@ API menggunakan Laravel Sanctum. Masukkan token di Header:
 
 - **URL**: `POST /api/v1/auth/register`
 - **Body**: `name, email, password, password_confirmation`
+
+### Forgot Password
+
+- **URL**: `POST /api/v1/auth/forgot-password`
+- **Rate Limit**: 5 requests per 10 minutes
+- **Body**:
+    ```json
+    {
+        "email": "user@example.com"
+    }
+    ```
+- **Response**: Always returns success message for security
+    ```json
+    {
+        "message": "Jika email terdaftar, link reset password telah dikirim."
+    }
+    ```
+
+### Reset Password
+
+- **URL**: `POST /api/v1/auth/reset-password`
+- **Body**:
+    ```json
+    {
+        "email": "user@example.com",
+        "token": "TOKEN_FROM_EMAIL",
+        "password": "new_password",
+        "password_confirmation": "new_password"
+    }
+    ```
+- **Response**:
+    ```json
+    {
+        "message": "Password berhasil direset. Silakan login ulang."
+    }
+    ```
 
 ---
 

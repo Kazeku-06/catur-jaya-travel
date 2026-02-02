@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useForm } from '../../hooks/useForm';
 import { authValidation } from '../../utils/validation';
@@ -113,9 +114,12 @@ const LoginForm = ({ onSubmit, loading = false }) => {
           </div>
 
           <div className="text-sm">
-            <a href="#" className="font-medium text-primary-600 hover:text-primary-500">
+            <Link 
+              to="/forgot-password" 
+              className="font-medium text-primary-600 hover:text-primary-500"
+            >
               Lupa password?
-            </a>
+            </Link>
           </div>
         </div>
 

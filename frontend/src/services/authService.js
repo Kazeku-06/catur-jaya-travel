@@ -33,6 +33,18 @@ export const authService = {
     return response.data;
   },
 
+  // Forgot password - send reset email
+  forgotPassword: async (email) => {
+    const response = await api.post('/auth/forgot-password', { email });
+    return response.data;
+  },
+
+  // Reset password using token
+  resetPassword: async (resetData) => {
+    const response = await api.post('/auth/reset-password', resetData);
+    return response.data;
+  },
+
   // Check if user is authenticated
   isAuthenticated: () => {
     return !!localStorage.getItem('auth_token');

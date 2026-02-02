@@ -12,6 +12,8 @@ const Travels = lazy(() => import('./pages/Travels'));
 const TravelDetail = lazy(() => import('./pages/TravelDetail'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminTrips = lazy(() => import('./pages/AdminTrips'));
 const AdminTravels = lazy(() => import('./pages/AdminTravels'));
@@ -132,6 +134,18 @@ function App() {
                       <Register />
                     </PublicRoute>
                   } 
+                />
+                <Route 
+                  path="/forgot-password" 
+                  element={
+                    <PublicRoute>
+                      <ForgotPassword />
+                    </PublicRoute>
+                  } 
+                />
+                <Route 
+                  path="/reset-password" 
+                  element={<ResetPassword />} 
                 />
                 
                 {/* Payment Route */}

@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Api\V1\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\ForgotPasswordRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Models\User;
+use App\Services\PasswordResetService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -15,6 +18,12 @@ use Illuminate\Support\Facades\Hash;
  */
 class AuthController extends Controller
 {
+    protected $passwordResetService;
+
+    public function __construct(PasswordResetService $passwordResetService)
+    {
+        $this->passwordResetService = $passwordResetService;
+    }
     /**
      * Register a new user
      *
@@ -126,6 +135,52 @@ class AuthController extends Controller
                 'message' => 'Logout failed',
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Send password reset email
+     *
+     * @summary Request password reset
+     * @description Send password reset email to user. Always returns success to prevent email enumeration.
+     */
+    public function forgotPassword(ForgotPasswordRequest $request)
+    {
+        try {
+            $this->passwordResetService->sendResetEmail($request->email);
+
+            return response()->json([
+                'message' => 'Jika email terdaftar, link reset password telah dikirim.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Jika email terdaftar, link reset password telah dikirim.'
+            ]);
+        }
+    }
+
+    /**
+     * Reset password using token
+     *
+     * @summary Reset password
+     * @description Reset user password using email and token from reset email.
+     */
+    public function resetPassword(ResetPasswordRequest $request)
+    {
+        try {
+            $result = $this->passwordResetService->resetPassword(
+                $request->email,
+                $request->token,
+                $request->password
+            );
+
+            return response()->json([
+                'message' => $result['message']
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 400);
         }
     }
 }
