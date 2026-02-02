@@ -147,12 +147,22 @@ class AuthController extends Controller
     public function forgotPassword(ForgotPasswordRequest $request)
     {
         try {
-            $this->passwordResetService->sendResetEmail($request->email);
+            \Log::info('Forgot password request received', ['email' => $request->email]);
+            
+            $result = $this->passwordResetService->sendResetEmail($request->email);
+            
+            \Log::info('Forgot password service result', ['result' => $result]);
 
             return response()->json([
                 'message' => 'Jika email terdaftar, link reset password telah dikirim.'
             ]);
         } catch (\Exception $e) {
+            \Log::error('Forgot password error', [
+                'email' => $request->email,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'message' => 'Jika email terdaftar, link reset password telah dikirim.'
             ]);

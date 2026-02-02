@@ -21,13 +21,18 @@ class PasswordResetService
      */
     public function sendResetEmail(string $email): bool
     {
+        \Log::info('PasswordResetService: sendResetEmail called', ['email' => $email]);
+        
         // Always return true to prevent email enumeration
         // But only send email if user exists
         $user = User::where('email', $email)->first();
         
         if (!$user) {
+            \Log::info('PasswordResetService: User not found', ['email' => $email]);
             return true; // Don't reveal if email exists
         }
+
+        \Log::info('PasswordResetService: User found, generating token', ['user_id' => $user->id]);
 
         // Generate secure token
         $token = $this->generateToken();
@@ -35,8 +40,19 @@ class PasswordResetService
         // Store token in database (hashed)
         $this->storeToken($email, $token);
         
+        \Log::info('PasswordResetService: Token stored, sending email');
+        
         // Send email
-        $this->sendResetEmailToUser($user, $token);
+        try {
+            $this->sendResetEmailToUser($user, $token);
+            \Log::info('PasswordResetService: Email sent successfully');
+        } catch (\Exception $e) {
+            \Log::error('PasswordResetService: Email sending failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
         
         return true;
     }

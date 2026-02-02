@@ -26,14 +26,22 @@ const ForgotPassword = () => {
       setError('');
       setMessage('');
 
-      await authService.forgotPassword(email);
+      console.log('Sending forgot password request for:', email);
+      const response = await authService.forgotPassword(email);
+      console.log('Forgot password response:', response);
       
       setMessage('Jika email terdaftar, link reset password telah dikirim ke email Anda. Silakan periksa inbox dan folder spam.');
       setEmail(''); // Clear form
     } catch (error) {
       console.error('Forgot password error:', error);
-      // Always show generic message for security
-      setMessage('Jika email terdaftar, link reset password telah dikirim ke email Anda. Silakan periksa inbox dan folder spam.');
+      console.error('Error response:', error.response);
+      
+      // Show actual error for debugging
+      if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else {
+        setError('Terjadi kesalahan: ' + (error.message || 'Unknown error'));
+      }
     } finally {
       setLoading(false);
     }

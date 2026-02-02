@@ -12,23 +12,41 @@ const api = axios.create({
 // Request interceptor for adding auth token
 api.interceptors.request.use(
   (config) => {
-    let token = localStorage.getItem('auth_token');
+    // List of endpoints that don't require authentication
+    const publicEndpoints = [
+      '/auth/login',
+      '/auth/register', 
+      '/auth/forgot-password',
+      '/auth/reset-password',
+      '/trips',
+      '/travels'
+    ];
 
-    // Parse token if it's a JSON string (stored by useLocalStorage)
-    if (token) {
-      try {
-        // Try to parse in case it's a JSON string
-        const parsed = JSON.parse(token);
-        if (parsed) token = parsed;
-      } catch (e) {
-        // If parsing fails, it's likely a raw string, use as is
+    // Check if this is a public endpoint
+    const isPublicEndpoint = publicEndpoints.some(endpoint => 
+      config.url?.includes(endpoint)
+    );
+
+    // Only add token for protected endpoints
+    if (!isPublicEndpoint) {
+      let token = localStorage.getItem('auth_token');
+
+      // Parse token if it's a JSON string (stored by useLocalStorage)
+      if (token) {
+        try {
+          // Try to parse in case it's a JSON string
+          const parsed = JSON.parse(token);
+          if (parsed) token = parsed;
+        } catch (e) {
+          // If parsing fails, it's likely a raw string, use as is
+        }
+
+        config.headers.Authorization = `Bearer ${token}`;
+      } else {
+        console.log('No Auth Token found for protected endpoint:', config.url);
       }
-
-      console.log('Sending Auth Token:', token); // DEBUG
-      config.headers.Authorization = `Bearer ${token}`;
-    } else {
-      console.log('No Auth Token found in localStorage'); // DEBUG
     }
+    
     return config;
   },
   (error) => {

@@ -93,6 +93,52 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
             }
         });
 
+        // Test email sending
+        Route::get('test-email', function () {
+            try {
+                \Log::info('Testing email configuration...');
+                
+                // Test basic mail configuration
+                $config = config('mail');
+                \Log::info('Mail config', $config);
+                
+                \Illuminate\Support\Facades\Mail::raw('Test email from Laravel - Catur Jaya Travel', function ($message) {
+                    $message->to('tssytari@gmail.com')
+                            ->subject('Test Email - Catur Jaya Travel');
+                });
+                
+                \Log::info('Test email sent successfully');
+                return response()->json(['message' => 'Test email sent successfully!']);
+            } catch (\Exception $e) {
+                \Log::error('Test email failed', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
+        });
+
+        // Test forgot password directly
+        Route::get('test-forgot/{email}', function ($email) {
+            try {
+                \Log::info('Testing forgot password for: ' . $email);
+                
+                $service = new \App\Services\PasswordResetService();
+                $result = $service->sendResetEmail($email);
+                
+                return response()->json([
+                    'message' => 'Forgot password test completed',
+                    'result' => $result
+                ]);
+            } catch (\Exception $e) {
+                \Log::error('Test forgot password failed', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
+        });
+
         // Booking endpoints
         Route::post('bookings/trip/{id}', [BookingController::class, 'createTripBooking']);
         Route::post('bookings/travel/{id}', [BookingController::class, 'createTravelBooking']);
