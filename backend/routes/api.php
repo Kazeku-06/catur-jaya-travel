@@ -98,8 +98,8 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
         Route::get('bookings', [AdminBookingController::class, 'index']);
         Route::get('bookings/statistics', [AdminBookingController::class, 'statistics']);
         Route::get('bookings/{id}', [AdminBookingController::class, 'show']);
-        Route::post('bookings/{id}/approve', [AdminBookingController::class, 'approve']);
-        Route::post('bookings/{id}/reject', [AdminBookingController::class, 'reject']);
+        Route::put('bookings/{id}/approve', [AdminBookingController::class, 'approve']);
+        Route::put('bookings/{id}/reject', [AdminBookingController::class, 'reject']);
 
         // Admin Notification Management
         Route::prefix('notifications')->group(function () {

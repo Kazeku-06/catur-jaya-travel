@@ -110,7 +110,8 @@
             font-size: 10px;
             font-weight: bold;
             display: inline-block;
-            margin-bottom: 15px;
+            vertical-align: middle;
+            margin-left: 5px;
         }
         
         .qr-code {
@@ -245,7 +246,7 @@
                     <div class="info-label">Informasi Pembayaran</div>
                     <div class="info-value">
                         <strong>Metode:</strong> {{ $payment_method }}<br>
-                        <strong>Status:</strong> <span class="status-badge">LUNAS</span><br>
+                        <strong>Status:</strong><span class="status-badge">LUNAS</span><br>
                         <strong>Tanggal Validasi:</strong> {{ $validation_date->format('d/m/Y H:i') }} WIB
                     </div>
                 </div>
