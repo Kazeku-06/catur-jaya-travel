@@ -44,6 +44,27 @@ Route::prefix('v1')->group(function () {
                 'token' => $request->bearerToken()
             ]);
         });
+
+        // Test ticket generation
+        Route::get('test-ticket/{id}', function (Request $request, $id) {
+            try {
+                $booking = \App\Models\Booking::find($id);
+                if (!$booking) {
+                    return response()->json(['error' => 'Booking not found'], 404);
+                }
+                
+                return response()->json([
+                    'booking_id' => $booking->id,
+                    'booking_code' => $booking->booking_code,
+                    'status' => $booking->status,
+                    'can_download' => $booking->canDownloadTicket(),
+                    'user_id' => $booking->user_id,
+                    'catalog_type' => $booking->catalog_type,
+                ]);
+            } catch (\Exception $e) {
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
+        });
         
         // Booking endpoints
         Route::post('bookings/trip/{id}', [BookingController::class, 'createTripBooking']);

@@ -259,13 +259,24 @@
 
             <!-- Right Section -->
             <div class="right-section">
-                <div class="info-label">QR Code Verifikasi</div>
-                <div class="qr-code">
-                    <img src="data:image/png;base64,{{ $qr_code_base64 }}" alt="QR Code">
-                </div>
-                <div class="info-value" style="font-size: 10px;">
-                    Scan QR code untuk verifikasi tiket
-                </div>
+                <div class="info-label">Kode Verifikasi</div>
+                @if($qr_code_base64)
+                    <div class="qr-code">
+                        <img src="data:image/png;base64,{{ $qr_code_base64 }}" alt="QR Code">
+                    </div>
+                    <div class="info-value" style="font-size: 10px;">
+                        Scan QR code untuk verifikasi tiket
+                    </div>
+                @else
+                    <div class="qr-code" style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                        <div style="font-family: monospace; font-size: 10px; word-break: break-all; text-align: center;">
+                            {{ $booking->booking_code }}
+                        </div>
+                    </div>
+                    <div class="info-value" style="font-size: 10px;">
+                        Gunakan kode booking untuk verifikasi
+                    </div>
+                @endif
 
                 <div style="margin-top: 20px;">
                     <div class="info-label">Booking ID</div>

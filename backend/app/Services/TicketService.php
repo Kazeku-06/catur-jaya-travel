@@ -23,9 +23,12 @@ class TicketService
         $booking->load(['user', 'latestPaymentProof']);
         $catalog = $booking->catalog;
 
-        // Generate QR code
+        // Generate QR code data (as text for now, can be enhanced later)
         $qrCodeData = $this->generateQrCodeData($booking);
-        $qrCodeBase64 = base64_encode(QrCode::format('png')->size(150)->generate($qrCodeData));
+        
+        // For now, we'll use a simple text representation instead of actual QR code
+        // This can be enhanced later when imagick is available
+        $qrCodeBase64 = $this->generateSimpleQrCode($qrCodeData);
 
         // Prepare ticket data
         $ticketData = $this->prepareTicketData($booking, $catalog, $qrCodeBase64);
@@ -79,10 +82,20 @@ class TicketService
             'payment_method' => $paymentMethod,
             'validation_date' => $validationDate,
             'qr_code_base64' => $qrCodeBase64,
+            'qr_code_data' => $this->generateQrCodeData($booking),
             'company_name' => 'Catur Jaya Travel',
             'company_address' => 'Jl. Raya No. 123, Jakarta',
             'company_phone' => '+62 812-3456-7890',
             'company_email' => 'info@caturjayatravel.com',
         ];
+    }
+
+    /**
+     * Generate simple QR code placeholder (until imagick is available)
+     */
+    private function generateSimpleQrCode($data)
+    {
+        // For now, return null - we'll show text instead of QR code
+        return null;
     }
 }
