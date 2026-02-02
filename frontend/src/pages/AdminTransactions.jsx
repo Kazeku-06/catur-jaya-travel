@@ -1,824 +1,653 @@
-import { useState, useEffect } from 'react';
+  import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import AdminLayout from '../components/Layout/AdminLayout';
+import Layout from '../components/Layout/AdminLayout';
 import Button from '../components/ui/Button';
-import Alert from '../components/ui/Alert';
-import { formatCurrency, formatDate } from '../utils/helpers';
+import Badge from '../components/ui/Badge';
+import Modal from '../components/ui/Modal';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 import api from '../config/api';
+import { formatCurrency, formatDate } from '../utils/helpers';
+import { BOOKING_STATUS } from '../utils/constants';
 
 const AdminTransactions = () => {
-  const [transactions, setTransactions] = useState([]);
-  const [pagination, setPagination] = useState(null);
-  const [statistics, setStatistics] = useState(null);
-  const [loading, setLoading] = useState(false);  
-  const [alert, setAlert] = useState({ show: false, type: '', message: '' });
-  const [selectedTransaction, setSelectedTransaction] = useState(null);
-  const [showDetailModal, setShowDetailModal] = useState(false);     
-  
-  // Filters and pagination
-  const [filters, setFilters] = useState({
-    payment_status: '',
-    transaction_type: '',
-    start_date: '',
-    end_date: '',
-    search: ''
-  });
+  const [authToken] = useLocalStorage('auth_token', null);
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('all');
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [newStatus, setNewStatus] = useState('');
+  const [rejectReason, setRejectReason] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const showAlert = (type, message) => {
-    setAlert({ show: true, type, message });
-    setTimeout(() => setAlert({ show: false, type: '', message: '' }), 5000);
-  };
+  useEffect(() => {
+    fetchBookings();
+  }, [currentPage, filter, searchTerm]);
 
-  // Load transactions with pagination
-  const loadTransactions = async (page = 1) => {
+  const fetchBookings = async () => {
     try {
       setLoading(true);
-      console.log('Loading transactions with filters:', filters, 'page:', page);
-      
-      // Build query parameters
-      const params = new URLSearchParams();
-      params.append('page', page);
-      params.append('per_page', 10); // 10 items per page
-      
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) params.append(key, value);
+      const params = new URLSearchParams({
+        page: currentPage,
+        per_page: 20,
       });
+
+      if (filter !== 'all') {
+        params.append('status', filter);
+      }
+
+      if (searchTerm) {
+        params.append('search', searchTerm);
+      }
+
+      const response = await api.get(`/admin/bookings?${params}`);
+      setBookings(response.data.data || []);
       
-      const response = await api.get(`/admin/transactions?${params}`);
-      console.log('Transactions loaded:', response.data);
-      
-      setTransactions(response.data.data || []);
-      setPagination(response.data.pagination || null);
-      setCurrentPage(page);
+      if (response.data.pagination) {
+        setTotalPages(response.data.pagination.last_page);
+      }
     } catch (error) {
-      console.error('Error loading transactions:', error);
-      showAlert('error', 'Gagal memuat data transaksi');
+      console.error('Error fetching bookings:', error);
     } finally {
       setLoading(false);
     }
-  };
-
-  // Load statistics
-  const loadStatistics = async () => {
-    try {
-      const response = await api.get('/admin/transactions/statistics');
-      console.log('Statistics loaded:', response.data);
-      setStatistics(response.data.data || {});
-    } catch (error) {
-      console.error('Error loading statistics:', error);
-    }
-  };
-
-  // Load transaction detail
-  const loadTransactionDetail = async (transactionId) => {
-    try {
-      setLoading(true);
-      const response = await api.get(`/admin/transactions/${transactionId}`);
-      console.log('Transaction detail loaded:', response.data);
-      
-      // Handle the new API response structure
-      const transactionData = response.data.data;
-      setSelectedTransaction({
-        ...transactionData.transaction,
-        referenced_item: transactionData.referenced_item
-      });
-      setShowDetailModal(true);
-    } catch (error) {
-      console.error('Error loading transaction detail:', error);
-      showAlert('error', 'Gagal memuat detail transaksi');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadTransactions(1);
-    loadStatistics();
-  }, []);
-
-  useEffect(() => {
-    loadTransactions(1); // Reset to page 1 when filters change
-  }, [filters]);
-
-  const handleFilterChange = (key, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [key]: value
-    }));
-  };
-
-  const clearFilters = () => {
-    setFilters({
-      payment_status: '',
-      transaction_type: '',
-      start_date: '',
-      end_date: '',
-      search: ''
-    });
-  };
-
-  const handlePageChange = (page) => {
-    loadTransactions(page);
   };
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Menunggu' },
-      paid: { bg: 'bg-green-100', text: 'text-green-800', label: 'Lunas' },
-      failed: { bg: 'bg-red-100', text: 'text-red-800', label: 'Gagal' },
-      expired: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Expired' },
+      menunggu_pembayaran: { variant: 'warning', label: 'Menunggu Pembayaran' },
+      menunggu_validasi: { variant: 'info', label: 'Menunggu Validasi' },
+      lunas: { variant: 'success', label: 'Lunas' },
+      ditolak: { variant: 'error', label: 'Ditolak' },
+      expired: { variant: 'error', label: 'Expired' }
     };
     
-    const config = statusConfig[status] || statusConfig.pending;
-    
-    return (
-      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${config.bg} ${config.text}`}>
-        {config.label}
-      </span>
-    );
+    const config = statusConfig[status] || { variant: 'secondary', label: status };
+    return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
-  const getTypeBadge = (type) => {
-    const typeConfig = {
-      trip: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Trip' },
-      travel: { bg: 'bg-purple-100', text: 'text-purple-800', label: 'Travel' },
+  const getStatusLabel = (status) => {
+    const labels = {
+      menunggu_pembayaran: 'Menunggu Pembayaran',
+      menunggu_validasi: 'Menunggu Validasi',
+      lunas: 'Lunas',
+      ditolak: 'Ditolak',
+      expired: 'Expired'
     };
-    
-    const config = typeConfig[type] || typeConfig.trip;
-    
-    return (
-      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${config.bg} ${config.text}`}>
-        {config.label}
-      </span>
-    );
+    return labels[status] || status;
   };
+
+  const handleApprove = async (bookingId) => {
+    try {
+      setActionLoading(true);
+      await api.put(`/admin/bookings/${bookingId}/approve`);
+      await fetchBookings();
+      setShowDetailModal(false);
+      alert('Pembayaran berhasil disetujui');
+    } catch (error) {
+      console.error('Error approving booking:', error);
+      alert('Gagal menyetujui pembayaran');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleReject = async (bookingId) => {
+    try {
+      setActionLoading(true);
+      await api.put(`/admin/bookings/${bookingId}/reject`, {
+        reason: rejectReason
+      });
+      await fetchBookings();
+      setShowDetailModal(false);
+      setRejectReason('');
+      alert('Pembayaran berhasil ditolak');
+    } catch (error) {
+      console.error('Error rejecting booking:', error);
+      alert('Gagal menolak pembayaran');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleStatusChange = async () => {
+    if (!selectedBooking || !newStatus) return;
+
+    try {
+      setActionLoading(true);
+      
+      if (newStatus === 'lunas') {
+        await api.put(`/admin/bookings/${selectedBooking.id}/approve`);
+      } else if (newStatus === 'ditolak') {
+        await api.put(`/admin/bookings/${selectedBooking.id}/reject`, {
+          reason: rejectReason
+        });
+      } else {
+        // For other status changes, we might need a general update endpoint
+        // For now, we'll handle specific cases
+        alert('Status ini belum bisa diubah secara manual');
+        return;
+      }
+
+      await fetchBookings();
+      setShowStatusModal(false);
+      setNewStatus('');
+      setRejectReason('');
+      alert('Status berhasil diubah');
+    } catch (error) {
+      console.error('Error changing status:', error);
+      alert('Gagal mengubah status');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const showBookingDetail = (booking) => {
+    setSelectedBooking(booking);
+    setShowDetailModal(true);
+  };
+
+  const showStatusChangeModal = (booking) => {
+    setSelectedBooking(booking);
+    setNewStatus(booking.status);
+    setShowStatusModal(true);
+  };
+
+  const filteredBookings = bookings;
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-300 rounded w-1/3 mb-8"></div>
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="bg-white rounded-xl p-6 shadow-sm mb-4">
+                <div className="h-6 bg-gray-300 rounded w-1/2 mb-4"></div>
+                <div className="h-4 bg-gray-300 rounded mb-2"></div>
+                <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
-    <AdminLayout>
-      <div className="space-y-4 lg:space-y-6 min-w-0">
-        {/* Statistics Cards */}
-        {statistics && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
-            <motion.div
-              className="bg-white rounded-lg shadow p-3 lg:p-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <div className="flex items-center">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <svg className="w-4 h-4 lg:w-6 lg:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <div className="ml-3 lg:ml-4">
-                  <p className="text-xs lg:text-sm font-medium text-gray-600">Total Transaksi</p>
-                  <p className="text-lg lg:text-2xl font-bold text-gray-900">{statistics.total_transactions || 0}</p>
-                </div>
-              </div>
-            </motion.div>
+    <Layout>
+      {/* Header */}
+      <motion.div
+        className="mb-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Kelola Transaksi</h1>
+        <p className="text-gray-600">Kelola semua booking dan ubah status transaksi</p>
+      </motion.div>
 
-            <motion.div
-              className="bg-white rounded-lg shadow p-3 lg:p-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <div className="flex items-center">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <svg className="w-4 h-4 lg:w-6 lg:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+          {/* Search and Filters */}
+          <motion.div
+            className="mb-6 space-y-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            {/* Search */}
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    placeholder="Cari berdasarkan nama, email, atau nama pemesan..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  />
                 </div>
-                <div className="ml-3 lg:ml-4">
-                  <p className="text-xs lg:text-sm font-medium text-gray-600">Transaksi Lunas</p>
-                  <p className="text-lg lg:text-2xl font-bold text-gray-900">{statistics.paid_transactions || 0}</p>
-                </div>
+                <Button
+                  onClick={fetchBookings}
+                  variant="primary"
+                >
+                  Cari
+                </Button>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              className="bg-white rounded-lg shadow p-3 lg:p-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <div className="flex items-center">
-                <div className="p-2 bg-yellow-100 rounded-lg">
-                  <svg className="w-4 h-4 lg:w-6 lg:h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="ml-3 lg:ml-4">
-                  <p className="text-xs lg:text-sm font-medium text-gray-600">Menunggu Pembayaran</p>
-                  <p className="text-lg lg:text-2xl font-bold text-gray-900">{statistics.pending_transactions || 0}</p>
-                </div>
-              </div>
-            </motion.div>
+            {/* Filter Tabs */}
+            <div className="flex flex-wrap gap-2 bg-white rounded-lg p-2 shadow-sm">
+              {[
+                { key: 'all', label: 'Semua' },
+                { key: 'menunggu_pembayaran', label: 'Menunggu Pembayaran' },
+                { key: 'menunggu_validasi', label: 'Menunggu Validasi' },
+                { key: 'lunas', label: 'Lunas' },
+                { key: 'ditolak', label: 'Ditolak' },
+                { key: 'expired', label: 'Expired' }
+              ].map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => {
+                    setFilter(tab.key);
+                    setCurrentPage(1);
+                  }}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                    filter === tab.key
+                      ? 'bg-primary-600 text-white'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </motion.div>
 
-            <motion.div
-              className="bg-white rounded-lg shadow p-3 lg:p-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <div className="flex items-center">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <svg className="w-4 h-4 lg:w-6 lg:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+          {/* Bookings Table */}
+          <motion.div
+            className="bg-white rounded-xl shadow-sm overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      ID Booking
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Catalog
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Pelanggan
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Total
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Tanggal
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Aksi
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredBookings.map((booking) => (
+                    <tr key={booking.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-mono text-gray-900">
+                          {booking.id.substring(0, 8)}...
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {booking.catalog?.title || booking.catalog?.name}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {booking.catalog_type === 'trip' ? 'Paket Trip' : 'Travel'}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {booking.user?.name}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {booking.booking_data?.nama_pemesan}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {booking.booking_data?.nomor_hp}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {formatCurrency(booking.total_price)}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {booking.booking_data?.jumlah_orang} orang
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center space-x-2">
+                          {getStatusBadge(booking.status)}
+                          <button
+                            onClick={() => showStatusChangeModal(booking)}
+                            className="text-xs text-primary-600 hover:text-primary-800"
+                          >
+                            Ubah
+                          </button>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500">
+                          {formatDate(booking.created_at)}
+                        </div>
+                        {booking.expired_at && (
+                          <div className="text-xs text-red-500">
+                            Expired: {formatDate(booking.expired_at)}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => showBookingDetail(booking)}
+                        >
+                          Detail
+                        </Button>
+                        {booking.status === 'menunggu_validasi' && (
+                          <>
+                            <Button
+                              variant="success"
+                              size="sm"
+                              onClick={() => handleApprove(booking.id)}
+                              loading={actionLoading}
+                            >
+                              Setujui
+                            </Button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {filteredBookings.length === 0 && (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                 </div>
-                <div className="ml-3 lg:ml-4">
-                  <p className="text-xs lg:text-sm font-medium text-gray-600">Total Pendapatan</p>
-                  <p className="text-lg lg:text-2xl font-bold text-gray-900">
-                    {formatCurrency(statistics.total_revenue || 0)}
-                  </p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Tidak ada booking
+                </h3>
+                <p className="text-gray-600">
+                  {filter === 'all' 
+                    ? 'Belum ada booking yang masuk.'
+                    : `Tidak ada booking dengan status ${getStatusLabel(filter)}.`
+                  }
+                </p>
+              </div>
+            )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                <div className="flex-1 flex justify-between sm:hidden">
+                  <Button
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    variant="outline"
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                    variant="outline"
+                  >
+                    Next
+                  </Button>
+                </div>
+                <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm text-gray-700">
+                      Halaman <span className="font-medium">{currentPage}</span> dari{' '}
+                      <span className="font-medium">{totalPages}</span>
+                    </p>
+                  </div>
+                  <div>
+                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                      <Button
+                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                        disabled={currentPage === 1}
+                        variant="outline"
+                        size="sm"
+                      >
+                        Previous
+                      </Button>
+                      <Button
+                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                        disabled={currentPage === totalPages}
+                        variant="outline"
+                        size="sm"
+                      >
+                        Next
+                      </Button>
+                    </nav>
+                  </div>
                 </div>
               </div>
-            </motion.div>
+            )}
+          </motion.div>
+
+      {/* Detail Modal */}
+      <Modal
+        isOpen={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+        title="Detail Booking"
+        size="lg"
+      >
+        {selectedBooking && (
+          <div className="space-y-6">
+            {/* Booking Info */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Informasi Booking</h3>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-600">ID Booking:</span>
+                  <p className="font-mono font-medium">{selectedBooking.id}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">Catalog:</span>
+                  <p className="font-medium">{selectedBooking.catalog?.title || selectedBooking.catalog?.name}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">Tipe:</span>
+                  <p className="font-medium">{selectedBooking.catalog_type === 'trip' ? 'Paket Trip' : 'Travel'}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">User:</span>
+                  <p className="font-medium">{selectedBooking.user?.name} ({selectedBooking.user?.email})</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">Nama Pemesan:</span>
+                  <p className="font-medium">{selectedBooking.booking_data?.nama_pemesan}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">Nomor HP:</span>
+                  <p className="font-medium">{selectedBooking.booking_data?.nomor_hp}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">Jumlah Orang:</span>
+                  <p className="font-medium">{selectedBooking.booking_data?.jumlah_orang} orang</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">Tanggal Keberangkatan:</span>
+                  <p className="font-medium">{formatDate(selectedBooking.booking_data?.tanggal_keberangkatan)}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">Total Harga:</span>
+                  <p className="font-medium text-primary-600">{formatCurrency(selectedBooking.total_price)}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">Status:</span>
+                  <div className="mt-1">{getStatusBadge(selectedBooking.status)}</div>
+                </div>
+                <div>
+                  <span className="text-gray-600">Tanggal Booking:</span>
+                  <p className="font-medium">{formatDate(selectedBooking.created_at)}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">Expired:</span>
+                  <p className="font-medium">{formatDate(selectedBooking.expired_at)}</p>
+                </div>
+              </div>
+              
+              {selectedBooking.booking_data?.catatan_tambahan && (
+                <div className="mt-4">
+                  <span className="text-gray-600">Catatan Tambahan:</span>
+                  <p className="font-medium mt-1">{selectedBooking.booking_data.catatan_tambahan}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Payment Proof */}
+            {selectedBooking.payment_proof && (
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Bukti Pembayaran</h3>
+                <div className="flex items-start space-x-4">
+                  <img
+                    src={selectedBooking.payment_proof.image_url}
+                    alt="Bukti pembayaran"
+                    className="w-48 h-48 object-cover border border-gray-300 rounded-lg"
+                  />
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-600 mb-2">
+                      Diupload: {formatDate(selectedBooking.payment_proof.uploaded_at)}
+                    </p>
+                    {selectedBooking.payment_proof.bank_name && (
+                      <p className="text-sm text-gray-600 mb-2">
+                        Bank: {selectedBooking.payment_proof.bank_name}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Quick Actions */}
+            {selectedBooking.status === 'menunggu_validasi' && (
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Aksi Cepat</h3>
+                <div className="space-y-4">
+                  <div className="flex space-x-3">
+                    <Button
+                      variant="success"
+                      onClick={() => handleApprove(selectedBooking.id)}
+                      loading={actionLoading}
+                      className="flex-1"
+                    >
+                      Setujui Pembayaran
+                    </Button>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Alasan Penolakan (opsional)
+                    </label>
+                    <textarea
+                      value={rejectReason}
+                      onChange={(e) => setRejectReason(e.target.value)}
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="Masukkan alasan jika menolak pembayaran..."
+                    />
+                  </div>
+                  
+                  <Button
+                    variant="error"
+                    onClick={() => handleReject(selectedBooking.id)}
+                    loading={actionLoading}
+                    className="w-full"
+                  >
+                    Tolak Pembayaran
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         )}
+      </Modal>
 
-        {alert.show && (
-          <Alert
-            type={alert.type}
-            message={alert.message}
-            onClose={() => setAlert({ show: false, type: '', message: '' })}
-          />
-        )}
-
-        {/* Filters */}
-        <motion.div
-          className="bg-white rounded-lg shadow p-4 lg:p-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <h3 className="text-base lg:text-lg font-semibold text-gray-900 mb-4">Filter Transaksi</h3>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 lg:gap-4">
-            {/* Payment Status Filter */}
+      {/* Status Change Modal */}
+      <Modal
+        isOpen={showStatusModal}
+        onClose={() => setShowStatusModal(false)}
+        title="Ubah Status Booking"
+        size="md"
+      >
+        {selectedBooking && (
+          <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Status Pembayaran
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Status Saat Ini
+              </label>
+              <div>{getStatusBadge(selectedBooking.status)}</div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Status Baru
               </label>
               <select
-                value={filters.payment_status}
-                onChange={(e) => handleFilterChange('payment_status', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={newStatus}
+                onChange={(e) => setNewStatus(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               >
-                <option value="">Semua Status</option>
-                <option value="pending">Menunggu</option>
-                <option value="paid">Lunas</option>
-                <option value="failed">Gagal</option>
+                <option value="">Pilih Status</option>
+                <option value="menunggu_pembayaran">Menunggu Pembayaran</option>
+                <option value="menunggu_validasi">Menunggu Validasi</option>
+                <option value="lunas">Lunas</option>
+                <option value="ditolak">Ditolak</option>
                 <option value="expired">Expired</option>
               </select>
             </div>
 
-            {/* Transaction Type Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Jenis Transaksi
-              </label>
-              <select
-                value={filters.transaction_type}
-                onChange={(e) => handleFilterChange('transaction_type', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">Semua Jenis</option>
-                <option value="trip">Trip</option>
-                <option value="travel">Travel</option>
-              </select>
-            </div>
+            {newStatus === 'ditolak' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Alasan Penolakan
+                </label>
+                <textarea
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="Masukkan alasan penolakan..."
+                />
+              </div>
+            )}
 
-            {/* Start Date Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tanggal Mulai
-              </label>
-              <input
-                type="date"
-                value={filters.start_date}
-                onChange={(e) => handleFilterChange('start_date', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-
-            {/* End Date Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tanggal Akhir
-              </label>
-              <input
-                type="date"
-                value={filters.end_date}
-                onChange={(e) => handleFilterChange('end_date', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-
-            {/* Clear Filters Button */}
-            <div className="flex items-end">
+            <div className="flex space-x-3 pt-4">
               <Button
-                onClick={clearFilters}
                 variant="outline"
-                className="w-full"
+                onClick={() => setShowStatusModal(false)}
+                className="flex-1"
               >
-                Reset Filter
+                Batal
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleStatusChange}
+                loading={actionLoading}
+                disabled={!newStatus || newStatus === selectedBooking.status}
+                className="flex-1"
+              >
+                Ubah Status
               </Button>
             </div>
           </div>
-
-          {/* Search Bar */}
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Cari Transaksi
-            </label>
-            <input
-              type="text"
-              placeholder="Cari berdasarkan Order ID, nama customer, atau email..."
-              value={filters.search}
-              onChange={(e) => handleFilterChange('search', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-        </motion.div>
-
-        {/* Transactions Table */}
-        <motion.div
-          className="bg-white rounded-lg shadow overflow-hidden"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-        >
-          <div className="px-4 lg:px-6 py-4 border-b border-gray-200">
-            <h3 className="text-base lg:text-lg font-semibold text-gray-900">Daftar Transaksi</h3>
-          </div>
-
-          {loading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-gray-500 mt-2">Memuat data transaksi...</p>
-            </div>
-          ) : (
-            <>
-              {/* Desktop Table View */}
-              <div className="hidden lg:block">
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Order ID
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Customer
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Jenis
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Item
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Peserta/Penumpang
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Total
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Tanggal
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Aksi
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {transactions.map((transaction) => (
-                        <tr key={transaction.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">
-                              {transaction.midtrans_order_id}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{transaction.user?.name}</div>
-                            <div className="text-sm text-gray-500">{transaction.user?.email}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {getTypeBadge(transaction.transaction_type)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">
-                              {transaction.transaction_type === 'trip' ? 'Trip Package' : 'Travel Service'}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              ID: {transaction.reference_id}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {transaction.participants || transaction.passengers || '-'} orang
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {formatCurrency(transaction.total_price)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {getStatusBadge(transaction.payment_status)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{formatDate(transaction.created_at)}</div>
-                            {transaction.departure_date && (
-                              <div className="text-sm text-gray-500">
-                                Berangkat: {formatDate(transaction.departure_date)}
-                              </div>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button
-                              onClick={() => loadTransactionDetail(transaction.id)}
-                              className="text-blue-600 hover:text-blue-900"
-                            >
-                              Detail
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Mobile Card View */}
-              <div className="lg:hidden divide-y divide-gray-200">
-                {transactions.map((transaction) => (
-                  <div key={transaction.id} className="p-4 hover:bg-gray-50">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <div className="text-sm font-medium text-gray-900 mb-1">
-                          {transaction.midtrans_order_id}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {transaction.user?.name}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {transaction.user?.email}
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end space-y-1">
-                        {getStatusBadge(transaction.payment_status)}
-                        {getTypeBadge(transaction.transaction_type)}
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-3 text-sm mb-3">
-                      <div>
-                        <span className="text-gray-500">Total:</span>
-                        <div className="font-medium text-gray-900">
-                          {formatCurrency(transaction.total_price)}
-                        </div>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Peserta:</span>
-                        <div className="font-medium text-gray-900">
-                          {transaction.participants || transaction.passengers || '-'} orang
-                        </div>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Tanggal:</span>
-                        <div className="font-medium text-gray-900">
-                          {formatDate(transaction.created_at)}
-                        </div>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Item:</span>
-                        <div className="font-medium text-gray-900">
-                          {transaction.transaction_type === 'trip' ? 'Trip Package' : 'Travel Service'}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-end">
-                      <button
-                        onClick={() => loadTransactionDetail(transaction.id)}
-                        className="text-blue-600 hover:text-blue-900 text-sm font-medium"
-                      >
-                        Lihat Detail
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-
-          {transactions.length === 0 && !loading && (
-            <div className="text-center py-8">
-              <p className="text-gray-500">Tidak ada transaksi yang ditemukan</p>
-            </div>
-          )}
-
-          {/* Pagination */}
-          {pagination && pagination.last_page > 1 && (
-            <div className="px-4 lg:px-6 py-4 border-t border-gray-200">
-              <div className="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
-                <div className="text-sm text-gray-700">
-                  Menampilkan {pagination.from || 0} - {pagination.to || 0} dari {pagination.total} transaksi
-                </div>
-                
-                <div className="flex items-center space-x-1 sm:space-x-2">
-                  {/* Previous Button */}
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage <= 1}
-                    className={`px-2 sm:px-3 py-2 text-sm font-medium rounded-lg ${
-                      currentPage <= 1
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    <span className="hidden sm:inline">Sebelumnya</span>
-                    <span className="sm:hidden">‹</span>
-                  </button>
-
-                  {/* Page Numbers */}
-                  <div className="flex items-center space-x-1">
-                    {Array.from({ length: Math.min(3, pagination.last_page) }, (_, i) => {
-                      let pageNum;
-                      if (pagination.last_page <= 3) {
-                        pageNum = i + 1;
-                      } else if (currentPage <= 2) {
-                        pageNum = i + 1;
-                      } else if (currentPage >= pagination.last_page - 1) {
-                        pageNum = pagination.last_page - 2 + i;
-                      } else {
-                        pageNum = currentPage - 1 + i;
-                      }
-
-                      return (
-                        <button
-                          key={pageNum}
-                          onClick={() => handlePageChange(pageNum)}
-                          className={`px-2 sm:px-3 py-2 text-sm font-medium rounded-lg ${
-                            currentPage === pageNum
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                          }`}
-                        >
-                          {pageNum}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Next Button */}
-                  <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage >= pagination.last_page}
-                    className={`px-2 sm:px-3 py-2 text-sm font-medium rounded-lg ${
-                      currentPage >= pagination.last_page
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    <span className="hidden sm:inline">Selanjutnya</span>
-                    <span className="sm:hidden">›</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </motion.div>
-
-        {/* Transaction Detail Modal */}
-        {showDetailModal && selectedTransaction && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <motion.div
-              className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-screen overflow-y-auto"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-            >
-              <div className="px-4 lg:px-6 py-4 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base lg:text-lg font-semibold text-gray-900">
-                    Detail Transaksi
-                  </h3>
-                  <button
-                    onClick={() => setShowDetailModal(false)}
-                    className="text-gray-400 hover:text-gray-600 p-1"
-                  >
-                    <svg className="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              <div className="px-4 lg:px-6 py-4 space-y-4">
-                {/* Transaction Info */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Order ID</label>
-                    <p className="text-sm text-gray-900">{selectedTransaction.midtrans_order_id}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Status</label>
-                    <div className="mt-1">
-                      {getStatusBadge(selectedTransaction.payment_status)}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Jenis</label>
-                    <div className="mt-1">
-                      {getTypeBadge(selectedTransaction.transaction_type)}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Total</label>
-                    <p className="text-sm text-gray-900 font-semibold">
-                      {formatCurrency(selectedTransaction.total_price)}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Referenced Item Info */}
-                {selectedTransaction.referenced_item && (
-                  <div>
-                    <h4 className="text-sm lg:text-base font-semibold text-gray-900 mb-2">
-                      Informasi {selectedTransaction.transaction_type === 'trip' ? 'Trip' : 'Travel'}
-                    </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          {selectedTransaction.transaction_type === 'trip' ? 'Nama Trip' : 'Rute Travel'}
-                        </label>
-                        <p className="text-sm text-gray-900">
-                          {selectedTransaction.referenced_item.title || 
-                           selectedTransaction.referenced_item.name ||
-                           `${selectedTransaction.referenced_item.origin} - ${selectedTransaction.referenced_item.destination}`}
-                        </p>
-                      </div>
-                      {selectedTransaction.transaction_type === 'trip' && (
-                        <>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700">Lokasi</label>
-                            <p className="text-sm text-gray-900">{selectedTransaction.referenced_item.location}</p>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700">Durasi</label>
-                            <p className="text-sm text-gray-900">{selectedTransaction.referenced_item.duration}</p>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700">Harga per Orang</label>
-                            <p className="text-sm text-gray-900">{formatCurrency(selectedTransaction.referenced_item.price)}</p>
-                          </div>
-                        </>
-                      )}
-                      {selectedTransaction.transaction_type === 'travel' && (
-                        <>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700">Jenis Kendaraan</label>
-                            <p className="text-sm text-gray-900">{selectedTransaction.referenced_item.vehicle_type}</p>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700">Harga per Orang</label>
-                            <p className="text-sm text-gray-900">{formatCurrency(selectedTransaction.referenced_item.price_per_person)}</p>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Customer Info */}
-                <div>
-                  <h4 className="text-sm lg:text-base font-semibold text-gray-900 mb-2">Informasi Customer</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Nama</label>
-                      <p className="text-sm text-gray-900">{selectedTransaction.user?.name}</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Email</label>
-                      <p className="text-sm text-gray-900">{selectedTransaction.user?.email}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Booking Details */}
-                <div>
-                  <h4 className="text-sm lg:text-base font-semibold text-gray-900 mb-2">Detail Pemesanan</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {selectedTransaction.participants && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Peserta</label>
-                        <p className="text-sm text-gray-900">{selectedTransaction.participants} orang</p>
-                      </div>
-                    )}
-                    {selectedTransaction.passengers && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Penumpang</label>
-                        <p className="text-sm text-gray-900">{selectedTransaction.passengers} orang</p>
-                      </div>
-                    )}
-                    {selectedTransaction.departure_date && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Tanggal Keberangkatan</label>
-                        <p className="text-sm text-gray-900">{formatDate(selectedTransaction.departure_date)}</p>
-                      </div>
-                    )}
-                    {selectedTransaction.contact_phone && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Telepon</label>
-                        <p className="text-sm text-gray-900">{selectedTransaction.contact_phone}</p>
-                      </div>
-                    )}
-                    {selectedTransaction.pickup_location && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Lokasi Penjemputan</label>
-                        <p className="text-sm text-gray-900">{selectedTransaction.pickup_location}</p>
-                      </div>
-                    )}
-                    {selectedTransaction.destination_address && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Alamat Tujuan</label>
-                        <p className="text-sm text-gray-900">{selectedTransaction.destination_address}</p>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {selectedTransaction.special_requests && (
-                    <div className="mt-4">
-                      <label className="block text-sm font-medium text-gray-700">Permintaan Khusus</label>
-                      <p className="text-sm text-gray-900">{selectedTransaction.special_requests}</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Payment Information */}
-                {selectedTransaction.payments && selectedTransaction.payments.length > 0 && (
-                  <div>
-                    <h4 className="text-sm lg:text-base font-semibold text-gray-900 mb-2">Informasi Pembayaran</h4>
-                    <div className="space-y-2">
-                      {selectedTransaction.payments.map((payment, index) => (
-                        <div key={index} className="bg-gray-50 p-3 rounded-lg">
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700">Jenis Pembayaran</label>
-                              <p className="text-sm text-gray-900">{payment.payment_type}</p>
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700">Status Transaksi</label>
-                              <p className="text-sm text-gray-900">{payment.transaction_status}</p>
-                            </div>
-                            <div className="sm:col-span-2">
-                              <label className="block text-sm font-medium text-gray-700">Waktu Pembayaran</label>
-                              <p className="text-sm text-gray-900">{formatDate(payment.created_at)}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Timestamps */}
-                <div>
-                  <h4 className="text-sm lg:text-base font-semibold text-gray-900 mb-2">Waktu</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Dibuat</label>
-                      <p className="text-sm text-gray-900">{formatDate(selectedTransaction.created_at)}</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Diupdate</label>
-                      <p className="text-sm text-gray-900">{formatDate(selectedTransaction.updated_at)}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="px-4 lg:px-6 py-4 border-t border-gray-200">
-                <div className="flex justify-end">
-                  <Button
-                    onClick={() => setShowDetailModal(false)}
-                    variant="outline"
-                    className="w-full sm:w-auto"
-                  >
-                    Tutup
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
         )}
-      </div>
-    </AdminLayout>
+      </Modal>
+    </Layout>
   );
 };
 
