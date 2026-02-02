@@ -422,13 +422,9 @@ const TravelDetail = () => {
 
                 {/* Status Badge */}
                 <div className="mt-4 text-center">
-                  {isAdmin ? (
-                    <Badge variant="info">Mode Admin - Hanya Lihat Detail</Badge>
-                  ) : (
-                    <Badge variant={travel?.is_available ? 'success' : 'error'}>
-                      {travel?.is_available ? 'Tersedia' : 'Tidak Tersedia'}
-                    </Badge>
-                  )}
+                  <Badge variant={travel?.is_available ? 'success' : 'error'}>
+                    {travel?.is_available ? 'Tersedia' : 'Tidak Tersedia'}
+                  </Badge>
                 </div>
 
                 {/* Contact Info */}

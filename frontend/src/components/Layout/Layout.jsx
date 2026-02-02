@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { authService } from '../../services/authService';
 import Header from './Header';
 import Footer from './Footer';
 
@@ -11,14 +10,11 @@ const LoadingSpinner = () => (
 );
 
 const Layout = ({ children, showHeader = true, showFooter = true, className = '' }) => {
-  const isAdmin = authService.isAdmin();
-  const headerOffset = showHeader ? (isAdmin ? 'pt-24 lg:pt-28' : 'pt-16 lg:pt-20') : '';
-  
   return (
     <div className="min-h-screen flex flex-col">
       {showHeader && <Header />}
       
-      <main className={`flex-1 ${headerOffset} ${className}`}>
+      <main className={`flex-1 ${showHeader ? 'pt-16 lg:pt-20' : ''} ${className}`}>
         <Suspense fallback={<LoadingSpinner />}>
           <motion.div
             initial={{ opacity: 0 }}
