@@ -12,6 +12,7 @@ class PaymentProof extends Model
 
     protected $fillable = [
         'booking_id',
+        'bank_name',
         'image_url',
         'uploaded_at',
     ];

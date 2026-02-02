@@ -170,14 +170,16 @@ class BookingController extends Controller
     public function uploadPaymentProof(Request $request, string $bookingId)
     {
         $request->validate([
-            'payment_proof' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120' // 5MB max
+            'payment_proof' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB max
+            'bank_name' => 'nullable|string|in:BCA,Mandiri'
         ]);
 
         try {
             $result = $this->bookingService->uploadPaymentProof(
                 $request->user()->id,
                 $bookingId,
-                $request->file('payment_proof')
+                $request->file('payment_proof'),
+                $request->bank_name
             );
 
             return response()->json([

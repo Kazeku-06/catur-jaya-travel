@@ -21,6 +21,7 @@ const Payment = () => {
   const [uploadLoading, setUploadLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [selectedBank, setSelectedBank] = useState('');
 
   // Get data from navigation state if available
   const stateData = location.state || {};
@@ -85,6 +86,11 @@ const Payment = () => {
   };
 
   const handleUploadPaymentProof = async () => {
+    if (!selectedBank) {
+      alert('Silakan pilih bank tujuan transfer');
+      return;
+    }
+
     if (!selectedFile) {
       alert('Silakan pilih file bukti pembayaran');
       return;
@@ -93,14 +99,15 @@ const Payment = () => {
     try {
       setUploadLoading(true);
       
-      await paymentService.uploadPaymentProof(bookingId, selectedFile);
+      await paymentService.uploadPaymentProof(bookingId, selectedFile, bankAccounts[selectedBank]?.bank);
       
       // Refresh booking data
       await fetchBookingDetail();
       
-      // Clear selected file
+      // Clear selected file and bank
       setSelectedFile(null);
       setPreviewUrl(null);
+      setSelectedBank('');
       
       alert('Bukti pembayaran berhasil diupload. Menunggu validasi admin.');
     } catch (error) {
@@ -292,38 +299,56 @@ const Payment = () => {
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <h3 className="font-semibold text-blue-900 mb-2">Langkah Pembayaran:</h3>
                     <ol className="list-decimal list-inside space-y-1 text-sm text-blue-800">
-                      <li>Transfer ke salah satu rekening bank di bawah ini</li>
+                      <li>Pilih bank tujuan transfer di bawah ini</li>
+                      <li>Transfer sesuai nominal yang tertera</li>
                       <li>Simpan bukti transfer</li>
                       <li>Upload bukti transfer di form di bawah</li>
                       <li>Tunggu validasi dari admin (maksimal 1x24 jam)</li>
                     </ol>
                   </div>
 
-                  {/* Bank Accounts */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.values(bankAccounts).map((bank, index) => (
-                      <div key={index} className="border border-gray-200 rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold text-gray-900">Bank {bank.bank}</h4>
-                          <span className="text-xs bg-gray-100 px-2 py-1 rounded">Transfer Bank</span>
-                        </div>
-                        <div className="space-y-1 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">No. Rekening:</span>
-                            <span className="font-mono font-medium">{bank.accountNumber}</span>
+                  {/* Bank Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      Pilih Bank Tujuan Transfer:
+                    </label>
+                    <div className="space-y-3">
+                      {Object.values(bankAccounts).map((bank, index) => (
+                        <div key={index} className="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                                <span className="text-primary-600 font-bold text-sm">{bank.bank}</span>
+                              </div>
+                              <div>
+                                <h4 className="font-semibold text-gray-900">Bank {bank.bank}</h4>
+                                <p className="text-sm text-gray-600">Transfer Bank</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="space-y-1 text-sm">
+                                <div>
+                                  <span className="text-gray-600">No. Rekening:</span>
+                                  <p className="font-mono font-bold text-gray-900">{bank.accountNumber}</p>
+                                </div>
+                                <div>
+                                  <span className="text-gray-600">Atas Nama:</span>
+                                  <p className="font-medium text-gray-900">{bank.accountName}</p>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Atas Nama:</span>
-                            <span className="font-medium">{bank.accountName}</span>
-                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
 
                   <div className="bg-gray-50 rounded-lg p-4">
                     <h4 className="font-semibold text-gray-900 mb-2">Total yang harus dibayar:</h4>
                     <p className="text-2xl font-bold text-primary-600">{formatCurrency(booking.total_price)}</p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Transfer tepat sesuai nominal di atas untuk mempercepat proses validasi
+                    </p>
                   </div>
                 </div>
               </motion.div>
@@ -340,6 +365,39 @@ const Payment = () => {
                 <h2 className="text-xl font-bold text-gray-900 mb-6">Upload Bukti Pembayaran</h2>
                 
                 <div className="space-y-4">
+                  {/* Bank Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Bank Tujuan Transfer *
+                    </label>
+                    <select
+                      value={selectedBank}
+                      onChange={(e) => setSelectedBank(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      required
+                    >
+                      <option value="">Pilih Bank Tujuan Transfer</option>
+                      {Object.entries(bankAccounts).map(([key, bank]) => (
+                        <option key={key} value={key}>
+                          Bank {bank.bank} - {bank.accountNumber} ({bank.accountName})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Selected Bank Details */}
+                  {selectedBank && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <h4 className="font-semibold text-blue-900 mb-2">Detail Transfer:</h4>
+                      <div className="space-y-1 text-sm text-blue-800">
+                        <p><span className="font-medium">Bank:</span> {bankAccounts[selectedBank].bank}</p>
+                        <p><span className="font-medium">No. Rekening:</span> {bankAccounts[selectedBank].accountNumber}</p>
+                        <p><span className="font-medium">Atas Nama:</span> {bankAccounts[selectedBank].accountName}</p>
+                        <p><span className="font-medium">Jumlah Transfer:</span> <span className="font-bold text-lg">{formatCurrency(booking.total_price)}</span></p>
+                      </div>
+                    </div>
+                  )}
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Pilih File Bukti Transfer *
@@ -371,7 +429,7 @@ const Payment = () => {
                   <Button
                     onClick={handleUploadPaymentProof}
                     loading={uploadLoading}
-                    disabled={!selectedFile}
+                    disabled={!selectedFile || !selectedBank}
                     className="w-full"
                   >
                     Upload Bukti Pembayaran

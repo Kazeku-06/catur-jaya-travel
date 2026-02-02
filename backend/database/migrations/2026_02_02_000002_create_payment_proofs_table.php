@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('payment_proofs', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('booking_id')->constrained('bookings')->onDelete('cascade');
+            $table->string('bank_name')->nullable(); // BCA, Mandiri
             $table->string('image_url');
             $table->timestamp('uploaded_at');
             $table->timestamps();

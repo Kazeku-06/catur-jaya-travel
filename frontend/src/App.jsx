@@ -12,13 +12,10 @@ const Travels = lazy(() => import('./pages/Travels'));
 const TravelDetail = lazy(() => import('./pages/TravelDetail'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
-const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
-const PaymentPending = lazy(() => import('./pages/PaymentPending'));
-const PaymentFailed = lazy(() => import('./pages/PaymentFailed'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminTrips = lazy(() => import('./pages/AdminTrips'));
 const AdminTravels = lazy(() => import('./pages/AdminTravels'));
-const AdminTransactions = lazy(() => import('./pages/AdminTransactions'));
+const AdminBookings = lazy(() => import('./pages/AdminBookings'));
 const AdminNotifications = lazy(() => import('./pages/AdminNotifications'));
 const MyBookings = lazy(() => import('./pages/MyBookings'));
 const TripBooking = lazy(() => import('./pages/TripBooking'));
@@ -136,14 +133,9 @@ function App() {
                   } 
                 />
                 
-                {/* Payment Status Routes */}
-                <Route path="/payment/success" element={<PaymentSuccess />} />
-                <Route path="/payment/pending" element={<PaymentPending />} />
-                <Route path="/payment/failed" element={<PaymentFailed />} />
-                
                 {/* Payment Route */}
                 <Route 
-                  path="/payment/:transactionId" 
+                  path="/payment/:bookingId" 
                   element={
                     <ProtectedRoute>
                       <Payment />
@@ -187,10 +179,10 @@ function App() {
                   } 
                 />
                 <Route 
-                  path="/admin/transactions" 
+                  path="/admin/bookings" 
                   element={
                     <AdminRoute>
-                      <AdminTransactions />
+                      <AdminBookings />
                     </AdminRoute>
                   } 
                 />

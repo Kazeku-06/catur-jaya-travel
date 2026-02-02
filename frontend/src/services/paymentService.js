@@ -18,9 +18,12 @@ export const paymentService = {
   },
 
   // Upload payment proof
-  uploadPaymentProof: async (bookingId, file) => {
+  uploadPaymentProof: async (bookingId, file, bankName = null) => {
     const formData = new FormData();
     formData.append('payment_proof', file);
+    if (bankName) {
+      formData.append('bank_name', bankName);
+    }
 
     const response = await api.post(`/bookings/${bookingId}/payment-proof`, formData, {
       headers: {

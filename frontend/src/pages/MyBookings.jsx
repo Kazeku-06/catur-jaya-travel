@@ -5,7 +5,7 @@ import Layout from '../components/Layout/Layout';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { transactionService } from '../services/transactionService';
+import { bookingService } from '../services/bookingService';
 import { formatCurrency, formatDate, getImageUrl } from '../utils/helpers';
 
 const MyBookings = () => {
@@ -15,7 +15,7 @@ const MyBookings = () => {
   
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all'); // all, pending, paid, failed
+  const [filter, setFilter] = useState('all'); // all, menunggu_pembayaran, menunggu_validasi, lunas, ditolak, expired
 
   useEffect(() => {
     if (!authToken) {
@@ -28,7 +28,7 @@ const MyBookings = () => {
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      const response = await transactionService.getUserBookings();
+      const response = await bookingService.getUserBookings();
       setBookings(response.data || []);
     } catch (error) {
       console.error('Error fetching bookings:', error);
@@ -42,10 +42,11 @@ const MyBookings = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      pending: { variant: 'warning', label: 'Menunggu Pembayaran' },
-      paid: { variant: 'success', label: 'Sudah Dibayar' },
-      failed: { variant: 'error', label: 'Gagal' },
-      expired: { variant: 'error', label: 'Kedaluwarsa' }
+      menunggu_pembayaran: { variant: 'warning', label: 'Menunggu Pembayaran' },
+      menunggu_validasi: { variant: 'info', label: 'Menunggu Validasi' },
+      lunas: { variant: 'success', label: 'Lunas' },
+      ditolak: { variant: 'error', label: 'Ditolak' },
+      expired: { variant: 'error', label: 'Expired' }
     };
     
     const config = statusConfig[status] || { variant: 'secondary', label: status };
@@ -58,28 +59,18 @@ const MyBookings = () => {
 
   const filteredBookings = bookings.filter(booking => {
     if (filter === 'all') return true;
-    return booking.payment_status === filter;
+    return booking.status === filter;
   });
 
   const handlePayment = (booking) => {
-    if (booking.snap_token) {
-      // Implement Midtrans Snap payment
-      window.snap.pay(booking.snap_token, {
-        onSuccess: function(result) {
-          console.log('Payment success:', result);
-          fetchBookings(); // Refresh bookings
-        },
-        onPending: function(result) {
-          console.log('Payment pending:', result);
-        },
-        onError: function(result) {
-          console.log('Payment error:', result);
-        }
-      });
-    } else {
-      // Fallback to payment page
-      navigate(`/payment/pending?order_id=${booking.order_id}`);
-    }
+    navigate(`/payment/${booking.id}`);
+  };
+
+  const handleBookingAgain = (booking) => {
+    const path = booking.catalog_type === 'trip' 
+      ? `/trips/${booking.catalog?.id}` 
+      : `/travels/${booking.catalog?.id}`;
+    navigate(path);
   };
 
   if (loading) {
@@ -123,17 +114,19 @@ const MyBookings = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <div className="flex space-x-1 bg-white rounded-lg p-1 shadow-sm">
+            <div className="flex flex-wrap gap-2 bg-white rounded-lg p-2 shadow-sm">
               {[
                 { key: 'all', label: 'Semua' },
-                { key: 'pending', label: 'Menunggu Pembayaran' },
-                { key: 'paid', label: 'Sudah Dibayar' },
-                { key: 'failed', label: 'Gagal' }
+                { key: 'menunggu_pembayaran', label: 'Menunggu Pembayaran' },
+                { key: 'menunggu_validasi', label: 'Menunggu Validasi' },
+                { key: 'lunas', label: 'Lunas' },
+                { key: 'ditolak', label: 'Ditolak' },
+                { key: 'expired', label: 'Expired' }
               ].map((tab) => (
                 <button
                   key={tab.key}
                   onClick={() => setFilter(tab.key)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                     filter === tab.key
                       ? 'bg-primary-600 text-white'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
@@ -195,39 +188,56 @@ const MyBookings = () => {
                         <div>
                           <div className="flex items-center space-x-3 mb-2">
                             <h3 className="text-lg font-semibold text-gray-900">
-                              {booking.item?.title || booking.item?.name || 
-                               (booking.item?.origin && booking.item?.destination 
-                                 ? `${booking.item.origin} - ${booking.item.destination}`
+                              {booking.catalog?.title || booking.catalog?.name || 
+                               (booking.catalog?.origin && booking.catalog?.destination 
+                                 ? `${booking.catalog.origin} - ${booking.catalog.destination}`
                                  : 'Booking')}
                             </h3>
                             <Badge variant="secondary">
-                              {getTransactionTypeLabel(booking.transaction_type)}
+                              {getTransactionTypeLabel(booking.catalog_type)}
                             </Badge>
                           </div>
                           <p className="text-sm text-gray-600 mb-1">
-                            Order ID: {booking.order_id}
+                            Booking ID: {booking.id}
                           </p>
                           <p className="text-sm text-gray-600">
                             Tanggal Booking: {formatDate(booking.created_at)}
                           </p>
+                          {booking.expired_at && (
+                            <p className="text-sm text-gray-600">
+                              Batas Waktu: {formatDate(booking.expired_at)}
+                            </p>
+                          )}
                         </div>
-                        {getStatusBadge(booking.payment_status)}
+                        {getStatusBadge(booking.status)}
                       </div>
 
                       {/* Booking Details */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                           <p className="text-sm text-gray-600">
-                            {booking.transaction_type === 'trip' ? 'Peserta' : 'Penumpang'}:
+                            Nama Pemesan:
                             <span className="font-medium text-gray-900 ml-1">
-                              {booking.participants || booking.passengers || 1} orang
+                              {booking.booking_data?.nama_pemesan}
                             </span>
                           </p>
-                          {booking.departure_date && (
+                          <p className="text-sm text-gray-600">
+                            Nomor HP:
+                            <span className="font-medium text-gray-900 ml-1">
+                              {booking.booking_data?.nomor_hp}
+                            </span>
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            Jumlah Orang:
+                            <span className="font-medium text-gray-900 ml-1">
+                              {booking.booking_data?.jumlah_orang} orang
+                            </span>
+                          </p>
+                          {booking.booking_data?.tanggal_keberangkatan && (
                             <p className="text-sm text-gray-600">
                               Tanggal Keberangkatan:
                               <span className="font-medium text-gray-900 ml-1">
-                                {formatDate(booking.departure_date)}
+                                {formatDate(booking.booking_data.tanggal_keberangkatan)}
                               </span>
                             </p>
                           )}
@@ -236,9 +246,14 @@ const MyBookings = () => {
                           <p className="text-lg font-bold text-primary-600">
                             {formatCurrency(booking.total_price)}
                           </p>
-                          {booking.special_requests && (
+                          {booking.booking_data?.catatan_tambahan && (
                             <p className="text-sm text-gray-600 mt-1">
-                              Permintaan Khusus: {booking.special_requests}
+                              Catatan: {booking.booking_data.catatan_tambahan}
+                            </p>
+                          )}
+                          {booking.payment_proof && (
+                            <p className="text-sm text-green-600 mt-1">
+                              ✓ Bukti pembayaran sudah diupload
                             </p>
                           )}
                         </div>
@@ -247,7 +262,7 @@ const MyBookings = () => {
 
                     {/* Actions */}
                     <div className="flex flex-col space-y-2 lg:ml-6 lg:flex-shrink-0">
-                      {booking.payment_status === 'pending' && (
+                      {booking.status === 'menunggu_pembayaran' && !booking.is_expired && (
                         <Button
                           variant="primary"
                           size="sm"
@@ -257,20 +272,25 @@ const MyBookings = () => {
                         </Button>
                       )}
                       
+                      {(booking.status === 'expired' || booking.status === 'ditolak') && (
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={() => handleBookingAgain(booking)}
+                        >
+                          Booking Ulang
+                        </Button>
+                      )}
+
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => {
-                          const detailPath = booking.transaction_type === 'trip' 
-                            ? `/trips/${booking.item?.id}` 
-                            : `/travels/${booking.item?.id}`;
-                          navigate(detailPath);
-                        }}
+                        onClick={() => navigate(`/payment/${booking.id}`)}
                       >
                         Lihat Detail
                       </Button>
 
-                      {booking.payment_status === 'paid' && (
+                      {booking.status === 'lunas' && (
                         <Button
                           variant="secondary"
                           size="sm"

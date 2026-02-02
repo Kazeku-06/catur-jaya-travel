@@ -9,15 +9,18 @@ export const API_ENDPOINTS = {
   CATALOG: {
     TRIPS: '/trips',
     TRAVELS: '/travels',
-    CARTER_MOBILES: '/carter-mobiles',
   },
-  TRANSACTIONS: {
-    TRIP: '/transactions/trip',
-    TRAVEL: '/transactions/travel',
+  BOOKINGS: {
+    TRIP: '/bookings/trip',
+    TRAVEL: '/bookings/travel',
+    MY_BOOKINGS: '/bookings/my',
+    DETAIL: '/bookings',
+    UPLOAD_PROOF: '/bookings/{id}/payment-proof',
   },
-  PAYMENTS: {
-    MIDTRANS_CONFIG: '/payments/midtrans',
-    MIDTRANS_CALLBACK: '/payments/midtrans/callback',
+  ADMIN: {
+    BOOKINGS: '/admin/bookings',
+    APPROVE: '/admin/bookings/{id}/approve',
+    REJECT: '/admin/bookings/{id}/reject',
   },
 };
 
@@ -51,10 +54,25 @@ export const USER_ROLES = {
   USER: 'user',
 };
 
-// Payment status
-export const PAYMENT_STATUS = {
-  PENDING: 'pending',
-  PAID: 'paid',
-  FAILED: 'failed',
+// Booking status (new manual payment system)
+export const BOOKING_STATUS = {
+  MENUNGGU_PEMBAYARAN: 'menunggu_pembayaran',
+  MENUNGGU_VALIDASI: 'menunggu_validasi',
+  LUNAS: 'lunas',
+  DITOLAK: 'ditolak',
   EXPIRED: 'expired',
+};
+
+// Bank accounts for manual transfer
+export const BANK_ACCOUNTS = {
+  BCA: {
+    bank: 'BCA',
+    accountNumber: '1234567890',
+    accountName: 'PT Travel Indonesia',
+  },
+  MANDIRI: {
+    bank: 'Mandiri',
+    accountNumber: '0987654321',
+    accountName: 'PT Travel Indonesia',
+  }
 };

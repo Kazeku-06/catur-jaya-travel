@@ -121,7 +121,7 @@ class BookingService
     /**
      * Upload payment proof
      */
-    public function uploadPaymentProof($userId, $bookingId, $imageFile)
+    public function uploadPaymentProof($userId, $bookingId, $imageFile, $bankName = null)
     {
         $booking = Booking::where('id', $bookingId)
             ->where('user_id', $userId)
@@ -147,6 +147,7 @@ class BookingService
         // Create payment proof record
         $paymentProof = PaymentProof::create([
             'booking_id' => $bookingId,
+            'bank_name' => $bankName,
             'image_url' => $imageUrl,
             'uploaded_at' => now(),
         ]);
