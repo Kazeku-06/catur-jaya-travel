@@ -60,6 +60,13 @@ const TripBooking = () => {
         image_url: tripData.image_url || null,
       };
       
+      // If trip is not available, redirect back to detail page
+      if (!mappedTrip.is_available) {
+        alert('Trip ini tidak tersedia untuk booking. Anda akan diarahkan ke halaman detail.');
+        navigate(`/trips/${id}`);
+        return;
+      }
+      
       setTrip(mappedTrip);
     } catch (error) {
       console.error('Error fetching trip detail:', error);
@@ -71,6 +78,12 @@ const TripBooking = () => {
 
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
+    
+    // Check if trip is available
+    if (!trip.is_available) {
+      alert('Trip ini tidak tersedia untuk booking');
+      return;
+    }
     
     // Validate required fields
     if (!bookingData.nama_pemesan) {

@@ -31,7 +31,7 @@ const TravelCard = ({ travel, className = '' }) => {
   const departureLocation = departure_location || origin;
   const destinationLocation = destination_location || destination;
   const displayPrice = price || price_per_person;
-  const available = is_active !== undefined ? is_active : is_available;
+  const available = is_active !== undefined ? is_active : (is_available !== undefined ? is_available : true);
   const displayDescription = description || `Perjalanan ${vehicle_type || 'travel'} dari ${origin} ke ${destination}`;
 
   return (

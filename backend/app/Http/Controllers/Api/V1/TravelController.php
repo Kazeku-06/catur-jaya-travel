@@ -17,12 +17,12 @@ class TravelController extends Controller
     }
 
     /**
-     * Display a listing of active travels (Public access)
+     * Display a listing of all travels (Public access)
      */
     public function index()
     {
         try {
-            $travels = Travel::active()->get()->map(function ($travel) {
+            $travels = Travel::orderBy('created_at', 'desc')->get()->map(function ($travel) {
                 $travel->image_url = $travel->image ? $this->fileUploadService->getImageUrl($travel->image) : null;
                 return $travel;
             });
@@ -45,7 +45,7 @@ class TravelController extends Controller
     public function show(string $id)
     {
         try {
-            $travel = Travel::where('id', $id)->where('is_active', true)->first();
+            $travel = Travel::where('id', $id)->first();
 
             if (!$travel) {
                 return response()->json([

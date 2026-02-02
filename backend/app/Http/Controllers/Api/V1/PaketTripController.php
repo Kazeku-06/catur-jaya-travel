@@ -20,10 +20,10 @@ class PaketTripController extends Controller
     }
 
     /**
-     * Display a listing of active trips (Public access)
+     * Display a listing of all trips (Public access)
      *
-     * @summary Get all active trips
-     * @description Retrieve all active trip packages available for booking. No authentication required.
+     * @summary Get all trips (including inactive ones)
+     * @description Retrieve all trip packages. Inactive trips will be shown but marked as unavailable for booking.
      */
     public function index()
     {
@@ -32,7 +32,6 @@ class PaketTripController extends Controller
             \Log::info('Fetching trips started');
             
             $trips = PaketTrip::select(['id', 'title', 'description', 'price', 'duration', 'location', 'quota', 'image', 'is_active', 'created_at', 'updated_at'])
-                ->where('is_active', true)
                 ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($trip) {
@@ -63,12 +62,12 @@ class PaketTripController extends Controller
      * Display the specified trip (Public access)
      *
      * @summary Get trip details
-     * @description Get detailed information about a specific trip package. No authentication required.
+     * @description Get detailed information about a specific trip package. Shows both active and inactive trips.
      */
     public function show(string $id)
     {
         try {
-            $trip = PaketTrip::where('id', $id)->where('is_active', true)->first();
+            $trip = PaketTrip::where('id', $id)->first();
 
             if (!$trip) {
                 return response()->json([

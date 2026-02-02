@@ -63,6 +63,13 @@ const TravelBooking = () => {
         departure_time: travelData.departure_time || null,
       };
       
+      // If travel is not available, redirect back to detail page
+      if (!mappedTravel.is_available) {
+        alert('Travel ini tidak tersedia untuk booking. Anda akan diarahkan ke halaman detail.');
+        navigate(`/travels/${id}`);
+        return;
+      }
+      
       setTravel(mappedTravel);
       
       // Set default departure date if travel has fixed schedule
@@ -82,6 +89,12 @@ const TravelBooking = () => {
 
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
+    
+    // Check if travel is available
+    if (!travel.is_available) {
+      alert('Travel ini tidak tersedia untuk booking');
+      return;
+    }
     
     // Validate required fields
     if (!bookingData.nama_pemesan) {
