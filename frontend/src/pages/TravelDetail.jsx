@@ -60,6 +60,7 @@ const TravelDetail = () => {
         departure_date: travelData.departure_date || null,
         departure_time: travelData.departure_time || null,
         category: travelData.category || 'Travel',
+        rundown: travelData.rundown || [],
         facilities: travelData.facilities || [],
         terms: travelData.terms || [],
         created_at: travelData.created_at,
@@ -285,6 +286,28 @@ const TravelDetail = () => {
                   <p className="text-gray-600 leading-relaxed">{travel?.description || 'Deskripsi tidak tersedia'}</p>
                 </div>
               </div>
+
+              {/* Rundown */}
+              {travel?.rundown && travel.rundown.length > 0 && (
+                <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Rundown Perjalanan</h2>
+                  <div className="space-y-4">
+                    {travel.rundown.map((item, index) => (
+                      <div key={index} className="flex">
+                        <div className="flex-shrink-0 w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-medium mr-4">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1">
+                          {item.time && (
+                            <p className="text-primary-600 text-sm font-medium mb-1">{item.time}</p>
+                          )}
+                          <p className="text-gray-900 font-medium">{item.activity}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Facilities */}
               {travel?.facilities && travel.facilities.length > 0 && (

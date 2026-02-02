@@ -72,6 +72,11 @@ class AdminPaketTripController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
+            'rundown' => 'nullable|array',
+            'rundown.*.time' => 'nullable|string|max:255',
+            'rundown.*.activity' => 'required_with:rundown.*|string|max:500',
+            'facilities' => 'nullable|array',
+            'facilities.*' => 'string|max:255',
             'price' => 'required|numeric|min:0',
             'duration' => 'required|string|max:255',
             'location' => 'required|string|max:255',
@@ -84,7 +89,7 @@ class AdminPaketTripController extends Controller
 
         try {
             $data = $request->only([
-                'title', 'description', 'price', 'duration', 
+                'title', 'description', 'rundown', 'facilities', 'price', 'duration', 
                 'location', 'quota', 'is_active'
             ]);
 
@@ -250,6 +255,11 @@ class AdminPaketTripController extends Controller
         $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'description' => 'sometimes|required|string',
+            'rundown' => 'nullable|array',
+            'rundown.*.time' => 'nullable|string|max:255',
+            'rundown.*.activity' => 'required_with:rundown.*|string|max:500',
+            'facilities' => 'nullable|array',
+            'facilities.*' => 'string|max:255',
             'price' => 'sometimes|required|numeric|min:0',
             'duration' => 'sometimes|required|string|max:255',
             'location' => 'sometimes|required|string|max:255',
@@ -264,7 +274,7 @@ class AdminPaketTripController extends Controller
             $trip = PaketTrip::findOrFail($id);
             
             $data = $request->only([
-                'title', 'description', 'price', 'duration', 
+                'title', 'description', 'rundown', 'facilities', 'price', 'duration', 
                 'location', 'quota', 'is_active'
             ]);
 

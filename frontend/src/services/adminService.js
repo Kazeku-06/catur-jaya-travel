@@ -126,6 +126,8 @@ export const imageHelpers = {
     const data = {
       title: formData.title,
       description: formData.description,
+      rundown: formData.rundown || [],
+      facilities: formData.facilities || [],
       price: parseFloat(formData.price),
       duration: formData.duration,
       location: formData.location,
@@ -157,6 +159,8 @@ export const imageHelpers = {
       origin: formData.origin,
       destination: formData.destination,
       vehicle_type: formData.vehicle_type,
+      rundown: formData.rundown || [],
+      facilities: formData.facilities || [],
       price_per_person: parseFloat(formData.price_per_person),
       is_active: formData.is_active !== undefined ? formData.is_active : true
     };

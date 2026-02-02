@@ -59,6 +59,8 @@ const TripDetail = () => {
         rating: tripData.rating || null,
         total_reviews: tripData.total_reviews || 0,
         category: tripData.category || 'Wisata',
+        rundown: tripData.rundown || [],
+        facilities: tripData.facilities || [],
         itinerary: tripData.itinerary || [],
         includes: tripData.includes || [],
         excludes: tripData.excludes || [],
@@ -287,7 +289,29 @@ const TripDetail = () => {
                 </div>
               </div>
 
-              {/* Itinerary */}
+              {/* Itinerary/Rundown */}
+              {trip?.rundown && trip.rundown.length > 0 && (
+                <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Rundown Kegiatan</h2>
+                  <div className="space-y-4">
+                    {trip.rundown.map((item, index) => (
+                      <div key={index} className="flex">
+                        <div className="flex-shrink-0 w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-medium mr-4">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1">
+                          {item.time && (
+                            <p className="text-primary-600 text-sm font-medium mb-1">{item.time}</p>
+                          )}
+                          <p className="text-gray-900 font-medium">{item.activity}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Legacy Itinerary (for backward compatibility) */}
               {trip?.itinerary && trip.itinerary.length > 0 && (
                 <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">Itinerary</h2>
@@ -310,8 +334,24 @@ const TripDetail = () => {
                 </div>
               )}
 
-              {/* Includes & Excludes */}
+              {/* Facilities & Includes/Excludes */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                {trip?.facilities && trip.facilities.length > 0 && (
+                  <div className="bg-white rounded-xl p-6 shadow-sm">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Fasilitas</h3>
+                    <ul className="space-y-2">
+                      {trip.facilities.map((facility, index) => (
+                        <li key={index} className="flex items-center text-gray-600">
+                          <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          {facility}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
                 {trip?.includes && trip.includes.length > 0 && (
                   <div className="bg-white rounded-xl p-6 shadow-sm">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Termasuk</h3>
@@ -327,23 +367,24 @@ const TripDetail = () => {
                     </ul>
                   </div>
                 )}
-
-                {trip?.excludes && trip.excludes.length > 0 && (
-                  <div className="bg-white rounded-xl p-6 shadow-sm">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Tidak Termasuk</h3>
-                    <ul className="space-y-2">
-                      {trip.excludes.map((item, index) => (
-                        <li key={index} className="flex items-center text-gray-600">
-                          <svg className="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
               </div>
+
+              {/* Excludes (if exists) */}
+              {trip?.excludes && trip.excludes.length > 0 && (
+                <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Tidak Termasuk</h3>
+                  <ul className="space-y-2">
+                    {trip.excludes.map((item, index) => (
+                      <li key={index} className="flex items-center text-gray-600">
+                        <svg className="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </motion.div>
 
             {/* Booking Sidebar */}

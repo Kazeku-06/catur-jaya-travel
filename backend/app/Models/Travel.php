@@ -16,6 +16,8 @@ class Travel extends Model
         'origin',
         'destination',
         'vehicle_type',
+        'rundown',
+        'facilities',
         'price_per_person',
         'image',
         'is_active',
@@ -24,6 +26,8 @@ class Travel extends Model
     protected $casts = [
         'price_per_person' => 'decimal:2',
         'is_active' => 'boolean',
+        'rundown' => 'array',
+        'facilities' => 'array',
     ];
 
     protected $appends = ['image_url'];

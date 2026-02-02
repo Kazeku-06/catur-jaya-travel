@@ -73,6 +73,11 @@ class AdminTravelController extends Controller
             'origin' => 'required|string|max:255',
             'destination' => 'required|string|max:255',
             'vehicle_type' => 'required|string|max:255',
+            'rundown' => 'nullable|array',
+            'rundown.*.time' => 'nullable|string|max:255',
+            'rundown.*.activity' => 'required_with:rundown.*|string|max:500',
+            'facilities' => 'nullable|array',
+            'facilities.*' => 'string|max:255',
             'price_per_person' => 'required|numeric|min:0',
             'image_base64' => 'required_without:image_url|string', // Base64 image
             'image_url' => 'required_without:image_base64|url', // Direct image URL
@@ -82,7 +87,7 @@ class AdminTravelController extends Controller
 
         try {
             $data = $request->only([
-                'origin', 'destination', 'vehicle_type', 
+                'origin', 'destination', 'vehicle_type', 'rundown', 'facilities',
                 'price_per_person', 'is_active'
             ]);
 
@@ -239,6 +244,11 @@ class AdminTravelController extends Controller
             'origin' => 'sometimes|required|string|max:255',
             'destination' => 'sometimes|required|string|max:255',
             'vehicle_type' => 'sometimes|required|string|max:255',
+            'rundown' => 'nullable|array',
+            'rundown.*.time' => 'nullable|string|max:255',
+            'rundown.*.activity' => 'required_with:rundown.*|string|max:500',
+            'facilities' => 'nullable|array',
+            'facilities.*' => 'string|max:255',
             'price_per_person' => 'sometimes|required|numeric|min:0',
             'image_base64' => 'nullable|string', // Base64 image
             'image_url' => 'nullable|url', // Direct image URL
@@ -250,7 +260,7 @@ class AdminTravelController extends Controller
             $travel = Travel::findOrFail($id);
             
             $data = $request->only([
-                'origin', 'destination', 'vehicle_type', 
+                'origin', 'destination', 'vehicle_type', 'rundown', 'facilities',
                 'price_per_person', 'is_active'
             ]);
 

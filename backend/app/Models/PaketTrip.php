@@ -13,6 +13,8 @@ class PaketTrip extends Model
     protected $fillable = [
         'title',
         'description',
+        'rundown',
+        'facilities',
         'price',
         'duration',
         'location',
@@ -24,6 +26,8 @@ class PaketTrip extends Model
     protected $casts = [
         'price' => 'decimal:2',
         'is_active' => 'boolean',
+        'rundown' => 'array',
+        'facilities' => 'array',
     ];
 
     protected $appends = ['image_url'];
