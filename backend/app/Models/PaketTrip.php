@@ -41,8 +41,8 @@ class PaketTrip extends Model
             return null;
         }
 
-        // Use Laravel's Storage facade to get proper URL
-        return \Storage::disk('public')->url($this->image);
+        // Use asset helper for public storage URL
+        return asset('storage/' . $this->image);
     }
 
     /**
@@ -54,11 +54,11 @@ class PaketTrip extends Model
     }
 
     /**
-     * Relationship with transactions
+     * Relationship with bookings
      */
-    public function transactions()
+    public function bookings()
     {
-        return $this->hasMany(Transaction::class, 'reference_id')
-                    ->where('transaction_type', 'trip');
+        return $this->hasMany(Booking::class, 'catalog_id')
+                    ->where('catalog_type', 'trip');
     }
 }

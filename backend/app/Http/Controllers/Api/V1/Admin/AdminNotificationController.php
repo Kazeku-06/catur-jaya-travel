@@ -28,25 +28,19 @@ class AdminNotificationController extends Controller
      * @summary Get admin notifications
      * @description Retrieve all notifications for the authenticated admin user, ordered by newest first
      */
-    /**
-     * Get all notifications for admin
-     *
-     * @summary Get admin notifications
-     * @description Retrieve all notifications for the authenticated admin user, ordered by newest first
-     */
     public function index(Request $request)
     {
         try {
             $adminId = Auth::id();
             $perPage = $request->get('per_page', 5);
-            
+
             // Validate per_page parameter
             if ($perPage > 100) {
                 $perPage = 100;
             }
-            
+
             $notifications = $this->notificationService->getNotificationsForAdmin($adminId, $perPage);
-            
+
             return response()->json([
                 'message' => 'Notifications retrieved successfully',
                 'data' => $notifications->items(),
@@ -82,7 +76,7 @@ class AdminNotificationController extends Controller
         try {
             $adminId = Auth::id();
             $count = $this->notificationService->getUnreadCountForAdmin($adminId);
-            
+
             return response()->json([
                 'message' => 'Unread count retrieved successfully',
                 'data' => [
@@ -111,13 +105,13 @@ class AdminNotificationController extends Controller
         try {
             $adminId = Auth::id();
             $success = $this->notificationService->markAsRead($id, $adminId);
-            
+
             if (!$success) {
                 return response()->json([
                     'message' => 'Notification not found or already read'
                 ], 404);
             }
-            
+
             return response()->json([
                 'message' => 'Notification marked as read successfully'
             ]);
@@ -140,7 +134,7 @@ class AdminNotificationController extends Controller
         try {
             $adminId = Auth::id();
             $updatedCount = $this->notificationService->markAllAsReadForAdmin($adminId);
-            
+
             return response()->json([
                 'message' => 'All notifications marked as read successfully',
                 'data' => [
@@ -166,7 +160,7 @@ class AdminNotificationController extends Controller
         try {
             $adminId = Auth::id();
             $stats = $this->notificationService->getNotificationStats($adminId);
-            
+
             return response()->json([
                 'message' => 'Notification statistics retrieved successfully',
                 'data' => $stats

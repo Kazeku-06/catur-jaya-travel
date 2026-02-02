@@ -25,7 +25,7 @@ class AdminBookingController extends Controller
         try {
             $perPage = $request->get('per_page', 10);
             $page = $request->get('page', 1);
-            
+
             if ($perPage > 50) {
                 $perPage = 50;
             }
@@ -159,14 +159,14 @@ class AdminBookingController extends Controller
 
             // Create notification for user
             $catalog = $booking->catalog;
-            $catalogName = $booking->catalog_type === 'trip' 
-                ? $catalog->title 
+            $catalogName = $booking->catalog_type === 'trip'
+                ? $catalog->title
                 : $catalog->origin . ' - ' . $catalog->destination;
 
             $this->notificationService->createPaymentApprovedNotification(
                 $booking->user_id,
                 $catalogName,
-                $booking->total_price
+                (float) $booking->total_price
             );
 
             return response()->json([
@@ -207,14 +207,14 @@ class AdminBookingController extends Controller
 
             // Create notification for user
             $catalog = $booking->catalog;
-            $catalogName = $booking->catalog_type === 'trip' 
-                ? $catalog->title 
+            $catalogName = $booking->catalog_type === 'trip'
+                ? $catalog->title
                 : $catalog->origin . ' - ' . $catalog->destination;
 
             $this->notificationService->createPaymentRejectedNotification(
                 $booking->user_id,
                 $catalogName,
-                $booking->total_price,
+                (float) $booking->total_price,
                 $request->reason ?? ''
             );
 
@@ -242,8 +242,8 @@ class AdminBookingController extends Controller
         try {
             $stats = [
                 'total_bookings' => Booking::count(),
-                'menunggu_pembayaran' => Booking::menuungguPembayaran()->count(),
-                'menunggu_validasi' => Booking::menuungguValidasi()->count(),
+                'menunggu_pembayaran' => Booking::menungguPembayaran()->count(),
+                'menunggu_validasi' => Booking::menungguValidasi()->count(),
                 'lunas' => Booking::lunas()->count(),
                 'ditolak' => Booking::ditolak()->count(),
                 'expired' => Booking::expired()->count(),
