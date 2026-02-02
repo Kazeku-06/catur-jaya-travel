@@ -54,37 +54,59 @@ class NotificationService
     }
 
     /**
-     * Create order notification when new order is created
+     * Create booking notification when new booking is created
      */
-    public function createOrderNotification(string $orderId, string $transactionType, float $totalPrice): void
+    public function createBookingNotification(string $bookingId, string $catalogName, float $totalPrice): void
     {
-        $title = "Order Baru Masuk";
-        $message = "Order dengan ID {$orderId} ({$transactionType}) senilai Rp " . number_format($totalPrice, 0, ',', '.') . " menunggu pembayaran";
+        $title = "Booking Baru Masuk";
+        $message = "Booking baru untuk {$catalogName} senilai Rp " . number_format($totalPrice, 0, ',', '.') . " menunggu pembayaran";
         
-        $this->createForAllAdmins(Notification::TYPE_ORDER_CREATED, $title, $message);
+        $this->createForAllAdmins(Notification::TYPE_BOOKING_CREATED, $title, $message);
     }
 
     /**
-     * Create payment success notification
+     * Create payment proof uploaded notification
      */
-    public function createPaymentSuccessNotification(string $orderId, string $transactionType, float $totalPrice): void
+    public function createPaymentProofNotification(string $bookingId, string $catalogName, float $totalPrice): void
     {
-        $title = "Pembayaran Berhasil";
-        $message = "Pembayaran untuk order {$orderId} ({$transactionType}) senilai Rp " . number_format($totalPrice, 0, ',', '.') . " telah berhasil";
+        $title = "Bukti Pembayaran Diterima";
+        $message = "Bukti pembayaran untuk booking {$catalogName} senilai Rp " . number_format($totalPrice, 0, ',', '.') . " telah diupload dan menunggu validasi";
         
-        $this->createForAllAdmins(Notification::TYPE_PAYMENT_PAID, $title, $message);
+        $this->createForAllAdmins(Notification::TYPE_PAYMENT_PROOF_UPLOADED, $title, $message);
     }
 
     /**
-     * Create payment failed notification
+     * Create payment approved notification (for user)
      */
-    public function createPaymentFailedNotification(string $orderId, string $transactionType, float $totalPrice, string $reason = ''): void
+    public function createPaymentApprovedNotification(string $userId, string $catalogName, float $totalPrice): void
     {
-        $title = "Pembayaran Gagal";
-        $reasonText = $reason ? " ({$reason})" : '';
-        $message = "Pembayaran untuk order {$orderId} ({$transactionType}) senilai Rp " . number_format($totalPrice, 0, ',', '.') . " gagal{$reasonText}";
+        $title = "Pembayaran Disetujui";
+        $message = "Pembayaran Anda untuk {$catalogName} senilai Rp " . number_format($totalPrice, 0, ',', '.') . " telah disetujui. Booking Anda sudah lunas.";
         
-        $this->createForAllAdmins(Notification::TYPE_PAYMENT_FAILED, $title, $message);
+        $this->createNotification($userId, Notification::TYPE_PAYMENT_APPROVED, $title, $message);
+    }
+
+    /**
+     * Create payment rejected notification (for user)
+     */
+    public function createPaymentRejectedNotification(string $userId, string $catalogName, float $totalPrice, string $reason = ''): void
+    {
+        $title = "Pembayaran Ditolak";
+        $reasonText = $reason ? " Alasan: {$reason}" : '';
+        $message = "Pembayaran Anda untuk {$catalogName} senilai Rp " . number_format($totalPrice, 0, ',', '.') . " ditolak.{$reasonText} Silakan booking ulang.";
+        
+        $this->createNotification($userId, Notification::TYPE_PAYMENT_REJECTED, $title, $message);
+    }
+
+    /**
+     * Create booking expired notification (for user)
+     */
+    public function createBookingExpiredNotification(string $userId, string $catalogName): void
+    {
+        $title = "Booking Expired";
+        $message = "Booking Anda untuk {$catalogName} telah expired karena belum ada pembayaran dalam 24 jam. Silakan booking ulang.";
+        
+        $this->createNotification($userId, Notification::TYPE_BOOKING_EXPIRED, $title, $message);
     }
 
     /**

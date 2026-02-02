@@ -6,21 +6,21 @@ import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Breadcrumb from '../components/navigation/Breadcrumb';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { transactionService } from '../services/transactionService';
+import { bookingService } from '../services/bookingService';
 import { paymentService } from '../services/paymentService';
-import api, { endpoints } from '../config/api';
 import { formatCurrency, formatDate, getImageUrl } from '../utils/helpers';
 
 const Payment = () => {
-  const { transactionId } = useParams();
+  const { bookingId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const [authToken] = useLocalStorage('auth_token', null);
   
-  const [transaction, setTransaction] = useState(null);
+  const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [paymentLoading, setPaymentLoading] = useState(false);
-  const [midtransConfig, setMidtransConfig] = useState(null);
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   // Get data from navigation state if available
   const stateData = location.state || {};
@@ -31,31 +31,27 @@ const Payment = () => {
       return;
     }
     
-    fetchTransactionDetail();
-    // Pre-load Midtrans script (optional, but good for UX)
-    import('../services/paymentService').then(({ paymentService }) => {
-      paymentService.loadMidtransScript().catch(console.error);
-    });
-  }, [transactionId, authToken, navigate]);
+    fetchBookingDetail();
+  }, [bookingId, authToken, navigate]);
 
-  const fetchTransactionDetail = async () => {
+  const fetchBookingDetail = async () => {
     try {
       setLoading(true);
       
-      // If we have transaction data from state, use it temporarily
-      if (stateData.transaction) {
-        setTransaction({
-          ...stateData.transaction,
-          item: stateData.trip || stateData.travel,
-          bookingData: stateData.bookingData
+      // If we have booking data from state, use it temporarily
+      if (stateData.booking) {
+        setBooking({
+          ...stateData.booking,
+          catalog: stateData.catalog,
+          booking_data: stateData.bookingData
         });
       }
       
       // Fetch fresh data from API
-      const response = await transactionService.getTransactionDetail(transactionId);
-      setTransaction(response.data);
+      const response = await bookingService.getBookingDetail(bookingId);
+      setBooking(response.data);
     } catch (error) {
-      console.error('Error fetching transaction:', error);
+      console.error('Error fetching booking:', error);
       if (error.response?.status === 404) {
         navigate('/my-bookings');
       }
@@ -64,48 +60,63 @@ const Payment = () => {
     }
   };
 
-  const handlePayment = async () => {
-    if (!transaction?.snap_token) {
-      alert('Token pembayaran tidak tersedia. Silakan coba lagi.');
-      return;
-    }
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('File harus berupa gambar (JPG, PNG, GIF, WEBP)');
+        return;
+      }
 
-    setPaymentLoading(true);
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Ukuran file maksimal 5MB');
+        return;
+      }
 
-    try {
-      // Import paymentService dynamically or use the imported one
-      const { paymentService } = await import('../services/paymentService');
+      setSelectedFile(file);
       
-      console.log('[Payment] Starting payment with token:', transaction.snap_token);
-      
-      await paymentService.processPayment(transaction.snap_token)
-        .then(({ status, result }) => {
-          console.log(`[Payment] Result: ${status}`, result);
-          if (status === 'success') {
-            navigate(`/payment/success?transaction_id=${transactionId}`);
-          } else if (status === 'pending') {
-            navigate(`/payment/pending?transaction_id=${transactionId}`);
-          }
-        })
-        .catch((error) => {
-          console.error('[Payment] Error:', error);
-          if (error.status === 'closed') {
-             // Just stop loading
-          } else {
-             navigate(`/payment/failed?transaction_id=${transactionId}`);
-          }
-        });
-        
-    } catch (err) {
-      console.error('Payment processing failed:', err);
-      // Fallback alert?
-    } finally {
-      setPaymentLoading(false);
+      // Create preview URL
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
     }
   };
 
+  const handleUploadPaymentProof = async () => {
+    if (!selectedFile) {
+      alert('Silakan pilih file bukti pembayaran');
+      return;
+    }
+
+    try {
+      setUploadLoading(true);
+      
+      await paymentService.uploadPaymentProof(bookingId, selectedFile);
+      
+      // Refresh booking data
+      await fetchBookingDetail();
+      
+      // Clear selected file
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      
+      alert('Bukti pembayaran berhasil diupload. Menunggu validasi admin.');
+    } catch (error) {
+      console.error('Error uploading payment proof:', error);
+      const errorMessage = error.response?.data?.message || 'Gagal mengupload bukti pembayaran';
+      alert(errorMessage);
+    } finally {
+      setUploadLoading(false);
+    }
+  };
+
+  const bankAccounts = paymentService.getBankAccounts();
+
   const breadcrumbItems = [
     { label: 'Beranda', href: '/' },
+    { label: 'My Bookings', href: '/my-bookings' },
     { label: 'Pembayaran' }
   ];
 
@@ -113,14 +124,12 @@ const Payment = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="animate-pulse">
-              <div className="h-8 bg-gray-300 rounded w-1/3 mb-8"></div>
-              <div className="bg-white rounded-xl p-6 shadow-sm">
-                <div className="h-6 bg-gray-300 rounded w-1/2 mb-4"></div>
-                <div className="h-4 bg-gray-300 rounded mb-2"></div>
-                <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-              </div>
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-300 rounded w-1/3 mb-8"></div>
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="h-6 bg-gray-300 rounded w-1/2 mb-4"></div>
+              <div className="h-4 bg-gray-300 rounded mb-2"></div>
+              <div className="h-4 bg-gray-300 rounded w-3/4"></div>
             </div>
           </div>
         </div>
@@ -128,21 +137,21 @@ const Payment = () => {
     );
   }
 
-  if (!transaction) {
+  if (!booking) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Transaksi tidak ditemukan</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Booking tidak ditemukan</h1>
           <Button onClick={() => navigate('/my-bookings')}>
-            Lihat Riwayat Booking
+            Kembali ke My Bookings
           </Button>
         </div>
       </Layout>
     );
   }
 
-  const item = transaction.item;
-  const isTrip = transaction.transaction_type === 'trip';
+  const isExpired = new Date(booking.expired_at) < new Date();
+  const canUploadPayment = booking.status === 'menunggu_pembayaran' && !isExpired;
 
   return (
     <Layout>
@@ -156,224 +165,280 @@ const Payment = () => {
 
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
-            {/* Payment Header */}
+            {/* Booking Status */}
             <motion.div
-              className="text-center mb-8"
+              className="bg-white rounded-xl p-6 shadow-sm mb-8"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Pembayaran</h1>
-              <p className="text-gray-600">Selesaikan pembayaran untuk menyelesaikan booking Anda</p>
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="text-2xl font-bold text-gray-900">Pembayaran</h1>
+                <Badge 
+                  variant={
+                    booking.status === 'lunas' ? 'success' :
+                    booking.status === 'menunggu_validasi' ? 'warning' :
+                    booking.status === 'ditolak' ? 'error' :
+                    booking.status === 'expired' ? 'error' : 'info'
+                  }
+                >
+                  {booking.status === 'menunggu_pembayaran' ? 'Menunggu Pembayaran' :
+                   booking.status === 'menunggu_validasi' ? 'Menunggu Validasi' :
+                   booking.status === 'lunas' ? 'Lunas' :
+                   booking.status === 'ditolak' ? 'Ditolak' :
+                   booking.status === 'expired' ? 'Expired' : booking.status}
+                </Badge>
+              </div>
+
+              {/* Booking Details */}
+              <div className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg mb-6">
+                <img
+                  src={getImageUrl(booking.catalog?.image_url || booking.catalog?.image)}
+                  alt={booking.catalog?.title || booking.catalog?.name}
+                  className="w-20 h-20 object-cover rounded-lg"
+                  onError={(e) => {
+                    e.target.src = booking.catalog_type === 'trip' 
+                      ? '/images/trip-placeholder.jpg' 
+                      : '/images/travel-placeholder.jpg';
+                  }}
+                />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900">
+                    {booking.catalog?.title || booking.catalog?.name}
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {booking.catalog_type === 'trip' ? 'Paket Trip' : 'Travel'}
+                  </p>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-600">Nama Pemesan:</span>
+                      <p className="font-medium">{booking.booking_data?.nama_pemesan}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Nomor HP:</span>
+                      <p className="font-medium">{booking.booking_data?.nomor_hp}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Tanggal Keberangkatan:</span>
+                      <p className="font-medium">{formatDate(booking.booking_data?.tanggal_keberangkatan)}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Jumlah Orang:</span>
+                      <p className="font-medium">{booking.booking_data?.jumlah_orang} orang</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-primary-600">
+                    {formatCurrency(booking.total_price)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Expired Warning */}
+              {isExpired && booking.status === 'menunggu_pembayaran' && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-red-800">
+                        Booking Expired
+                      </h3>
+                      <p className="text-sm text-red-700 mt-1">
+                        Booking ini telah expired karena belum ada pembayaran dalam 24 jam. Silakan booking ulang.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Countdown Timer */}
+              {canUploadPayment && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-yellow-800">
+                        Batas Waktu Pembayaran
+                      </h3>
+                      <p className="text-sm text-yellow-700 mt-1">
+                        Silakan lakukan pembayaran sebelum {formatDate(booking.expired_at)} pukul {new Date(booking.expired_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Booking Details */}
+            {/* Payment Instructions */}
+            {canUploadPayment && (
               <motion.div
-                className="lg:col-span-2 space-y-6"
+                className="bg-white rounded-xl p-6 shadow-sm mb-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
               >
-                {/* Item Details */}
-                <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Detail Pesanan</h2>
-                  
-                  <div className="flex items-start space-x-4">
-                    <img
-                      src={getImageUrl(item?.image_url || item?.image)}
-                      alt={item?.name || item?.title}
-                      className="w-20 h-20 object-cover rounded-lg"
-                      onError={(e) => {
-                        e.target.src = isTrip ? '/images/trip-placeholder.jpg' : '/images/travel-placeholder.jpg';
-                      }}
-                    />
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 mb-2">
-                        {item?.name || item?.title || (isTrip ? 'Trip' : 'Travel')}
-                      </h3>
-                      {isTrip ? (
-                        <>
-                          <p className="text-sm text-gray-600 mb-1">{item?.location}</p>
-                          <p className="text-sm text-gray-600">{item?.duration}</p>
-                        </>
-                      ) : (
-                        <>
-                          <p className="text-sm text-gray-600 mb-1">
-                            {item?.departure_location} → {item?.destination_location}
-                          </p>
-                          <p className="text-sm text-gray-600">{item?.vehicle_type}</p>
-                        </>
-                      )}
-                    </div>
-                    <Badge variant="warning">Menunggu Pembayaran</Badge>
+                <h2 className="text-xl font-bold text-gray-900 mb-6">Instruksi Pembayaran</h2>
+                
+                <div className="space-y-6">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h3 className="font-semibold text-blue-900 mb-2">Langkah Pembayaran:</h3>
+                    <ol className="list-decimal list-inside space-y-1 text-sm text-blue-800">
+                      <li>Transfer ke salah satu rekening bank di bawah ini</li>
+                      <li>Simpan bukti transfer</li>
+                      <li>Upload bukti transfer di form di bawah</li>
+                      <li>Tunggu validasi dari admin (maksimal 1x24 jam)</li>
+                    </ol>
                   </div>
-                </div>
 
-                {/* Booking Information */}
-                <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Informasi Booking</h2>
-                  
+                  {/* Bank Accounts */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-gray-600">Order ID</p>
-                      <p className="font-medium">{transaction.order_id}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">
-                        {isTrip ? 'Jumlah Peserta' : 'Jumlah Penumpang'}
-                      </p>
-                      <p className="font-medium">
-                        {transaction.participants || transaction.passengers || 1} orang
-                      </p>
-                    </div>
-                    {transaction.departure_date && (
-                      <div>
-                        <p className="text-sm text-gray-600">Tanggal Keberangkatan</p>
-                        <p className="font-medium">{formatDate(transaction.departure_date)}</p>
+                    {Object.values(bankAccounts).map((bank, index) => (
+                      <div key={index} className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold text-gray-900">Bank {bank.bank}</h4>
+                          <span className="text-xs bg-gray-100 px-2 py-1 rounded">Transfer Bank</span>
+                        </div>
+                        <div className="space-y-1 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">No. Rekening:</span>
+                            <span className="font-mono font-medium">{bank.accountNumber}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Atas Nama:</span>
+                            <span className="font-medium">{bank.accountName}</span>
+                          </div>
+                        </div>
                       </div>
-                    )}
-                    {transaction.contact_phone && (
-                      <div>
-                        <p className="text-sm text-gray-600">Nomor Telepon</p>
-                        <p className="font-medium">{transaction.contact_phone}</p>
-                      </div>
-                    )}
-                    {transaction.pickup_location && (
-                      <div className="md:col-span-2">
-                        <p className="text-sm text-gray-600">Lokasi Penjemputan</p>
-                        <p className="font-medium">{transaction.pickup_location}</p>
-                      </div>
-                    )}
-                    {transaction.destination_address && (
-                      <div className="md:col-span-2">
-                        <p className="text-sm text-gray-600">Alamat Tujuan</p>
-                        <p className="font-medium">{transaction.destination_address}</p>
-                      </div>
-                    )}
-                    {transaction.special_requests && (
-                      <div className="md:col-span-2">
-                        <p className="text-sm text-gray-600">Permintaan Khusus</p>
-                        <p className="font-medium">{transaction.special_requests}</p>
-                      </div>
-                    )}
+                    ))}
+                  </div>
+
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-900 mb-2">Total yang harus dibayar:</h4>
+                    <p className="text-2xl font-bold text-primary-600">{formatCurrency(booking.total_price)}</p>
                   </div>
                 </div>
               </motion.div>
+            )}
 
-              {/* Payment Summary */}
+            {/* Upload Payment Proof */}
+            {canUploadPayment && (
               <motion.div
-                className="lg:col-span-1"
+                className="bg-white rounded-xl p-6 shadow-sm mb-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                <div className="bg-white rounded-xl p-6 shadow-sm sticky top-24">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Ringkasan Pembayaran</h2>
-                  
-                  <div className="space-y-3 mb-6">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Subtotal</span>
-                      <span className="font-medium">{formatCurrency(transaction.total_price)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Biaya Admin</span>
-                      <span className="font-medium">Gratis</span>
-                    </div>
-                    <div className="border-t border-gray-200 pt-3">
-                      <div className="flex justify-between text-lg font-bold">
-                        <span>Total</span>
-                        <span className="text-primary-600">{formatCurrency(transaction.total_price)}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Payment Button */}
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    fullWidth
-                    loading={paymentLoading}
-                    onClick={handlePayment}
-                    disabled={!transaction.snap_token}
-                  >
-                    Bayar Sekarang
-                  </Button>
-
-                  {/* Payment Methods Info */}
-                  <div className="mt-6 pt-6 border-t border-gray-200">
-                    <p className="text-sm text-gray-600 mb-3">Metode Pembayaran Tersedia:</p>
-                    <div className="space-y-2">
-                      <div className="flex items-center p-2 bg-gray-50 rounded-lg">
-                        <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center mr-3">
-                          <span className="text-white text-xs font-bold">BRI</span>
-                        </div>
-                        <span className="text-sm font-medium text-gray-900">Bank BRI Virtual Account</span>
-                      </div>
-                      <div className="flex items-center p-2 bg-gray-50 rounded-lg">
-                        <div className="w-8 h-8 bg-blue-800 rounded flex items-center justify-center mr-3">
-                          <span className="text-white text-xs font-bold">BCA</span>
-                        </div>
-                        <span className="text-sm font-medium text-gray-900">Bank BCA Virtual Account</span>
-                      </div>
-                      <div className="flex items-center p-2 bg-gray-50 rounded-lg">
-                        <div className="w-8 h-8 bg-gradient-to-r from-red-500 to-blue-500 rounded flex items-center justify-center mr-3">
-                          <span className="text-white text-xs font-bold">QR</span>
-                        </div>
-                        <span className="text-sm font-medium text-gray-900">QRIS (Scan QR Code)</span>
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-2">
-                      * Metode pembayaran dikonfigurasi melalui Midtrans
+                <h2 className="text-xl font-bold text-gray-900 mb-6">Upload Bukti Pembayaran</h2>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Pilih File Bukti Transfer *
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Format: JPG, PNG, GIF, WEBP. Maksimal 5MB.
                     </p>
                   </div>
 
-                  {/* Security Info */}
-                  <div className="mt-6 pt-6 border-t border-gray-200">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <svg className="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                      </svg>
-                      <span>Pembayaran aman dengan Midtrans</span>
+                  {previewUrl && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Preview:
+                      </label>
+                      <img
+                        src={previewUrl}
+                        alt="Preview bukti pembayaran"
+                        className="max-w-xs h-auto border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                  )}
+
+                  <Button
+                    onClick={handleUploadPaymentProof}
+                    loading={uploadLoading}
+                    disabled={!selectedFile}
+                    className="w-full"
+                  >
+                    Upload Bukti Pembayaran
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Payment Proof Status */}
+            {booking.payment_proof && (
+              <motion.div
+                className="bg-white rounded-xl p-6 shadow-sm mb-8"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                <h2 className="text-xl font-bold text-gray-900 mb-6">Bukti Pembayaran</h2>
+                
+                <div className="flex items-start space-x-4">
+                  <img
+                    src={booking.payment_proof.image_url}
+                    alt="Bukti pembayaran"
+                    className="w-32 h-32 object-cover border border-gray-300 rounded-lg"
+                  />
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-600 mb-2">
+                      Diupload pada: {formatDate(booking.payment_proof.uploaded_at)}
+                    </p>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                      <p className="text-sm text-blue-800">
+                        {booking.status === 'menunggu_validasi' 
+                          ? 'Bukti pembayaran sedang divalidasi oleh admin. Mohon tunggu maksimal 1x24 jam.'
+                          : booking.status === 'lunas'
+                          ? 'Pembayaran telah disetujui. Booking Anda sudah lunas.'
+                          : booking.status === 'ditolak'
+                          ? 'Pembayaran ditolak. Silakan booking ulang.'
+                          : 'Status pembayaran tidak diketahui.'
+                        }
+                      </p>
                     </div>
                   </div>
                 </div>
               </motion.div>
-            </div>
+            )}
 
-            {/* Help Section */}
-            <motion.div
-              className="mt-12 bg-white rounded-xl p-6 shadow-sm"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Butuh Bantuan?</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Hubungi Customer Service</h4>
-                  <div className="flex items-center text-sm text-primary-600 mb-2">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                    <span>+62 812-3456-7890</span>
-                  </div>
-                  <div className="flex items-center text-sm text-primary-600">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                    <span>support@caturjayatravel.com</span>
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Jam Operasional</h4>
-                  <p className="text-sm text-gray-600">
-                    Senin - Jumat: 08:00 - 17:00 WIB<br />
-                    Sabtu - Minggu: 09:00 - 15:00 WIB
-                  </p>
-                </div>
-              </div>
-            </motion.div>
+            {/* Action Buttons */}
+            <div className="flex space-x-4">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => navigate('/my-bookings')}
+                className="flex-1"
+              >
+                Kembali ke My Bookings
+              </Button>
+              
+              {(booking.status === 'expired' || booking.status === 'ditolak') && (
+                <Button
+                  variant="primary"
+                  size="lg"
+                  onClick={() => navigate(`/${booking.catalog_type}s/${booking.catalog_id}`)}
+                  className="flex-1"
+                >
+                  Booking Ulang
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>

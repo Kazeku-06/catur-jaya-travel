@@ -1,40 +1,39 @@
-import api, { endpoints } from '../config/api';
+import api from '../config/api';
 
 export const transactionService = {
-  // Create trip transaction (requires auth)
+  // Create trip booking (updated to use new booking system)
   createTripTransaction: async (tripId, bookingData) => {
-    const response = await api.post(endpoints.createTripTransaction(tripId), {
+    const response = await api.post(`/bookings/trip/${tripId}`, {
+      nama_pemesan: bookingData.nama_pemesan,
+      nomor_hp: bookingData.nomor_hp,
+      tanggal_keberangkatan: bookingData.tanggal_keberangkatan,
       participants: bookingData.participants,
-      departure_date: bookingData.departure_date,
-      special_requests: bookingData.special_requests || '',
-      contact_phone: bookingData.contact_phone || '',
-      emergency_contact: bookingData.emergency_contact || ''
+      catatan_tambahan: bookingData.catatan_tambahan || ''
     });
     return response.data;
   },
 
-  // Create travel transaction (requires auth)
+  // Create travel booking (updated to use new booking system)
   createTravelTransaction: async (travelId, bookingData) => {
-    const response = await api.post(endpoints.createTravelTransaction(travelId), {
+    const response = await api.post(`/bookings/travel/${travelId}`, {
+      nama_pemesan: bookingData.nama_pemesan,
+      nomor_hp: bookingData.nomor_hp,
+      tanggal_keberangkatan: bookingData.tanggal_keberangkatan,
       passengers: bookingData.passengers,
-      departure_date: bookingData.departure_date,
-      pickup_location: bookingData.pickup_location || '',
-      destination_address: bookingData.destination_address || '',
-      contact_phone: bookingData.contact_phone || '',
-      special_requests: bookingData.special_requests || ''
+      catatan_tambahan: bookingData.catatan_tambahan || ''
     });
     return response.data;
   },
 
-  // Get user's bookings/transactions (requires auth)
+  // Get user's bookings (updated to use new booking system)
   getUserBookings: async () => {
-    const response = await api.get('/transactions/my-bookings');
+    const response = await api.get('/bookings/my');
     return response.data;
   },
 
-  // Get specific transaction detail (requires auth)
-  getTransactionDetail: async (transactionId) => {
-    const response = await api.get(`/transactions/${transactionId}`);
+  // Get booking detail (updated to use new booking system)
+  getTransactionDetail: async (bookingId) => {
+    const response = await api.get(`/bookings/${bookingId}`);
     return response.data;
-  }
+  },
 };

@@ -7,11 +7,10 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\PaketTripController;
 use App\Http\Controllers\Api\V1\TravelController;
-use App\Http\Controllers\Api\V1\TransactionController;
-use App\Http\Controllers\Api\V1\PaymentController;
+use App\Http\Controllers\Api\V1\BookingController;
 use App\Http\Controllers\Api\V1\Admin\AdminPaketTripController;
 use App\Http\Controllers\Api\V1\Admin\AdminTravelController;
-use App\Http\Controllers\Api\V1\Admin\AdminTransactionController;
+use App\Http\Controllers\Api\V1\Admin\AdminBookingController;
 use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
 
 // API Version 1 Routes
@@ -35,7 +34,7 @@ Route::prefix('v1')->group(function () {
     Route::get('travels', [TravelController::class, 'index']);
     Route::get('travels/{id}', [TravelController::class, 'show']);
 
-    // User Transaction Routes (Requires authentication)
+    // User Booking Routes (Requires authentication)
     Route::middleware('auth:sanctum')->group(function () {
         // Test endpoint untuk debugging
         Route::get('test-auth', function (Request $request) {
@@ -46,16 +45,12 @@ Route::prefix('v1')->group(function () {
             ]);
         });
         
-        Route::post('transactions/trip/{id}', [TransactionController::class, 'createTripTransaction']);
-        Route::post('transactions/travel/{id}', [TransactionController::class, 'createTravelTransaction']);
-        Route::get('transactions/my-bookings', [TransactionController::class, 'getUserBookings']);
-        Route::get('transactions/{id}', [TransactionController::class, 'getTransactionDetail']);
-    });
-
-    // Payment Routes
-    Route::prefix('payments')->group(function () {
-        Route::get('midtrans', [PaymentController::class, 'getMidtransConfig']);
-        Route::post('midtrans/callback', [PaymentController::class, 'midtransCallback']);
+        // Booking endpoints
+        Route::post('bookings/trip/{id}', [BookingController::class, 'createTripBooking']);
+        Route::post('bookings/travel/{id}', [BookingController::class, 'createTravelBooking']);
+        Route::get('bookings/my', [BookingController::class, 'getUserBookings']);
+        Route::get('bookings/{id}', [BookingController::class, 'getBookingDetail']);
+        Route::post('bookings/{id}/payment-proof', [BookingController::class, 'uploadPaymentProof']);
     });
 
     // Admin Routes (Requires admin role)
@@ -71,55 +66,18 @@ Route::prefix('v1')->group(function () {
             ]);
         });
 
-        // Test notifications table
-        Route::get('test-notifications', function (Request $request) {
-            try {
-                // Check if table exists
-                $tableExists = \Schema::hasTable('notifications');
-                
-                if (!$tableExists) {
-                    return response()->json([
-                        'error' => 'Notifications table does not exist',
-                        'solution' => 'Run: php artisan migrate'
-                    ], 500);
-                }
-                
-                // Try to count notifications
-                $count = \DB::table('notifications')->count();
-                
-                // Try to get user notifications
-                $user = $request->user();
-                $userNotifications = \DB::table('notifications')
-                    ->where('user_id', $user->id)
-                    ->count();
-                
-                return response()->json([
-                    'table_exists' => $tableExists,
-                    'total_notifications' => $count,
-                    'user_notifications' => $userNotifications,
-                    'user_id' => $user->id,
-                    'user_role' => $user->role
-                ]);
-                
-            } catch (\Exception $e) {
-                return response()->json([
-                    'error' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine()
-                ], 500);
-            }
-        });
-
         // Admin Trip Management
         Route::apiResource('trips', AdminPaketTripController::class);
 
         // Admin Travel Management
         Route::apiResource('travels', AdminTravelController::class);
 
-        // Admin Transaction Management
-        Route::get('transactions', [AdminTransactionController::class, 'index']);
-        Route::get('transactions/{id}', [AdminTransactionController::class, 'show']);
-        Route::get('transactions/statistics', [AdminTransactionController::class, 'statistics']);
+        // Admin Booking Management
+        Route::get('bookings', [AdminBookingController::class, 'index']);
+        Route::get('bookings/{id}', [AdminBookingController::class, 'show']);
+        Route::get('bookings/statistics', [AdminBookingController::class, 'statistics']);
+        Route::put('bookings/{id}/approve', [AdminBookingController::class, 'approve']);
+        Route::put('bookings/{id}/reject', [AdminBookingController::class, 'reject']);
 
         // Admin Notification Management
         Route::prefix('notifications')->group(function () {

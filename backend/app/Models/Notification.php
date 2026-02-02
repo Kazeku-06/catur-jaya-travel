@@ -25,9 +25,11 @@ class Notification extends Model
     protected $keyType = 'string';
 
     // Notification types constants
-    const TYPE_ORDER_CREATED = 'order_created';
-    const TYPE_PAYMENT_PAID = 'payment_paid';
-    const TYPE_PAYMENT_FAILED = 'payment_failed';
+    const TYPE_BOOKING_CREATED = 'booking_created';
+    const TYPE_PAYMENT_PROOF_UPLOADED = 'payment_proof_uploaded';
+    const TYPE_PAYMENT_APPROVED = 'payment_approved';
+    const TYPE_PAYMENT_REJECTED = 'payment_rejected';
+    const TYPE_BOOKING_EXPIRED = 'booking_expired';
 
     protected $fillable = [
         'user_id',
@@ -99,9 +101,11 @@ class Notification extends Model
     public static function getTypes()
     {
         return [
-            self::TYPE_ORDER_CREATED,
-            self::TYPE_PAYMENT_PAID,
-            self::TYPE_PAYMENT_FAILED,
+            self::TYPE_BOOKING_CREATED,
+            self::TYPE_PAYMENT_PROOF_UPLOADED,
+            self::TYPE_PAYMENT_APPROVED,
+            self::TYPE_PAYMENT_REJECTED,
+            self::TYPE_BOOKING_EXPIRED,
         ];
     }
 }

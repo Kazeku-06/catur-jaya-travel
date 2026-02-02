@@ -9,6 +9,24 @@ use Illuminate\Support\Str;
 class FileUploadService
 {
     /**
+     * Upload payment proof image to cloud storage
+     */
+    public function uploadPaymentProof(UploadedFile $file): string
+    {
+        // Validate file
+        $this->validatePaymentProofFile($file);
+
+        // Generate unique filename
+        $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+        
+        // Upload to cloud storage (public disk)
+        $path = $file->storeAs('payment-proofs', $filename, 'public');
+        
+        // Return full URL
+        return Storage::disk('public')->url($path);
+    }
+
+    /**
      * Upload image file
      *
      * @param UploadedFile $file
@@ -48,6 +66,22 @@ class FileUploadService
     }
 
     /**
+     * Delete file from cloud storage using URL
+     */
+    public function deleteFileByUrl(string $url): bool
+    {
+        try {
+            // Extract path from URL
+            $path = str_replace(Storage::disk('public')->url(''), '', $url);
+            
+            return Storage::disk('public')->delete($path);
+        } catch (\Exception $e) {
+            \Log::error('Failed to delete file: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Get full URL for image
      *
      * @param string|null $filePath
@@ -61,6 +95,32 @@ class FileUploadService
 
         // Use Laravel's asset() helper with correct APP_URL
         return asset('storage/' . $filePath);
+    }
+
+    /**
+     * Validate payment proof file
+     */
+    private function validatePaymentProofFile(UploadedFile $file): void
+    {
+        // Check file type
+        $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        $extension = strtolower($file->getClientOriginalExtension());
+        
+        if (!in_array($extension, $allowedTypes)) {
+            throw new \InvalidArgumentException('File harus berupa gambar (JPG, PNG, GIF, WEBP)');
+        }
+
+        // Check file size (max 5MB)
+        $maxSize = 5 * 1024 * 1024; // 5MB in bytes
+        if ($file->getSize() > $maxSize) {
+            throw new \InvalidArgumentException('Ukuran file maksimal 5MB');
+        }
+
+        // Check if file is actually an image
+        $imageInfo = getimagesize($file->getPathname());
+        if (!$imageInfo) {
+            throw new \InvalidArgumentException('File yang diupload bukan gambar yang valid');
+        }
     }
 
     /**

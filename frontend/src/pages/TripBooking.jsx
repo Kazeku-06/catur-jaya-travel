@@ -20,11 +20,11 @@ const TripBooking = () => {
   const [loading, setLoading] = useState(true);
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingData, setBookingData] = useState({
+    nama_pemesan: userData?.name || '',
+    nomor_hp: userData?.phone || '',
     participants: 1,
-    departure_date: '',
-    special_requests: '',
-    contact_phone: userData?.phone || '',
-    emergency_contact: '',
+    tanggal_keberangkatan: '',
+    catatan_tambahan: '',
   });
 
   useEffect(() => {
@@ -73,13 +73,18 @@ const TripBooking = () => {
     e.preventDefault();
     
     // Validate required fields
-    if (!bookingData.departure_date) {
-      alert('Silakan pilih tanggal keberangkatan');
+    if (!bookingData.nama_pemesan) {
+      alert('Silakan masukkan nama pemesan');
       return;
     }
     
-    if (!bookingData.contact_phone) {
-      alert('Silakan masukkan nomor telepon');
+    if (!bookingData.nomor_hp) {
+      alert('Silakan masukkan nomor HP');
+      return;
+    }
+    
+    if (!bookingData.tanggal_keberangkatan) {
+      alert('Silakan pilih tanggal keberangkatan');
       return;
     }
 
@@ -87,13 +92,13 @@ const TripBooking = () => {
       setBookingLoading(true);
       
       const response = await transactionService.createTripTransaction(id, bookingData);
-      const transactionData = response.data;
+      const bookingResult = response.data;
       
-      // Redirect to payment page with transaction data
-      navigate(`/payment/${transactionData.transaction_id}`, {
+      // Redirect to payment page with booking data
+      navigate(`/payment/${bookingResult.booking_id}`, {
         state: {
-          transaction: transactionData,
-          trip: trip,
+          booking: bookingResult,
+          catalog: trip,
           bookingData: bookingData
         }
       });
@@ -201,6 +206,41 @@ const TripBooking = () => {
             >
               <form onSubmit={handleBookingSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Nama Pemesan */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Nama Pemesan *
+                    </label>
+                    <input
+                      type="text"
+                      value={bookingData.nama_pemesan}
+                      onChange={(e) => setBookingData({
+                        ...bookingData,
+                        nama_pemesan: e.target.value
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+
+                  {/* Nomor HP */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Nomor HP *
+                    </label>
+                    <input
+                      type="tel"
+                      value={bookingData.nomor_hp}
+                      onChange={(e) => setBookingData({
+                        ...bookingData,
+                        nomor_hp: e.target.value
+                      })}
+                      placeholder="+62812345678"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+
                   {/* Participants */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -215,7 +255,7 @@ const TripBooking = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       required
                     >
-                      {[...Array(Math.min(trip.quota || 10, 10))].map((_, i) => (
+                      {[...Array(Math.min(trip.quota || 10, 50))].map((_, i) => (
                         <option key={i + 1} value={i + 1}>
                           {i + 1} orang
                         </option>
@@ -230,67 +270,32 @@ const TripBooking = () => {
                     </label>
                     <input
                       type="date"
-                      value={bookingData.departure_date}
+                      value={bookingData.tanggal_keberangkatan}
                       onChange={(e) => setBookingData({
                         ...bookingData,
-                        departure_date: e.target.value
+                        tanggal_keberangkatan: e.target.value
                       })}
                       min={new Date().toISOString().split('T')[0]}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       required
                     />
                   </div>
-
-                  {/* Contact Phone */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nomor Telepon *
-                    </label>
-                    <input
-                      type="tel"
-                      value={bookingData.contact_phone}
-                      onChange={(e) => setBookingData({
-                        ...bookingData,
-                        contact_phone: e.target.value
-                      })}
-                      placeholder="+62812345678"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
-
-                  {/* Emergency Contact */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Kontak Darurat
-                    </label>
-                    <input
-                      type="text"
-                      value={bookingData.emergency_contact}
-                      onChange={(e) => setBookingData({
-                        ...bookingData,
-                        emergency_contact: e.target.value
-                      })}
-                      placeholder="Nama - Nomor Telepon"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    />
-                  </div>
                 </div>
 
-                {/* Special Requests */}
+                {/* Catatan Tambahan */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Permintaan Khusus
+                    Catatan Tambahan
                   </label>
                   <textarea
-                    value={bookingData.special_requests}
+                    value={bookingData.catatan_tambahan}
                     onChange={(e) => setBookingData({
                       ...bookingData,
-                      special_requests: e.target.value
+                      catatan_tambahan: e.target.value
                     })}
                     rows={4}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="Masukkan permintaan khusus jika ada (makanan vegetarian, alergi, dll.)"
+                    placeholder="Masukkan catatan tambahan jika ada (makanan vegetarian, alergi, dll.)"
                   />
                 </div>
 

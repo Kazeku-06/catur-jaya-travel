@@ -20,12 +20,11 @@ const TravelBooking = () => {
   const [loading, setLoading] = useState(true);
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingData, setBookingData] = useState({
+    nama_pemesan: userData?.name || '',
+    nomor_hp: userData?.phone || '',
     passengers: 1,
-    departure_date: '',
-    pickup_location: '',
-    destination_address: '',
-    contact_phone: userData?.phone || '',
-    special_requests: '',
+    tanggal_keberangkatan: '',
+    catatan_tambahan: '',
   });
 
   useEffect(() => {
@@ -66,11 +65,11 @@ const TravelBooking = () => {
       
       setTravel(mappedTravel);
       
-      // Set default pickup and destination if travel has fixed schedule
+      // Set default departure date if travel has fixed schedule
       if (mappedTravel.departure_date) {
         setBookingData(prev => ({
           ...prev,
-          departure_date: mappedTravel.departure_date
+          tanggal_keberangkatan: mappedTravel.departure_date
         }));
       }
     } catch (error) {
@@ -85,18 +84,18 @@ const TravelBooking = () => {
     e.preventDefault();
     
     // Validate required fields
-    if (!travel?.departure_date && !bookingData.departure_date) {
+    if (!bookingData.nama_pemesan) {
+      alert('Silakan masukkan nama pemesan');
+      return;
+    }
+    
+    if (!bookingData.nomor_hp) {
+      alert('Silakan masukkan nomor HP');
+      return;
+    }
+    
+    if (!travel?.departure_date && !bookingData.tanggal_keberangkatan) {
       alert('Silakan pilih tanggal keberangkatan');
-      return;
-    }
-    
-    if (!bookingData.pickup_location) {
-      alert('Silakan masukkan lokasi penjemputan');
-      return;
-    }
-    
-    if (!bookingData.contact_phone) {
-      alert('Silakan masukkan nomor telepon');
       return;
     }
 
@@ -105,15 +104,15 @@ const TravelBooking = () => {
       
       const response = await transactionService.createTravelTransaction(id, {
         ...bookingData,
-        departure_date: travel?.departure_date || bookingData.departure_date
+        tanggal_keberangkatan: travel?.departure_date || bookingData.tanggal_keberangkatan
       });
-      const transactionData = response.data;
+      const bookingResult = response.data;
       
-      // Redirect to payment page with transaction data
-      navigate(`/payment/${transactionData.transaction_id}`, {
+      // Redirect to payment page with booking data
+      navigate(`/payment/${bookingResult.booking_id}`, {
         state: {
-          transaction: transactionData,
-          travel: travel,
+          booking: bookingResult,
+          catalog: travel,
           bookingData: bookingData
         }
       });
@@ -229,6 +228,41 @@ const TravelBooking = () => {
             >
               <form onSubmit={handleBookingSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Nama Pemesan */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Nama Pemesan *
+                    </label>
+                    <input
+                      type="text"
+                      value={bookingData.nama_pemesan}
+                      onChange={(e) => setBookingData({
+                        ...bookingData,
+                        nama_pemesan: e.target.value
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+
+                  {/* Nomor HP */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Nomor HP *
+                    </label>
+                    <input
+                      type="tel"
+                      value={bookingData.nomor_hp}
+                      onChange={(e) => setBookingData({
+                        ...bookingData,
+                        nomor_hp: e.target.value
+                      })}
+                      placeholder="+62812345678"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+
                   {/* Passengers */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -259,10 +293,10 @@ const TravelBooking = () => {
                       </label>
                       <input
                         type="date"
-                        value={bookingData.departure_date}
+                        value={bookingData.tanggal_keberangkatan}
                         onChange={(e) => setBookingData({
                           ...bookingData,
-                          departure_date: e.target.value
+                          tanggal_keberangkatan: e.target.value
                         })}
                         min={new Date().toISOString().split('T')[0]}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -270,75 +304,22 @@ const TravelBooking = () => {
                       />
                     </div>
                   )}
-
-                  {/* Contact Phone */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nomor Telepon *
-                    </label>
-                    <input
-                      type="tel"
-                      value={bookingData.contact_phone}
-                      onChange={(e) => setBookingData({
-                        ...bookingData,
-                        contact_phone: e.target.value
-                      })}
-                      placeholder="+62812345678"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
                 </div>
 
-                {/* Pickup Location */}
+                {/* Catatan Tambahan */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Lokasi Penjemputan *
-                  </label>
-                  <input
-                    type="text"
-                    value={bookingData.pickup_location}
-                    onChange={(e) => setBookingData({
-                      ...bookingData,
-                      pickup_location: e.target.value
-                    })}
-                    placeholder={`Alamat lengkap di ${travel.departure_location}`}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-
-                {/* Destination Address */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Alamat Tujuan
-                  </label>
-                  <input
-                    type="text"
-                    value={bookingData.destination_address}
-                    onChange={(e) => setBookingData({
-                      ...bookingData,
-                      destination_address: e.target.value
-                    })}
-                    placeholder={`Alamat lengkap di ${travel.destination_location}`}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  />
-                </div>
-
-                {/* Special Requests */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Permintaan Khusus
+                    Catatan Tambahan
                   </label>
                   <textarea
-                    value={bookingData.special_requests}
+                    value={bookingData.catatan_tambahan}
                     onChange={(e) => setBookingData({
                       ...bookingData,
-                      special_requests: e.target.value
+                      catatan_tambahan: e.target.value
                     })}
                     rows={4}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="Masukkan permintaan khusus jika ada (bantuan kursi roda, dll.)"
+                    placeholder="Masukkan catatan tambahan jika ada (bantuan kursi roda, dll.)"
                   />
                 </div>
 
