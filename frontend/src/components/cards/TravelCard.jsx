@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { formatCurrency, getImageUrl, truncateText } from '../../utils/helpers';
+import { authService } from '../../services/authService';
 import Badge from '../ui/Badge';
 
 const TravelCard = ({ travel, className = '' }) => {
@@ -33,6 +34,7 @@ const TravelCard = ({ travel, className = '' }) => {
   const displayPrice = price || price_per_person;
   const available = is_active !== undefined ? is_active : (is_available !== undefined ? is_available : true);
   const displayDescription = description || `Perjalanan ${vehicle_type || 'travel'} dari ${origin} ke ${destination}`;
+  const isAdmin = authService.isAdmin();
 
   return (
     <motion.div
@@ -54,9 +56,13 @@ const TravelCard = ({ travel, className = '' }) => {
           
           {/* Badge */}
           <div className="absolute top-3 left-3">
-            <Badge variant={available ? 'success' : 'error'}>
-              {available ? 'Tersedia' : 'Tidak Tersedia'}
-            </Badge>
+            {isAdmin ? (
+              <Badge variant="info">Admin View</Badge>
+            ) : (
+              <Badge variant={available ? 'success' : 'error'}>
+                {available ? 'Tersedia' : 'Tidak Tersedia'}
+              </Badge>
+            )}
           </div>
           
           {/* Vehicle Type */}

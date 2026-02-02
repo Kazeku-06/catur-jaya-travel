@@ -7,6 +7,7 @@ import Badge from '../components/ui/Badge';
 import Breadcrumb from '../components/navigation/Breadcrumb';
 import TravelCard from '../components/cards/TravelCard';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { authService } from '../services/authService';
 import api, { endpoints } from '../config/api';
 import { formatCurrency, formatDate, getImageUrl } from '../utils/helpers';
 
@@ -14,11 +15,15 @@ const TravelDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [authToken] = useLocalStorage('auth_token', null);
+  const [userData] = useLocalStorage('user_data', null);
   
   const [travel, setTravel] = useState(null);
   const [relatedTravels, setRelatedTravels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
+
+  // Check if current user is admin
+  const isAdmin = authService.isAdmin();
 
   useEffect(() => {
     fetchTravelDetail();
@@ -394,8 +399,12 @@ const TravelDetail = () => {
                   variant="primary"
                   size="lg"
                   fullWidth
-                  disabled={!travel?.is_available}
+                  disabled={!travel?.is_available || isAdmin}
                   onClick={() => {
+                    if (isAdmin) {
+                      alert('Admin tidak dapat melakukan booking. Silakan gunakan akun customer untuk booking.');
+                      return;
+                    }
                     if (!authToken) {
                       navigate('/login', { state: { from: `/travels/${id}` } });
                     } else {
@@ -403,14 +412,23 @@ const TravelDetail = () => {
                     }
                   }}
                 >
-                  {!travel?.is_available ? 'Tidak Tersedia' : 'Pesan Sekarang'}
+                  {isAdmin 
+                    ? 'Admin Mode - Tidak Dapat Booking' 
+                    : !travel?.is_available 
+                      ? 'Tidak Tersedia' 
+                      : 'Pesan Sekarang'
+                  }
                 </Button>
 
                 {/* Status Badge */}
                 <div className="mt-4 text-center">
-                  <Badge variant={travel?.is_available ? 'success' : 'error'}>
-                    {travel?.is_available ? 'Tersedia' : 'Tidak Tersedia'}
-                  </Badge>
+                  {isAdmin ? (
+                    <Badge variant="info">Mode Admin - Hanya Lihat Detail</Badge>
+                  ) : (
+                    <Badge variant={travel?.is_available ? 'success' : 'error'}>
+                      {travel?.is_available ? 'Tersedia' : 'Tidak Tersedia'}
+                    </Badge>
+                  )}
                 </div>
 
                 {/* Contact Info */}

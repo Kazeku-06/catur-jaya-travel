@@ -6,6 +6,7 @@ import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Breadcrumb from '../components/navigation/Breadcrumb';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { authService } from '../services/authService';
 import { transactionService } from '../services/transactionService';
 import api, { endpoints } from '../config/api';
 import { formatCurrency, formatDate, getImageUrl } from '../utils/helpers';
@@ -32,6 +33,14 @@ const TripBooking = () => {
       navigate('/login', { state: { from: `/trips/${id}/booking` } });
       return;
     }
+    
+    // Check if user is admin and redirect to detail page
+    if (authService.isAdmin()) {
+      alert('Admin tidak dapat melakukan booking. Anda akan diarahkan ke halaman detail.');
+      navigate(`/trips/${id}`);
+      return;
+    }
+    
     fetchTripDetail();
   }, [id, authToken, navigate]);
 

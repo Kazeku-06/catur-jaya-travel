@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { getImageUrl, formatCurrency } from '../../utils/helpers';
+import { authService } from '../../services/authService';
 import Badge from '../ui/Badge';
 
 const TripCard = ({ trip, className = '' }) => {
@@ -18,6 +19,7 @@ const TripCard = ({ trip, className = '' }) => {
   // Use title or name
   const displayName = title || name || 'Trip Tidak Diketahui';
   const isAvailable = is_active !== undefined ? is_active : true;
+  const isAdmin = authService.isAdmin();
 
   return (
     <motion.div
@@ -39,9 +41,13 @@ const TripCard = ({ trip, className = '' }) => {
           
           {/* Availability Badge */}
           <div className="absolute top-3 left-3">
-            <Badge variant={isAvailable ? 'success' : 'error'}>
-              {isAvailable ? 'Tersedia' : 'Tidak Tersedia'}
-            </Badge>
+            {isAdmin ? (
+              <Badge variant="info">Admin View</Badge>
+            ) : (
+              <Badge variant={isAvailable ? 'success' : 'error'}>
+                {isAvailable ? 'Tersedia' : 'Tidak Tersedia'}
+              </Badge>
+            )}
           </div>
           
           {/* Price Badge */}

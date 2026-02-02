@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { authService } from '../../services/authService';
 import Button from '../ui/Button';
 
 const Header = () => {
@@ -15,6 +16,7 @@ const Header = () => {
   const navigate = useNavigate();
 
   const isDarkHeroPage = location.pathname === '/';
+  const isAdmin = authService.isAdmin();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,16 +53,25 @@ const Header = () => {
   };
 
   return (
-    <motion.header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-white/95 backdrop-blur-md shadow-lg' 
-          : 'bg-white shadow-md'
-      }`}
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
+    <>
+      {/* Admin Mode Banner */}
+      {isAdmin && (
+        <div className="bg-orange-500 text-white text-center py-2 text-sm font-medium">
+          🔧 Mode Admin - Anda sedang melihat sebagai admin (tidak dapat melakukan booking)
+        </div>
+      )}
+      
+      <motion.header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled 
+            ? 'bg-white/95 backdrop-blur-md shadow-lg' 
+            : 'bg-white shadow-md'
+        } ${isAdmin ? 'mt-10' : ''}`}
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.3 }}
+        style={{ top: isAdmin ? '40px' : '0' }}
+      >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 lg:h-20">
           
@@ -311,6 +322,7 @@ const Header = () => {
         </AnimatePresence>
       </div>
     </motion.header>
+    </>
   );
 };
 
