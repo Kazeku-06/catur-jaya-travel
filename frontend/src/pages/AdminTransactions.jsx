@@ -1,6 +1,6 @@
-  import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import Layout from '../components/Layout/AdminLayout';
+import AdminLayout from '../components/Layout/AdminLayout';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Modal from '../components/ui/Modal';
@@ -161,7 +161,7 @@ const AdminTransactions = () => {
 
   if (loading) {
     return (
-      <Layout>
+      <AdminLayout>
         <div className="container mx-auto px-4 py-8">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-300 rounded w-1/3 mb-8"></div>
@@ -174,12 +174,12 @@ const AdminTransactions = () => {
             ))}
           </div>
         </div>
-      </Layout>
+      </AdminLayout>
     );
   }
 
   return (
-    <Layout>
+    <AdminLayout>
       {/* Header */}
       <motion.div
         className="mb-8"
@@ -290,7 +290,7 @@ const AdminTransactions = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
+                        <div> 
                           <div className="text-sm font-medium text-gray-900">
                             {booking.catalog?.title || booking.catalog?.name}
                           </div>
@@ -647,7 +647,7 @@ const AdminTransactions = () => {
           </div>
         )}
       </Modal>
-    </Layout>
+    </AdminLayout>
   );
 };
 

@@ -73,7 +73,7 @@ const AdminLayout = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex overflow-hidden">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
@@ -82,27 +82,33 @@ const AdminLayout = ({ children }) => {
         />
       )}
 
-      {/* Sidebar */}
-      <div className={`
-        fixed lg:static inset-y-0 left-0 z-50 w-64 flex-shrink-0 bg-white shadow-lg flex flex-col border-r border-gray-200
-        transform transition-transform duration-300 ease-in-out lg:transform-none
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-      `}>
+      {/* Sidebar - Fixed/Sticky Position */}
+      <div 
+        style={{ backgroundColor: '#0d1b2a' }}
+        className={`
+          fixed lg:sticky top-0 left-0 z-50 w-64 h-screen flex-shrink-0 shadow-lg flex flex-col border-r border-gray-800
+          transform transition-transform duration-300 ease-in-out lg:transform-none
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}
+      >
         {/* Logo Section */}
-        <div className="p-6">
+        <div className="p-6 flex-shrink-0">
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
+              {/* PERBAIKAN: Menambahkan '/' agar gambar tetap terload di path mana pun */}
+              <img 
+                src="/logo_1.jpg-removebg-preview.png" 
+                alt="Catur Jaya Mandiri Logo" 
+                className="w-full h-full object-contain"
+              />
             </div>
-            <span className="text-xl font-bold text-gray-900">Admin Panel</span>
+            {/* Text logo dipaksa putih agar kontras dengan sidebar gelap */}
+            <span className="text-xl font-bold text-white">Admin Panel</span>
           </Link>
         </div>
 
-        {/* Navigation Section */}
-        <nav className="px-4 flex-1">
+        {/* Navigation Section - Scrollable if needed */}
+        <nav className="px-4 flex-1 overflow-y-auto">
           <ul className="space-y-2">
             {sidebarItems.map((item) => (
               <li key={item.name}>
@@ -110,8 +116,8 @@ const AdminLayout = ({ children }) => {
                   to={item.href}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 ${
                     isActive(item.href)
-                      ? 'bg-primary-100 text-primary-700 border-r-2 border-primary-600'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                      ? 'bg-primary-600 text-white'
+                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
                   }`}
                 >
                   {item.icon}
@@ -122,8 +128,11 @@ const AdminLayout = ({ children }) => {
           </ul>
         </nav>
 
-        {/* User Info & Logout - Fixed positioning issue */}
-        <div className="mt-auto p-4 border-t border-gray-200 bg-white">
+        {/* User Info & Logout - Fixed at bottom */}
+        <div 
+          style={{ backgroundColor: '#0d1b2a' }}
+          className="flex-shrink-0 p-4 border-t border-gray-800"
+        >
           <div className="flex items-center space-x-3 mb-3">
             <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center">
               <span className="text-white font-medium">
@@ -131,23 +140,23 @@ const AdminLayout = ({ children }) => {
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
+              <p className="text-sm font-medium text-white truncate">
                 {userData?.name || 'Admin'}
               </p>
-              <p className="text-xs text-gray-500 truncate">
+              <p className="text-xs text-gray-400 truncate">
                 {userData?.email || 'admin@travel.com'}
               </p>
             </div>
           </div>
           <div className="flex space-x-2">
             <Link to="/" className="flex-1">
-              <Button variant="outline" size="sm" fullWidth>
+              <Button variant="outline" size="sm" fullWidth className="border-gray-700 text-gray-300 hover:bg-gray-800">
                 Ke Website
               </Button>
             </Link>
             <button 
               onClick={handleLogout}
-              className="px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded border border-red-200 hover:border-red-300 transition-colors"
+              className="px-3 py-1 text-sm text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded border border-red-900/50 transition-colors"
             >
               Keluar
             </button>
@@ -155,10 +164,10 @@ const AdminLayout = ({ children }) => {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      {/* Main Content Area - Scrollable */}
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-0">
         {/* Mobile Header */}
-        <div className="lg:hidden bg-white shadow-sm border-b border-gray-200 px-4 py-3">
+        <div className="lg:hidden bg-white shadow-sm border-b border-gray-200 px-4 py-3 sticky top-0 z-30">
           <div className="flex items-center justify-between">
             <button
               onClick={() => setSidebarOpen(true)}
@@ -177,8 +186,8 @@ const AdminLayout = ({ children }) => {
           </div>
         </div>
 
-        {/* Desktop Top Bar */}
-        <header className="hidden lg:block bg-white shadow-sm border-b border-gray-200">
+        {/* Desktop Top Bar - Sticky */}
+        <header className="hidden lg:block bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
@@ -194,7 +203,7 @@ const AdminLayout = ({ children }) => {
                   {location.pathname === '/admin/trips' && 'Kelola paket trip wisata'}
                   {location.pathname === '/admin/travels' && 'Kelola layanan travel'}
                   {location.pathname === '/admin/transactions' && 'Kelola transaksi dan pembayaran'}
-                  {location.pathname === '/admin/notifications' && 'Kelola notifikasi order dan pembayaran'}
+                  {location.pathname === '/admin/notifications' && 'Notifikasi'}
                 </p>
               </div>
               
@@ -217,8 +226,8 @@ const AdminLayout = ({ children }) => {
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 p-4 lg:p-6">
+        {/* Page Content - Scrollable Area */}
+        <main className="flex-1 p-4 lg:p-6 overflow-y-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
