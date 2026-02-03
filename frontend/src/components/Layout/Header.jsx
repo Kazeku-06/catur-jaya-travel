@@ -14,8 +14,6 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const isDarkHeroPage = location.pathname === '/';
-
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);

@@ -72,7 +72,7 @@ export const getDailyRandomizedContent = (trips = [], travels = [], count = 2) =
       displayName: trip.title || trip.name || 'Trip Wisata',
       displayLocation: trip.location || 'Lokasi tidak diketahui',
       displayPrice: trip.price || 0,
-      detailLink: `/trip/${trip.id}`,
+      detailLink: `/trips/${trip.id}`,
       image: trip.image_url || trip.image || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
     })),
     ...travels.map(travel => ({
@@ -81,7 +81,7 @@ export const getDailyRandomizedContent = (trips = [], travels = [], count = 2) =
       displayName: `${travel.origin || 'Kota A'} - ${travel.destination || 'Kota B'}`,
       displayLocation: travel.vehicle_type || 'Kendaraan',
       displayPrice: travel.price_per_person || 0,
-      detailLink: `/travel/${travel.id}`,
+      detailLink: `/travels/${travel.id}`,
       image: travel.image_url || travel.image || 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
     }))
   ];
@@ -102,51 +102,55 @@ export const getDailyRandomizedContent = (trips = [], travels = [], count = 2) =
  */
 export const getFallbackContent = () => {
   const seed = getDailySeed();
-  const random = createSeededRandom(seed);
   
   const fallbackItems = [
     {
+      id: 'fallback-trip-1',
       type: 'trip',
       displayName: 'Bromo Sunrise Adventure',
       displayLocation: 'Malang, Jawa Timur',
       displayPrice: 750000,
-      detailLink: '/trips',
+      detailLink: '/trips', // Link to trips listing since no real ID
       image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
       description: 'Nikmati keindahan sunrise di Gunung Bromo'
     },
     {
+      id: 'fallback-travel-1',
       type: 'travel',
       displayName: 'Jakarta - Bandung',
       displayLocation: 'Travel Executive',
       displayPrice: 150000,
-      detailLink: '/travels',
+      detailLink: '/travels', // Link to travels listing since no real ID
       image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
       description: 'Perjalanan nyaman Jakarta - Bandung'
     },
     {
+      id: 'fallback-trip-2',
       type: 'trip',
       displayName: 'Tumpak Sewu Waterfall',
       displayLocation: 'Lumajang, Jawa Timur',
       displayPrice: 650000,
-      detailLink: '/trips',
+      detailLink: '/trips', // Link to trips listing since no real ID
       image: 'https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
       description: 'Jelajahi air terjun terindah di Jawa Timur'
     },
     {
+      id: 'fallback-travel-2',
       type: 'travel',
       displayName: 'Surabaya - Malang',
       displayLocation: 'Travel VIP',
       displayPrice: 120000,
-      detailLink: '/travels',
+      detailLink: '/travels', // Link to travels listing since no real ID
       image: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
       description: 'Perjalanan cepat dan aman'
     },
     {
+      id: 'fallback-trip-3',
       type: 'trip',
       displayName: 'Telaga Sarangan',
       displayLocation: 'Magetan, Jawa Timur',
       displayPrice: 550000,
-      detailLink: '/trips',
+      detailLink: '/trips', // Link to trips listing since no real ID
       image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
       description: 'Danau indah di kaki Gunung Lawu'
     }

@@ -3,8 +3,6 @@ import React, { useState } from 'react';
 const Logo = ({ 
   className = "w-full h-full object-contain", 
   size = "medium",
-  showText = true,
-  textColor = "text-gray-900",
   fallbackBg = "bg-primary-600"
 }) => {
   const [imageError, setImageError] = useState(false);

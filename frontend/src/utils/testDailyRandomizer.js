@@ -1,48 +1,64 @@
 /**
- * Test utility for daily randomizer
- * This file can be used to test the randomization functionality
+ * Test script for daily randomizer functionality
+ * Run this to verify the daily randomization is working correctly
  */
 
-import { getDailySeed, getDailyRandomizedContent, getFallbackContent } from './dailyRandomizer';
+import { getDailySeed, getDailyRandomizedContent, getFallbackContent } from './dailyRandomizer.js';
 
-// Test function to verify daily randomization
-export const testDailyRandomization = () => {
+// Test data
+const sampleTrips = [
+  { id: 1, title: 'Bromo Adventure', location: 'Malang', price: 750000 },
+  { id: 2, title: 'Tumpak Sewu', location: 'Lumajang', price: 650000 },
+  { id: 3, title: 'Ijen Crater', location: 'Banyuwangi', price: 850000 }
+];
+
+const sampleTravels = [
+  { id: 1, origin: 'Jakarta', destination: 'Bandung', price_per_person: 150000 },
+  { id: 2, origin: 'Surabaya', destination: 'Malang', price_per_person: 120000 }
+];
+
+// Test functions
+export const testDailyRandomizer = () => {
   console.log('=== Daily Randomizer Test ===');
   
-  // Test seed generation
-  const seed = getDailySeed();
-  console.log('Today\'s seed:', seed);
+  // Test 1: Daily seed consistency
+  const seed1 = getDailySeed();
+  const seed2 = getDailySeed();
+  console.log('Seed consistency test:', seed1 === seed2 ? 'PASS' : 'FAIL');
+  console.log('Today\'s seed:', seed1);
   
-  // Test with sample data
-  const sampleTrips = [
-    { id: 1, title: 'Bromo Adventure', location: 'Malang', price: 750000, image: 'bromo.jpg' },
-    { id: 2, title: 'Bali Paradise', location: 'Bali', price: 1200000, image: 'bali.jpg' },
-    { id: 3, title: 'Yogya Heritage', location: 'Yogyakarta', price: 650000, image: 'yogya.jpg' }
-  ];
+  // Test 2: Content generation with real data
+  const dailyContent = getDailyRandomizedContent(sampleTrips, sampleTravels, 2);
+  console.log('\nDaily content generated:');
+  dailyContent.forEach((item, index) => {
+    console.log(`${index + 1}. ${item.type.toUpperCase()}: ${item.displayName}`);
+    console.log(`   Link: ${item.detailLink}`);
+    console.log(`   Price: ${item.displayPrice}`);
+  });
   
-  const sampleTravels = [
-    { id: 1, origin: 'Jakarta', destination: 'Bandung', price_per_person: 150000, vehicle_type: 'Executive', image: 'jkt-bdg.jpg' },
-    { id: 2, origin: 'Surabaya', destination: 'Malang', price_per_person: 120000, vehicle_type: 'VIP', image: 'sby-mlg.jpg' }
-  ];
-  
-  // Test randomization
-  const randomContent = getDailyRandomizedContent(sampleTrips, sampleTravels, 2);
-  console.log('Randomized content:', randomContent);
-  
-  // Test fallback content
+  // Test 3: Fallback content
   const fallbackContent = getFallbackContent();
-  console.log('Fallback content:', fallbackContent);
+  console.log('\nFallback content:');
+  fallbackContent.forEach((item, index) => {
+    console.log(`${index + 1}. ${item.type.toUpperCase()}: ${item.displayName}`);
+    console.log(`   Link: ${item.detailLink}`);
+  });
   
-  console.log('=== Test Complete ===');
+  // Test 4: Consistency check (same seed should produce same results)
+  const content1 = getDailyRandomizedContent(sampleTrips, sampleTravels, 2);
+  const content2 = getDailyRandomizedContent(sampleTrips, sampleTravels, 2);
+  const isConsistent = JSON.stringify(content1) === JSON.stringify(content2);
+  console.log('\nConsistency test:', isConsistent ? 'PASS' : 'FAIL');
   
   return {
-    seed,
-    randomContent,
-    fallbackContent
+    seed: seed1,
+    dailyContent,
+    fallbackContent,
+    isConsistent
   };
 };
 
-// Export for use in development
+// Export for use in browser console
 if (typeof window !== 'undefined') {
-  window.testDailyRandomization = testDailyRandomization;
+  window.testDailyRandomizer = testDailyRandomizer;
 }

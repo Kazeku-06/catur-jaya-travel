@@ -6,6 +6,8 @@ import { useLocalStorage } from './hooks/useLocalStorage';
 
 // Lazy load pages for code splitting
 const Home = lazy(() => import('./pages/Home'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
 const Trips = lazy(() => import('./pages/Trips'));
 const TripDetail = lazy(() => import('./pages/TripDetail'));
 const Travels = lazy(() => import('./pages/Travels'));
@@ -93,6 +95,8 @@ function App() {
               <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<Home />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
                 
                 {/* Trips Routes */}
                 <Route path="/trips" element={<Trips />} />

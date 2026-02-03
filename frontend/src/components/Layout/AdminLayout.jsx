@@ -83,7 +83,7 @@ const AdminLayout = ({ children }) => {
         />
       )}
 
-      {/* Sidebar - Fixed/Sticky Position */}
+      {/* Sidebar - Fixed on mobile, Sticky on desktop */}
       <div 
         style={{ backgroundColor: '#0d1b2a' }}
         className={`
@@ -112,7 +112,7 @@ const AdminLayout = ({ children }) => {
                     isActive(item.href)
                       ? 'bg-primary-600 text-white'
                       : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                  }`}
+                  }`}  
                 >
                   {item.icon}
                   <span className="font-medium">{item.name}</span>
@@ -138,7 +138,7 @@ const AdminLayout = ({ children }) => {
                 {userData?.name || 'Admin'}
               </p>
               <p className="text-xs text-gray-400 truncate">
-                {userData?.email || 'admin@travel.com'}
+                {userData?.email || 'admin@caturjaya.com'}
               </p>
             </div>
           </div>
@@ -158,8 +158,8 @@ const AdminLayout = ({ children }) => {
         </div>
       </div>
 
-      {/* Main Content Area - Scrollable */}
-      <div className="flex-1 flex flex-col min-w-0 lg:ml-0">
+      {/* Main Content Area - Only this area scrolls on desktop */}
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-0 lg:h-screen lg:overflow-hidden">
         {/* Mobile Header */}
         <div className="lg:hidden bg-white shadow-sm border-b border-gray-200 px-4 py-3 sticky top-0 z-30">
           <div className="flex items-center justify-between">
@@ -180,8 +180,8 @@ const AdminLayout = ({ children }) => {
           </div>
         </div>
 
-        {/* Desktop Top Bar - Sticky */}
-        <header className="hidden lg:block bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">
+        {/* Desktop Top Bar - Sticky within main content */}
+        <header className="hidden lg:block bg-white shadow-sm border-b border-gray-200 flex-shrink-0">
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
@@ -220,8 +220,8 @@ const AdminLayout = ({ children }) => {
           </div>
         </header>
 
-        {/* Page Content - Scrollable Area */}
-        <main className="flex-1 p-4 lg:p-6 overflow-y-auto">
+        {/* Page Content - This is the only scrollable area on desktop */}
+        <main className="flex-1 p-4 lg:p-6 lg:overflow-y-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

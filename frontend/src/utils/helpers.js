@@ -152,6 +152,9 @@ export const getImageUrl = (imagePath, fallback = '/images/placeholder.jpg') => 
   } else if (imagePath.startsWith('/storage/')) {
     // Has /storage/ prefix
     return `${baseUrl}${imagePath}`;
+  } else if (imagePath.startsWith('/')) {
+    // Starts with / but not /storage/
+    return `${baseUrl}/storage${imagePath}`;
   } else {
     // No storage prefix, add it
     return `${baseUrl}/storage/${imagePath}`;

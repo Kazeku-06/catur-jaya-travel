@@ -19,11 +19,9 @@ const TravelCard = ({ travel, className = '' }) => {
     is_available,
     description,
     image,
-    category,
     rating,
     total_reviews,
     departure_date,
-    duration,
   } = travel;
 
   // Map backend fields to frontend display
@@ -46,10 +44,15 @@ const TravelCard = ({ travel, className = '' }) => {
         {/* Image */}
         <div className="relative h-48 overflow-hidden">
           <img
-            src={getImageUrl(image) || '/images/travel-placeholder.jpg'}
+            src={getImageUrl(travel.image_url || travel.image) || '/images/travel-placeholder.jpg'}
             alt={displayName}
             className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
             loading="lazy"
+            onError={(e) => {
+              if (e.target.src !== '/images/travel-placeholder.jpg') {
+                e.target.src = '/images/travel-placeholder.jpg';
+              }
+            }}
           />
           
           {/* Badge */}

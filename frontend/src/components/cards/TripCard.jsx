@@ -8,7 +8,6 @@ const TripCard = ({ trip, className = '' }) => {
     id,
     title, // Backend uses 'title' instead of 'name'
     name, // Fallback if 'name' is provided
-    image,
     price,
     is_active, // Backend field for availability
     location,
@@ -35,6 +34,11 @@ const TripCard = ({ trip, className = '' }) => {
             alt={displayName}
             className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
             loading="lazy"
+            onError={(e) => {
+              if (e.target.src !== '/images/trip-placeholder.jpg') {
+                e.target.src = '/images/trip-placeholder.jpg';
+              }
+            }}
           />
           
           {/* Availability Badge */}

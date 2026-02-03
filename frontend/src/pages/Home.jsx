@@ -45,12 +45,28 @@ const Home = () => {
       
       // Generate daily randomized content
       const randomContent = getDailyRandomizedContent(trips, travels, 2);
-      setDailyContent(randomContent.length > 0 ? randomContent : getFallbackContent());
+      const finalContent = randomContent.length > 0 ? randomContent : getFallbackContent();
+      
+      // Debug logging to verify links
+      console.log('Daily content generated:', finalContent.map(item => ({
+        type: item.type,
+        name: item.displayName,
+        link: item.detailLink,
+        id: item.id
+      })));
+      
+      setDailyContent(finalContent);
       
     } catch (error) {
       console.error('Error fetching home data:', error);
       // Use fallback content if API fails
-      setDailyContent(getFallbackContent());
+      const fallbackContent = getFallbackContent();
+      console.log('Using fallback content:', fallbackContent.map(item => ({
+        type: item.type,
+        name: item.displayName,
+        link: item.detailLink
+      })));
+      setDailyContent(fallbackContent);
     }
   };
 
@@ -252,12 +268,18 @@ const Home = () => {
             {dailyContent.map((item, index) => (
               <motion.div
                 key={`${item.type}-${item.id || index}`}
-                className="relative h-64 overflow-hidden rounded-2xl shadow-md group"
+                className="relative h-64 overflow-hidden rounded-2xl shadow-md group cursor-pointer"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <Link to={item.detailLink}>
+                <Link 
+                  to={item.detailLink}
+                  className="block w-full h-full"
+                  onClick={() => {
+                    console.log(`Navigating to: ${item.detailLink} for ${item.displayName}`);
+                  }}
+                >
                   <img
                     src={item.image}
                     alt={item.displayName}
