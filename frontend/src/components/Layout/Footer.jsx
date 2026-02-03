@@ -183,6 +183,7 @@ const Footer = () => {
         </motion.div>
 
         {/* Bottom Footer */}
+        
         <motion.div
           className="mt-8 pt-8 border-t border-gray-800 flex flex-col md:flex-row items-center justify-between"
           initial={{ opacity: 0 }}

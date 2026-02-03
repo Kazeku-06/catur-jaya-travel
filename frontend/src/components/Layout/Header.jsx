@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import Button from '../ui/Button';
+import Logo from '../ui/Logo';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -66,13 +66,7 @@ const Header = () => {
           
           {/* Logo Section */}
           <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-13 h-12 lg:w-14 lg:h-14 overflow-hidden flex items-center justify-center">
-              <img 
-                src="logo_1.jpg-removebg-preview.png" 
-                alt="Catur Jaya Mandiri Logo" 
-                className="w-full h-full object-contain"
-              />
-            </div>
+            <Logo size="medium" />
             <div className="flex flex-col">
               <span className="text-lg lg:text-xl font-bold text-gray-900 leading-tight">
                 Catur Jaya Mandiri

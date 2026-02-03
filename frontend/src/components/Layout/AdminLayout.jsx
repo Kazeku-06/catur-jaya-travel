@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { logout } from '../../utils/auth';
 import Button from '../ui/Button';
+import Logo from '../ui/Logo';
 
 const AdminLayout = ({ children }) => {
   const location = useLocation();
@@ -94,14 +95,7 @@ const AdminLayout = ({ children }) => {
         {/* Logo Section */}
         <div className="p-6 flex-shrink-0">
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
-              {/* PERBAIKAN: Menambahkan '/' agar gambar tetap terload di path mana pun */}
-              <img 
-                src="/logo_1.jpg-removebg-preview.png" 
-                alt="Catur Jaya Mandiri Logo" 
-                className="w-full h-full object-contain"
-              />
-            </div>
+            <Logo size="small" />
             {/* Text logo dipaksa putih agar kontras dengan sidebar gelap */}
             <span className="text-xl font-bold text-white">Admin Panel</span>
           </Link>

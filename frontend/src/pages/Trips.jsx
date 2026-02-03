@@ -174,10 +174,10 @@ const Trips = () => {
 
   return (
     <Layout>
-      <div className="bg-gray-50 min-h-screen">
+      <div className="bg-gray-50 min-h-screen overflow-x-hidden">
         {/* Header */}
         <div className="bg-white shadow-sm">
-          <div className="container mx-auto px-4 py-6">
+          <div className="container mx-auto px-4 py-6 max-w-7xl">
             <Breadcrumb items={breadcrumbItems} />
             
             <motion.div
@@ -186,17 +186,17 @@ const Trips = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
                 Paket Trip Wisata
               </h1>
-              <p className="text-lg text-gray-600">
+              <p className="text-base sm:text-lg text-gray-600">
                 Temukan paket wisata terbaik untuk liburan impian Anda
               </p>
             </motion.div>
           </div>
         </div>
 
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
           {/* Search and Filters */}
           <motion.div
             className="mb-8"
@@ -215,39 +215,43 @@ const Trips = () => {
 
           {/* Results Header */}
           <motion.div
-            className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 bg-white rounded-lg p-4 shadow-sm"
+            className="bg-white rounded-lg p-4 shadow-sm mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <div className="mb-4 md:mb-0">
-              <p className="text-gray-600">
-                Menampilkan {trips.length} dari {totalItems} paket trip
-                {debouncedSearchQuery && (
-                  <span className="font-medium"> untuk "{debouncedSearchQuery}"</span>
-                )}
-              </p>
-            </div>
+            <div className="flex flex-col space-y-4">
+              {/* Results Count */}
+              <div>
+                <p className="text-gray-600">
+                  Menampilkan {trips.length} dari {totalItems} paket trip
+                  {debouncedSearchQuery && (
+                    <span className="font-medium"> untuk "{debouncedSearchQuery}"</span>
+                  )}
+                </p>
+              </div>
 
-            {/* Sort Options */}
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Urutkan:</span>
-              <div className="flex space-x-2">
-                {sortOptions.map((option) => (
-                  <Button
-                    key={option.value}
-                    variant={sortBy === option.value ? 'primary' : 'ghost'}
-                    size="sm"
-                    onClick={() => handleSortChange(option.value)}
-                  >
-                    {option.label}
-                    {sortBy === option.value && (
-                      <span className="ml-1">
-                        {sortOrder === 'asc' ? '↑' : '↓'}
-                      </span>
-                    )}
-                  </Button>
-                ))}
+              {/* Sort Options */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                <span className="text-sm text-gray-600 font-medium">Urutkan berdasarkan:</span>
+                <div className="flex flex-wrap gap-2">
+                  {sortOptions.map((option) => (
+                    <Button
+                      key={option.value}
+                      variant={sortBy === option.value ? 'primary' : 'outline'}
+                      size="sm"
+                      onClick={() => handleSortChange(option.value)}
+                      className="flex-shrink-0"
+                    >
+                      {option.label}
+                      {sortBy === option.value && (
+                        <span className="ml-1">
+                          {sortOrder === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </Button>
+                  ))}
+                </div>
               </div>
             </div>
           </motion.div>
