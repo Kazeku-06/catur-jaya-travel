@@ -149,6 +149,17 @@ class AuthController extends Controller
         try {
             \Log::info('Forgot password request received', ['email' => $request->email]);
             
+            // Check if user exists and uses Google auth
+            $user = User::where('email', $request->email)->first();
+            if ($user && $user->isGoogleUser()) {
+                \Log::info('Google user attempted password reset', ['email' => $request->email]);
+                
+                return response()->json([
+                    'message' => 'Akun ini menggunakan login Google. Silakan login menggunakan Google.',
+                    'error' => 'GOOGLE_USER_RESET_NOT_ALLOWED'
+                ], 400);
+            }
+            
             $result = $this->passwordResetService->sendResetEmail($request->email);
             
             \Log::info('Forgot password service result', ['result' => $result]);
@@ -178,6 +189,17 @@ class AuthController extends Controller
     public function resetPassword(ResetPasswordRequest $request)
     {
         try {
+            // Check if user exists and uses Google auth
+            $user = User::where('email', $request->email)->first();
+            if ($user && $user->isGoogleUser()) {
+                \Log::warning('Google user attempted password reset', ['email' => $request->email]);
+                
+                return response()->json([
+                    'message' => 'Akun ini menggunakan login Google. Reset password tidak tersedia.',
+                    'error' => 'GOOGLE_USER_RESET_NOT_ALLOWED'
+                ], 400);
+            }
+            
             $result = $this->passwordResetService->resetPassword(
                 $request->email,
                 $request->token,

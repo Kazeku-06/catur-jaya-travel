@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
+use App\Http\Controllers\Api\V1\Auth\GoogleAuthController;
 use App\Http\Controllers\Api\V1\PaketTripController;
 use App\Http\Controllers\Api\V1\TravelController;
 use App\Http\Controllers\Api\V1\BookingController;
@@ -22,6 +23,10 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
         Route::post('login', [AuthController::class, 'login']);
         Route::post('forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:5,10');
         Route::post('reset-password', [AuthController::class, 'resetPassword']);
+
+        // Google OAuth Routes (No auth middleware required)
+        Route::get('google/redirect', [GoogleAuthController::class, 'redirect']);
+        Route::get('google/callback', [GoogleAuthController::class, 'callback']);
 
         Route::middleware('auth:sanctum')->group(function () {
             Route::get('me', [AuthController::class, 'me']);

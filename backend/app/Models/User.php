@@ -38,6 +38,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'google_id',
+        'auth_provider',
     ];
 
     /**
@@ -49,6 +51,7 @@ class User extends Authenticatable
         'password',
         'remember_token',
         'email_verified_at',
+        'google_id',
     ];
 
     /**
@@ -78,6 +81,38 @@ class User extends Authenticatable
     public function isUser(): bool
     {
         return $this->role === 'user';
+    }
+
+    /**
+     * Check if user uses Google authentication
+     */
+    public function isGoogleUser(): bool
+    {
+        return $this->auth_provider === 'google';
+    }
+
+    /**
+     * Check if user uses local authentication
+     */
+    public function isLocalUser(): bool
+    {
+        return $this->auth_provider === 'local';
+    }
+
+    /**
+     * Scope for Google users
+     */
+    public function scopeGoogleUsers($query)
+    {
+        return $query->where('auth_provider', 'google');
+    }
+
+    /**
+     * Scope for local users
+     */
+    public function scopeLocalUsers($query)
+    {
+        return $query->where('auth_provider', 'local');
     }
 
     /**
