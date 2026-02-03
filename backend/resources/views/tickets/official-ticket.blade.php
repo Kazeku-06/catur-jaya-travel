@@ -105,13 +105,20 @@
         .status-badge {
             background: #10b981;
             color: white;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 10px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
             font-weight: bold;
             display: inline-block;
-            vertical-align: middle;
-            margin-left: 5px;
+            vertical-align: text-bottom;
+            margin-left: 6px;
+            white-space: nowrap;
+            min-width: 50px;
+            text-align: center;
+            line-height: 1.3;
+            box-sizing: border-box;
+            position: relative;
+            top: 2px;
         }
         
         .qr-code {
@@ -158,6 +165,40 @@
         .footer-contact {
             font-size: 10px;
             color: #374151;
+        }
+        
+        .rundown-section {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid #2563eb;
+            margin-top: 5px;
+        }
+        
+        .rundown-item {
+            margin-bottom: 8px;
+            font-size: 11px;
+            line-height: 1.3;
+        }
+        
+        .rundown-number {
+            color: #2563eb;
+            font-weight: bold;
+        }
+        
+        .rundown-time {
+            font-weight: bold;
+            color: #374151;
+        }
+        
+        .rundown-activities {
+            margin: 3px 0 0 15px;
+            padding: 0;
+            list-style-type: disc;
+        }
+        
+        .rundown-activities li {
+            margin-bottom: 2px;
         }
         
         .two-column {
@@ -246,10 +287,49 @@
                     <div class="info-label">Informasi Pembayaran</div>
                     <div class="info-value">
                         <strong>Metode:</strong> {{ $payment_method }}<br>
-                        <strong>Status:</strong><span class="status-badge">LUNAS</span><br>
+                        <strong>Status:</strong> <span class="status-badge">{{ strtoupper($booking->status) }}</span><br>
                         <strong>Tanggal Validasi:</strong> {{ $validation_date->format('d/m/Y H:i') }} WIB
                     </div>
                 </div>
+
+                <!-- Rundown/Itinerary Section -->
+                @if(!empty($catalog->rundown) && is_array($catalog->rundown))
+                <div class="info-group">
+                    <div class="info-label">Rundown Perjalanan</div>
+                    <div class="info-value">
+                        <div class="rundown-section">
+                            @foreach($catalog->rundown as $index => $item)
+                                <div class="rundown-item">
+                                    <span class="rundown-number">{{ $index + 1 }}.</span>
+                                    @if(is_array($item))
+                                        @if(isset($item['time']) && isset($item['activity']))
+                                            <span class="rundown-time">{{ $item['time'] }}</span> - {{ $item['activity'] }}
+                                        @elseif(isset($item['day']) && isset($item['activities']))
+                                            <span class="rundown-time">{{ $item['day'] }}</span>
+                                            @if(is_array($item['activities']))
+                                                <ul class="rundown-activities">
+                                                    @foreach($item['activities'] as $activity)
+                                                        <li>{{ $activity }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            @else
+                                                <br>{{ $item['activities'] }}
+                                            @endif
+                                        @elseif(isset($item['title']) && isset($item['description']))
+                                            <span class="rundown-time">{{ $item['title'] }}</span>
+                                            <br>{{ $item['description'] }}
+                                        @else
+                                            {{ is_string($item) ? $item : json_encode($item) }}
+                                        @endif
+                                    @else
+                                        {{ $item }}
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @endif
 
                 <!-- Price Section -->
                 <div class="price-section">
