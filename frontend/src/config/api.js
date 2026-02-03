@@ -58,6 +58,12 @@ export const endpoints = {
   register: '/auth/register',
   logout: '/auth/logout',
   profile: '/auth/me',
+  forgotPassword: '/auth/forgot-password',
+  resetPassword: '/auth/reset-password',
+  
+  // Google OAuth endpoints
+  googleRedirect: '/auth/google/redirect',
+  googleCallback: '/auth/google/callback',
 
   // Public catalog endpoints (guest access)
   trips: '/trips',

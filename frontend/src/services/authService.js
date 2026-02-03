@@ -17,6 +17,25 @@ export const authService = {
     return response.data;
   },
 
+  // Google OAuth Login - Redirect to backend
+  loginWithGoogle: () => {
+    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+    window.location.href = `${backendUrl}/auth/google/redirect`;
+  },
+
+  // Handle Google OAuth callback
+  handleGoogleCallback: (token) => {
+    if (token) {
+      localStorage.setItem('auth_token', token);
+      // Get user profile after setting token
+      return authService.getProfile().then(response => {
+        localStorage.setItem('user_data', JSON.stringify(response.user));
+        return response;
+      });
+    }
+    throw new Error('No token received from Google OAuth');
+  },
+
   // Logout user
   logout: async () => {
     try {
@@ -60,5 +79,11 @@ export const authService = {
   isAdmin: () => {
     const user = authService.getCurrentUser();
     return user?.role === 'admin';
+  },
+
+  // Check if user is Google user
+  isGoogleUser: () => {
+    const user = authService.getCurrentUser();
+    return user?.auth_provider === 'google';
   }
 };

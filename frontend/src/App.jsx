@@ -16,6 +16,7 @@ const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const OAuthCallback = lazy(() => import('./pages/OAuthCallback'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminTrips = lazy(() => import('./pages/AdminTrips'));
 const AdminTravels = lazy(() => import('./pages/AdminTravels'));
@@ -150,6 +151,12 @@ function App() {
                 <Route 
                   path="/reset-password" 
                   element={<ResetPassword />} 
+                />
+                
+                {/* OAuth Callback Route */}
+                <Route 
+                  path="/oauth/callback" 
+                  element={<OAuthCallback />} 
                 />
                 
                 {/* Payment Route */}

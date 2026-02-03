@@ -87,7 +87,12 @@ const ResetPassword = () => {
     } catch (error) {
       console.error('Reset password error:', error);
 
-      if (error.response?.data?.message) {
+      // Handle specific Google user error
+      if (error.response?.data?.error === 'GOOGLE_USER_RESET_NOT_ALLOWED') {
+        setError(
+          'Akun ini menggunakan login Google. Reset password tidak tersedia. Silakan login menggunakan Google.'
+        );
+      } else if (error.response?.data?.message) {
         setError(error.response.data.message);
       } else {
         setError('Terjadi kesalahan. Silakan coba lagi atau minta link reset password baru.');

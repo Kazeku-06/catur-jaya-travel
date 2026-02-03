@@ -38,7 +38,12 @@ const ForgotPassword = () => {
       console.error('Forgot password error:', error);
       console.error('Error response:', error.response);
 
-      if (error.response?.data?.message) {
+      // Handle specific Google user error
+      if (error.response?.data?.error === 'GOOGLE_USER_RESET_NOT_ALLOWED') {
+        setError(
+          'Akun ini menggunakan login Google. Silakan login menggunakan Google atau hubungi customer service.'
+        );
+      } else if (error.response?.data?.message) {
         setError(error.response.data.message);
       } else {
         setError('Terjadi kesalahan: ' + (error.message || 'Unknown error'));
