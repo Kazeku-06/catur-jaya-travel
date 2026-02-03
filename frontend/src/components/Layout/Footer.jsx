@@ -136,39 +136,6 @@ const Footer = () => {
           ))}
         </div>
 
-        {/* Newsletter Subscription */}
-        <motion.div
-          className="mt-12 pt-8 border-t border-gray-800"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-        >
-          <div className="max-w-md mx-auto text-center lg:text-left lg:max-w-none lg:flex lg:items-center lg:justify-between">
-            <div className="lg:flex-1">
-              <h3 className="text-lg font-semibold mb-2">Berlangganan Newsletter</h3>
-              <p className="text-gray-300 mb-4 lg:mb-0">
-                Dapatkan informasi terbaru tentang paket wisata dan penawaran menarik.
-              </p>
-            </div>
-            <div className="lg:ml-8 lg:flex-shrink-0">
-              <form className="flex flex-col sm:flex-row gap-3">
-                <input
-                  type="email"
-                  placeholder="Masukkan email Anda"
-                  className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                />
-                <button
-                  type="submit"
-                  className="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors duration-200"
-                >
-                  Berlangganan
-                </button>
-              </form>
-            </div>
-          </div>
-        </motion.div>
-
         {/* Bottom Footer */}
         
         <motion.div
