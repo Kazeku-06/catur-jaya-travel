@@ -5,9 +5,29 @@ export const useLocalStorage = (key, initialValue) => {
   const [storedValue, setStoredValue] = useState(() => {
     try {
       const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
+      if (!item) return initialValue;
+      
+      // Special handling for auth_token - it's stored as plain string
+      if (key === 'auth_token') {
+        return item;
+      }
+      
+      // For other keys, try to parse as JSON
+      try {
+        return JSON.parse(item);
+      } catch (parseError) {
+        // If JSON parsing fails, return as string
+        console.warn(`Failed to parse localStorage key "${key}" as JSON, using as string:`, parseError);
+        return item;
+      }
     } catch (error) {
       console.error(`Error reading localStorage key "${key}":`, error);
+      // Clear corrupted data
+      try {
+        window.localStorage.removeItem(key);
+      } catch (clearError) {
+        console.error(`Failed to clear corrupted localStorage key "${key}":`, clearError);
+      }
       return initialValue;
     }
   });
@@ -18,11 +38,18 @@ export const useLocalStorage = (key, initialValue) => {
       // Allow value to be a function so we have the same API as useState
       const valueToStore = value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
-      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+      
+      // Special handling for auth_token - store as plain string
+      if (key === 'auth_token') {
+        window.localStorage.setItem(key, valueToStore);
+      } else {
+        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+      }
       
       // Dispatch custom event for same-tab detection
+      const storageValue = key === 'auth_token' ? valueToStore : JSON.stringify(valueToStore);
       window.dispatchEvent(new CustomEvent('localStorageChange', {
-        detail: { key, newValue: JSON.stringify(valueToStore) }
+        detail: { key, newValue: storageValue }
       }));
     } catch (error) {
       console.error(`Error setting localStorage key "${key}":`, error);
@@ -34,7 +61,12 @@ export const useLocalStorage = (key, initialValue) => {
     const handleStorageChange = (e) => {
       if (e.key === key && e.newValue !== null) {
         try {
-          setStoredValue(JSON.parse(e.newValue));
+          // Special handling for auth_token
+          if (key === 'auth_token') {
+            setStoredValue(e.newValue);
+          } else {
+            setStoredValue(JSON.parse(e.newValue));
+          }
         } catch (error) {
           console.error(`Error parsing localStorage key "${key}":`, error);
         }
@@ -48,7 +80,12 @@ export const useLocalStorage = (key, initialValue) => {
           if (newValue === null) {
             setStoredValue(initialValue);
           } else {
-            setStoredValue(JSON.parse(newValue));
+            // Special handling for auth_token
+            if (key === 'auth_token') {
+              setStoredValue(newValue);
+            } else {
+              setStoredValue(JSON.parse(newValue));
+            }
           }
         } catch (error) {
           console.error(`Error parsing localStorage key "${key}":`, error);

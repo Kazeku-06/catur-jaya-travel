@@ -113,11 +113,20 @@ class GoogleAuthController extends Controller
             
             Log::info('Sanctum token created for Google user', ['user_id' => $user->id]);
 
-            // Redirect to frontend with token
+            // Prepare user data for frontend
+            $userData = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'auth_provider' => $user->auth_provider,
+            ];
+
+            // Redirect to frontend with token and user data
             $frontendUrl = config('app.frontend_url', 'http://localhost:3000');
-            $redirectUrl = $frontendUrl . '/oauth/callback?token=' . urlencode($token);
+            $redirectUrl = $frontendUrl . '/oauth/callback?token=' . urlencode($token) . '&user=' . urlencode(base64_encode(json_encode($userData)));
             
-            Log::info('Redirecting to frontend', ['url' => $redirectUrl]);
+            Log::info('Redirecting to frontend', ['url' => $frontendUrl . '/oauth/callback']);
             
             return redirect($redirectUrl);
 

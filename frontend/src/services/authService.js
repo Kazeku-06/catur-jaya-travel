@@ -24,16 +24,54 @@ export const authService = {
   },
 
   // Handle Google OAuth callback
-  handleGoogleCallback: (token) => {
-    if (token) {
-      localStorage.setItem('auth_token', token);
-      // Get user profile after setting token
-      return authService.getProfile().then(response => {
-        localStorage.setItem('user_data', JSON.stringify(response.user));
-        return response;
-      });
+  handleGoogleCallback: async (token) => {
+    if (!token) {
+      throw new Error('No token received from Google OAuth');
     }
-    throw new Error('No token received from Google OAuth');
+
+    // Clean the token (remove any quotes or whitespace)
+    const cleanToken = token.trim().replace(/^["']|["']$/g, '');
+    
+    // Set token first
+    localStorage.setItem('auth_token', cleanToken);
+    
+    // Check if user data is already available in localStorage (from URL)
+    const existingUserData = localStorage.getItem('user_data');
+    if (existingUserData) {
+      try {
+        const userData = JSON.parse(existingUserData);
+        console.log('Using existing user data from localStorage:', userData);
+        return { user: userData };
+      } catch (parseError) {
+        console.error('Failed to parse existing user data:', parseError);
+        // Continue to API call if parsing fails
+      }
+    }
+    
+    try {
+      // Test the token by making a profile request with a shorter timeout
+      const response = await api.get('/auth/me', { timeout: 10000 });
+      
+      if (response.data && response.data.user) {
+        localStorage.setItem('user_data', JSON.stringify(response.data.user));
+        return response.data;
+      } else {
+        throw new Error('Invalid response from server');
+      }
+    } catch (error) {
+      // If profile fetch fails, remove the token to prevent infinite loops
+      console.error('Profile fetch failed:', error);
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_data');
+      
+      if (error.code === 'ECONNABORTED') {
+        throw new Error('Server tidak merespons. Silakan coba lagi.');
+      } else if (error.response?.status === 401) {
+        throw new Error('Token tidak valid. Silakan login ulang.');
+      } else {
+        throw new Error('Gagal memverifikasi login. Silakan coba lagi.');
+      }
+    }
   },
 
   // Logout user
@@ -48,6 +86,7 @@ export const authService = {
 
   // Get current user profile
   getProfile: async () => {
+    console.log('authService.getProfile called from:', new Error().stack);
     const response = await api.get('/auth/me');
     return response.data;
   },

@@ -1,45 +1,108 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { authService } from '../services/authService';
+import { useAuth } from '../store/AuthContext';
 import Layout from '../components/Layout/Layout';
 import Alert from '../components/ui/Alert';
+
+// Global flag to prevent double processing in StrictMode
+let processedToken = null;
+let isProcessing = false;
 
 const OAuthCallback = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { handleGoogleCallback } = useAuth(); // Use context hook
   const [status, setStatus] = useState('processing'); // processing, success, error
   const [message, setMessage] = useState('Memproses login Google...');
 
   useEffect(() => {
-    const handleCallback = async () => {
-      try {
-        // Get parameters from URL
-        const token = searchParams.get('token');
-        const error = searchParams.get('error');
-        const errorMessage = searchParams.get('message');
+    const processCallback = async () => {
+      // Prevent multiple simultaneous processing
+      if (isProcessing) {
+        console.log('Already processing callback, skipping...');
+        return;
+      }
 
+      // Get parameters from URL
+      const token = searchParams.get('token');
+      const userParam = searchParams.get('user');
+      const error = searchParams.get('error');
+      const errorMessage = searchParams.get('message');
+
+      // Prevent duplicate processing of the same token
+      if (token && processedToken === token) {
+        console.log('Token already processed, skipping...');
+        return;
+      }
+      
+      // If we have a token, mark it as processed immediately
+      if (token) {
+        processedToken = token;
+        isProcessing = true;
+        console.log('Processing OAuth token:', token.substring(0, 10) + '...');
+      }
+
+      try {
         if (error) {
           // Handle error from backend
+          console.error('OAuth error from backend:', error, errorMessage);
           setStatus('error');
           setMessage(getErrorMessage(error, errorMessage));
           return;
         }
 
         if (!token) {
+          console.error('No token found in OAuth callback');
           setStatus('error');
           setMessage('Token tidak ditemukan. Silakan coba login lagi.');
           return;
         }
 
-        // Handle successful OAuth callback
-        await authService.handleGoogleCallback(token);
+        // If user data is provided in URL, use it directly (no API call needed)
+        if (userParam) {
+          try {
+            const userData = JSON.parse(atob(userParam));
+            console.log('Using user data from URL:', userData);
+            
+            // Store token and user data
+            localStorage.setItem('auth_token', token);
+            localStorage.setItem('user_data', JSON.stringify(userData));
+            
+            // Update auth context directly
+            const mockResponse = { user: userData };
+            await handleGoogleCallback(token, mockResponse);
+            
+            setStatus('success');
+            setMessage('Login berhasil! Mengalihkan ke dashboard...');
+            
+            // Redirect after short delay
+            setTimeout(() => {
+              processedToken = null;
+              isProcessing = false;
+              navigate('/', { replace: true });
+            }, 2000);
+            
+            return;
+          } catch (parseError) {
+            console.error('Failed to parse user data:', parseError);
+            // Fall back to API call if user data parsing fails
+          }
+        }
+
+        console.log('Calling handleGoogleCallback...');
+        // Handle successful OAuth callback via Context (with API call)
+        await handleGoogleCallback(token);
         
+        console.log('OAuth callback successful');
         setStatus('success');
         setMessage('Login berhasil! Mengalihkan ke dashboard...');
         
         // Redirect after short delay
         setTimeout(() => {
+          // Clear the processed token when we are done ensuring we can login again later if needed
+          processedToken = null;
+          isProcessing = false;
           navigate('/', { replace: true });
         }, 2000);
 
@@ -47,11 +110,18 @@ const OAuthCallback = () => {
         console.error('OAuth callback error:', error);
         setStatus('error');
         setMessage(error.message || 'Terjadi kesalahan saat memproses login Google.');
+        // Allow retry on error by clearing processedToken
+        processedToken = null;
+        isProcessing = false;
       }
     };
 
-    handleCallback();
-  }, [searchParams, navigate]);
+    // Only process if we haven't already processed this token and not currently processing
+    const token = searchParams.get('token');
+    if (!isProcessing && (!token || processedToken !== token)) {
+      processCallback();
+    }
+  }, [searchParams, navigate, handleGoogleCallback]);
 
   const getErrorMessage = (errorCode, errorMessage) => {
     const errorMessages = {

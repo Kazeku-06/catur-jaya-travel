@@ -52,6 +52,22 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
             ]);
         });
 
+        // Debug endpoint untuk melihat token
+        Route::get('debug-token', function (Request $request) {
+            $token = $request->bearerToken();
+            $user = $request->user();
+            
+            return response()->json([
+                'has_token' => !!$token,
+                'token_prefix' => $token ? substr($token, 0, 10) . '...' : null,
+                'user_authenticated' => !!$user,
+                'user_id' => $user?->id,
+                'user_email' => $user?->email,
+                'user_role' => $user?->role,
+                'timestamp' => now()->toISOString()
+            ]);
+        });
+
         // Test ticket generation
         Route::get('test-ticket/{id}', function (Request $request, $id) {
             try {

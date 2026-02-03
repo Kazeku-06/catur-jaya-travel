@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useEffect } from 'react';
+import { createContext, useContext, useReducer, useEffect, useCallback, useMemo } from 'react';
 import { authService } from '../services/authService';
 
 const AuthContext = createContext();
@@ -27,6 +27,9 @@ const initialState = {
   error: null
 };
 
+// Global flag to prevent double processing in StrictMode
+let isProcessingCallback = false;
+
 // Auth Provider
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
@@ -50,7 +53,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Login function
-  const login = async (credentials) => {
+  const login = useCallback(async (credentials) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       dispatch({ type: 'SET_ERROR', payload: null });
@@ -66,10 +69,10 @@ export const AuthProvider = ({ children }) => {
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
-  };
+  }, []);
 
   // Register function
-  const register = async (userData) => {
+  const register = useCallback(async (userData) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       dispatch({ type: 'SET_ERROR', payload: null });
@@ -85,10 +88,51 @@ export const AuthProvider = ({ children }) => {
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
-  };
+  }, []);
+
+  // Google OAuth Callback Handler
+  const handleGoogleCallback = useCallback(async (token, providedResponse = null) => {
+    // Prevent double processing in StrictMode
+    if (isProcessingCallback) {
+      console.log('AuthContext: Callback already processing, skipping...');
+      return;
+    }
+    
+    isProcessingCallback = true;
+    
+    try {
+      console.log('AuthContext: Starting Google callback processing...');
+      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'SET_ERROR', payload: null });
+      
+      let response;
+      if (providedResponse) {
+        // Use provided response (from URL data)
+        console.log('AuthContext: Using provided user data');
+        response = providedResponse;
+      } else {
+        // Make API call to get user data
+        console.log('AuthContext: Making API call to get user data');
+        response = await authService.handleGoogleCallback(token);
+      }
+      
+      console.log('AuthContext: Google callback successful, user:', response.user);
+      dispatch({ type: 'SET_USER', payload: response.user });
+      
+      return response;
+    } catch (error) {
+      console.error('AuthContext: Google callback error:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Google login failed';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
+      throw error;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+      isProcessingCallback = false;
+    }
+  }, []);
 
   // Logout function
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await authService.logout();
     } catch (error) {
@@ -96,15 +140,16 @@ export const AuthProvider = ({ children }) => {
     } finally {
       dispatch({ type: 'LOGOUT' });
     }
-  };
+  }, []);
 
-  const value = {
+  const value = useMemo(() => ({
     ...state,
     login,
     register,
     logout,
+    handleGoogleCallback,
     isAdmin: () => authService.isAdmin()
-  };
+  }), [state, login, register, logout, handleGoogleCallback]);
 
   return (
     <AuthContext.Provider value={value}>
