@@ -22,6 +22,7 @@ class GoogleAuthController extends Controller
             Log::info('Google OAuth redirect initiated');
             
             return Socialite::driver('google')
+                ->stateless()
                 ->scopes(['email', 'profile'])
                 ->redirect();
                 
@@ -47,7 +48,7 @@ class GoogleAuthController extends Controller
             Log::info('Google OAuth callback received');
             
             // Get user data from Google
-            $googleUser = Socialite::driver('google')->user();
+            $googleUser = Socialite::driver('google')->stateless()->user();
             
             Log::info('Google user data received', [
                 'google_id' => $googleUser->getId(),

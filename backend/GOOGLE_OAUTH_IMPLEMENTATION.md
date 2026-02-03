@@ -113,7 +113,7 @@ Authorized Redirect URI:
 ```env
 GOOGLE_CLIENT_ID=your_google_client_id_here
 GOOGLE_CLIENT_SECRET=your_google_client_secret_here
-GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google/callback
+GOOGLE_REDIRECT_URI=http://localhost:8000/api/v1/auth/google/callback
 ```
 
 ## 🔄 User Data Flow
