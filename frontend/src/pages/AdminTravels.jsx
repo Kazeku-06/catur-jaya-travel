@@ -165,6 +165,9 @@ const AdminTravels = () => {
                         </h3>
                         <p className="text-sm text-gray-600 mb-3">
                           🚌 {travel.vehicle_type}
+                          {travel.capacity && (
+                            <span className="ml-2">• 👥 {travel.capacity} orang</span>
+                          )}
                         </p>
                         <div className="flex items-center justify-between mb-4">
                           <div>

@@ -49,6 +49,7 @@ const TravelDetail = () => {
         departure_location: travelData.origin || 'Lokasi tidak diketahui',
         destination_location: travelData.destination || 'Lokasi tidak diketahui',
         vehicle_type: travelData.vehicle_type || 'Kendaraan tidak diketahui',
+        capacity: travelData.capacity || null,
         is_available: travelData.is_active !== undefined ? travelData.is_active : true,
         image: travelData.image || '/images/travel-placeholder.jpg',
         image_url: travelData.image_url || null,
@@ -153,6 +154,9 @@ const TravelDetail = () => {
                   </div>
                   <p className="text-gray-600 font-medium">
                     Mulai dari <span className="text-blue-500">{formatCurrency(travel?.price)} / orang</span>
+                    {travel?.capacity && (
+                      <span className="ml-2 text-sm text-gray-500">• Kapasitas: {travel.capacity} orang</span>
+                    )}
                   </p>
                 </div>
               </motion.div>

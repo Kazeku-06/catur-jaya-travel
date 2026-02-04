@@ -19,6 +19,7 @@ class Travel extends Model
         'rundown',
         'facilities',
         'price_per_person',
+        'capacity',
         'image',
         'is_active',
     ];

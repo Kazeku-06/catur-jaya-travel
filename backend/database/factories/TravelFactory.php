@@ -21,6 +21,7 @@ class TravelFactory extends Factory
             'destination' => $this->faker->city(),
             'vehicle_type' => $this->faker->randomElement(['Bus Executive', 'Bus Super Executive', 'Hiace', 'Elf']),
             'price_per_person' => $this->faker->numberBetween(50000, 500000),
+            'capacity' => $this->faker->numberBetween(15, 50),
             'is_active' => $this->faker->boolean(80),
         ];
     }

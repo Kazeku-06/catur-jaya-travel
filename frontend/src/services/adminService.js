@@ -163,6 +163,7 @@ export const imageHelpers = {
       rundown: formData.rundown || [],
       facilities: formData.facilities || [],
       price_per_person: parseFloat(formData.price_per_person),
+      capacity: parseInt(formData.capacity),
       is_active: formData.is_active !== undefined ? formData.is_active : true
     };
 

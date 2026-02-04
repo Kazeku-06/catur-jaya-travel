@@ -65,6 +65,7 @@ const TravelBooking = () => {
         departure_location: travelData.origin || 'Lokasi tidak diketahui',
         destination_location: travelData.destination || 'Lokasi tidak diketahui',
         vehicle_type: travelData.vehicle_type || 'Kendaraan tidak diketahui',
+        capacity: travelData.capacity || null,
         is_available: travelData.is_active !== undefined ? travelData.is_active : true,
         image: travelData.image || '/images/travel-placeholder.jpg',
         image_url: travelData.image_url || null,
@@ -289,6 +290,9 @@ const TravelBooking = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Jumlah Penumpang *
+                      {travel?.capacity && (
+                        <span className="text-sm text-gray-500 ml-1">(Maks: {travel.capacity} orang)</span>
+                      )}
                     </label>
                     <select
                       value={bookingData.passengers}
@@ -299,7 +303,7 @@ const TravelBooking = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       required
                     >
-                      {[...Array(10)].map((_, i) => (
+                      {[...Array(Math.min(travel?.capacity || 10, 10))].map((_, i) => (
                         <option key={i + 1} value={i + 1}>
                           {i + 1} orang
                         </option>

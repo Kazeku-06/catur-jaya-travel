@@ -13,6 +13,7 @@ const TravelForm = ({ travel = null, onSuccess, onCancel }) => {
     rundown: travel?.rundown || [{ time: '', activity: '' }],
     facilities: travel?.facilities || [''],
     price_per_person: travel?.price_per_person || '',
+    capacity: travel?.capacity || '',
     is_active: travel?.is_active !== undefined ? travel.is_active : true
   });
 
@@ -184,6 +185,17 @@ const TravelForm = ({ travel = null, onSuccess, onCancel }) => {
             onChange={handleInputChange}
             required
             placeholder="75000"
+          />
+
+          <Input
+            label="Kapasitas Penumpang"
+            name="capacity"
+            type="number"
+            value={formData.capacity}
+            onChange={handleInputChange}
+            required
+            placeholder="45"
+            min="1"
           />
 
           <div className="flex items-center">

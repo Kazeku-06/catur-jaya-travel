@@ -91,7 +91,7 @@ class BookingService
         }
 
         // Validate booking data
-        $this->validateTravelBookingData($bookingData);
+        $this->validateTravelBookingData($bookingData, $travel);
 
         $passengers = $bookingData['passengers'] ?? 1;
         $totalPrice = $travel->price_per_person * $passengers;
@@ -303,7 +303,7 @@ class BookingService
     /**
      * Validate travel booking data
      */
-    private function validateTravelBookingData($data)
+    private function validateTravelBookingData($data, $travel = null)
     {
         $required = ['nama_pemesan', 'nomor_hp', 'tanggal_keberangkatan', 'passengers'];
 
@@ -313,8 +313,14 @@ class BookingService
             }
         }
 
-        if ($data['passengers'] < 1 || $data['passengers'] > 10) {
-            throw new \InvalidArgumentException('Jumlah penumpang harus antara 1-10 orang');
+        // Validate passengers against travel capacity
+        $maxPassengers = 10; // Default max
+        if ($travel && $travel->capacity) {
+            $maxPassengers = $travel->capacity;
+        }
+
+        if ($data['passengers'] < 1 || $data['passengers'] > $maxPassengers) {
+            throw new \InvalidArgumentException("Jumlah penumpang harus antara 1-{$maxPassengers} orang sesuai kapasitas travel");
         }
 
         $departureDate = Carbon::parse($data['tanggal_keberangkatan']);

@@ -79,6 +79,7 @@ class AdminTravelController extends Controller
             'facilities' => 'nullable|array',
             'facilities.*' => 'string|max:255',
             'price_per_person' => 'required|numeric|min:0',
+            'capacity' => 'required|integer|min:1',
             'image_base64' => 'required_without:image_url|string', // Base64 image
             'image_url' => 'required_without:image_base64|url', // Direct image URL
             'image_name' => 'required_with:image_base64|string|max:255',
@@ -88,7 +89,7 @@ class AdminTravelController extends Controller
         try {
             $data = $request->only([
                 'origin', 'destination', 'vehicle_type', 'rundown', 'facilities',
-                'price_per_person', 'is_active'
+                'price_per_person', 'capacity', 'is_active'
             ]);
 
             // Set default is_active if not provided
@@ -159,6 +160,7 @@ class AdminTravelController extends Controller
             'facilities' => 'nullable|array',
             'facilities.*' => 'string|max:255',
             'price_per_person' => 'sometimes|required|numeric|min:0',
+            'capacity' => 'sometimes|required|integer|min:1',
             'image_base64' => 'nullable|string', // Base64 image
             'image_url' => 'nullable|url', // Direct image URL
             'image_name' => 'required_with:image_base64|string|max:255',
@@ -170,7 +172,7 @@ class AdminTravelController extends Controller
 
             $data = $request->only([
                 'origin', 'destination', 'vehicle_type', 'rundown', 'facilities',
-                'price_per_person', 'is_active'
+                'price_per_person', 'capacity', 'is_active'
             ]);
 
             // Handle image processing
