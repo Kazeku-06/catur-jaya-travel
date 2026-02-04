@@ -1,0 +1,21 @@
+{
+  "name": "catur-jaya-travel",
+  "version": "1.0.0",
+  "description": "Catur Jaya Travel - Full Stack Application",
+  "scripts": {
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend": "cd backend && php artisan serve",
+    "frontend": "cd frontend && npm run dev",
+    "install:all": "npm run install:backend && npm run install:frontend",
+    "install:backend": "cd backend && composer install --ignore-platform-req=ext-iconv --ignore-platform-req=ext-gd",
+    "install:frontend": "cd frontend && npm install",
+    "setup": "npm run setup:backend",
+    "setup:backend": "cd backend && (if not exist .env copy .env.example .env) && php artisan key:generate && php artisan migrate"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": ["laravel", "react", "travel", "booking"],
+  "author": "Catur Jaya Travel",
+  "license": "MIT"
+}
