@@ -41,10 +41,10 @@ class BookingService
         }
 
         // Validate booking data
-        $this->validateTripBookingData($bookingData);
+        $this->validateTripBookingData($bookingData, $trip);
 
-        // For trips, participants is always 1 (private trip)
-        $participants = 1;
+        // For trips, get participants from booking data
+        $participants = $bookingData['participants'] ?? 1;
         $totalPrice = $trip->price;
 
         // Set expired time (24 hours from now)
@@ -276,13 +276,21 @@ class BookingService
     /**
      * Validate trip booking data
      */
-    private function validateTripBookingData($data)
+    private function validateTripBookingData($data, $trip = null)
     {
-        $required = ['nama_pemesan', 'nomor_hp', 'tanggal_keberangkatan'];
+        $required = ['nama_pemesan', 'nomor_hp', 'tanggal_keberangkatan', 'participants'];
 
         foreach ($required as $field) {
             if (empty($data[$field])) {
                 throw new \InvalidArgumentException("Field {$field} wajib diisi");
+            }
+        }
+
+        // Validate participants against trip capacity
+        if ($trip && isset($data['participants'])) {
+            $capacity = $trip->capacity ?? 1;
+            if ($data['participants'] < 1 || $data['participants'] > $capacity) {
+                throw new \InvalidArgumentException("Jumlah peserta harus antara 1-{$capacity} orang sesuai kapasitas trip");
             }
         }
 

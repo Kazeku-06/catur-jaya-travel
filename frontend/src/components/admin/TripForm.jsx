@@ -15,6 +15,7 @@ const TripForm = ({ trip = null, onSuccess, onCancel }) => {
     duration: trip?.duration || '',
     location: trip?.location || '',
     quota: trip?.quota || '',
+    capacity: trip?.capacity || '',
     is_active: trip?.is_active !== undefined ? trip.is_active : true
   });
 
@@ -189,13 +190,25 @@ const TripForm = ({ trip = null, onSuccess, onCancel }) => {
           />
 
           <Input
-            label="Kuota"
+            label="Kuota Trip"
             name="quota"
             type="number"
             value={formData.quota}
             onChange={handleInputChange}
             required
-            placeholder="20"
+            placeholder="5"
+            help="Berapa kali trip ini bisa dibooking"
+          />
+
+          <Input
+            label="Kapasitas Peserta"
+            name="capacity"
+            type="number"
+            value={formData.capacity}
+            onChange={handleInputChange}
+            required
+            placeholder="6"
+            help="Maksimal berapa orang per trip"
           />
 
           <div className="flex items-center">

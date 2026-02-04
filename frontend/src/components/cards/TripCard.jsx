@@ -13,6 +13,7 @@ const TripCard = ({ trip, className = '' }) => {
     location,
     duration,
     quota,
+    capacity,
     remaining_quota,
     is_available_for_booking,
     is_quota_full,
@@ -95,12 +96,15 @@ const TripCard = ({ trip, className = '' }) => {
               )}
             </div>
             
-            {/* Quota Information */}
+            {/* Capacity and Quota Information */}
             {quota !== undefined && remaining_quota !== undefined && (
-              <div className="text-center text-sm">
-                <span className={`font-medium ${is_quota_full ? 'text-red-600' : remaining_quota <= 2 ? 'text-orange-600' : 'text-green-600'}`}>
-                  Sisa kuota: {remaining_quota} dari {quota}
-                </span>
+              <div className="text-center text-sm space-y-1">
+                <div className="text-gray-600">
+                  Kapasitas: {capacity || 1} orang per trip
+                </div>
+                <div className={`font-medium ${is_quota_full ? 'text-red-600' : remaining_quota <= 2 ? 'text-orange-600' : 'text-green-600'}`}>
+                  Sisa kuota: {remaining_quota} dari {quota} trip
+                </div>
               </div>
             )}
           </div>

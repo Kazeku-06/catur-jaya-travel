@@ -23,6 +23,7 @@ const TripBooking = () => {
   const [bookingData, setBookingData] = useState({
     nama_pemesan: userData?.name || '',
     nomor_hp: userData?.phone || '',
+    participants: 1,
     tanggal_keberangkatan: '',
     catatan_tambahan: '',
   });
@@ -63,6 +64,7 @@ const TripBooking = () => {
         duration: tripData.duration || 'Durasi tidak diketahui',
         location: tripData.location || 'Lokasi tidak diketahui',
         quota: tripData.quota || 0,
+        capacity: tripData.capacity || 1,
         remaining_quota: tripData.remaining_quota !== undefined ? tripData.remaining_quota : tripData.quota || 0,
         is_available: tripData.is_active !== undefined ? tripData.is_active : true,
         is_available_for_booking: tripData.is_available_for_booking !== undefined ? tripData.is_available_for_booking : tripData.is_active,
@@ -278,6 +280,31 @@ const TripBooking = () => {
                     />
                   </div>
 
+                  {/* Participants */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Jumlah Peserta *
+                    </label>
+                    <select
+                      value={bookingData.participants}
+                      onChange={(e) => setBookingData({
+                        ...bookingData,
+                        participants: parseInt(e.target.value)
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      required
+                    >
+                      {[...Array(trip.capacity || 10)].map((_, i) => (
+                        <option key={i + 1} value={i + 1}>
+                          {i + 1} orang
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Maksimal {trip.capacity || 1} orang per trip
+                    </p>
+                  </div>
+
                   {/* Departure Date */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -321,7 +348,7 @@ const TripBooking = () => {
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">
-                          Harga Trip Private
+                          Harga Trip Private ({bookingData.participants} orang)
                         </span>
                         <span className="font-medium">{formatCurrency(totalPrice)}</span>
                       </div>

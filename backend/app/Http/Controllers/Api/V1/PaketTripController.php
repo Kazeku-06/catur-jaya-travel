@@ -31,7 +31,7 @@ class PaketTripController extends Controller
             // Add logging for debugging
             \Log::info('Fetching trips started');
             
-            $trips = PaketTrip::select(['id', 'title', 'description', 'price', 'duration', 'location', 'quota', 'image', 'is_active', 'created_at', 'updated_at'])
+            $trips = PaketTrip::select(['id', 'title', 'description', 'price', 'duration', 'location', 'quota', 'capacity', 'image', 'is_active', 'created_at', 'updated_at'])
                 ->withCount(['confirmedBookings'])
                 ->orderBy('created_at', 'desc')
                 ->get()

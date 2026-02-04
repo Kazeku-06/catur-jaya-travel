@@ -104,12 +104,14 @@ Tujuan utama sistem ini adalah mencatat pesanan sebelum pembayaran divalidasi.
         "nama_pemesan": "Budi",
         "nomor_hp": "0812...",
         "tanggal_keberangkatan": "2026-05-10",
+        "participants": 4,
         "catatan_tambahan": "Minta kursi depan"
     }
     ```
 - **Note**: 
-  - Trip adalah private trip, tidak memerlukan jumlah peserta
-  - Sistem akan mengecek kuota tersedia sebelum membuat booking
+  - Trip adalah private trip dengan kuota per trip (bukan per orang)
+  - `participants` adalah jumlah orang dalam 1 trip (maksimal sesuai capacity)
+  - Sistem akan mengecek kuota trip tersedia sebelum membuat booking
   - Kuota berkurang saat booking berstatus "lunas"
 
 ### Membuat Booking (Travel)
@@ -155,7 +157,18 @@ Tujuan utama sistem ini adalah mencatat pesanan sebelum pembayaran divalidasi.
 
 ## 5. Sistem Kuota Trip
 
-Trip menggunakan sistem kuota per trip (bukan per orang) karena merupakan private trip:
+Trip menggunakan sistem kuota per trip dengan kapasitas peserta per trip:
+
+### Konsep:
+- **Kuota Trip**: Berapa kali trip bisa dibooking (contoh: 5 trip)
+- **Kapasitas Peserta**: Berapa orang maksimal per trip (contoh: 6 orang)
+- **Private Trip**: 1 booking = 1 trip untuk 1 grup/keluarga
+
+### Contoh:
+Trip Bromo Private:
+- Kuota: 5 trip (bisa dibooking 5 kali)
+- Kapasitas: 6 orang (maksimal 6 orang per booking)
+- Total bisa melayani: 5 × 6 = 30 orang (dalam 5 trip terpisah)
 
 ### Cara Kerja Kuota:
 - Setiap trip memiliki kuota maksimal yang ditetapkan admin
@@ -163,18 +176,20 @@ Trip menggunakan sistem kuota per trip (bukan per orang) karena merupakan privat
 - Trip tetap tampil di katalog meski kuota habis, tapi tidak bisa dibooking
 - Admin harus mengubah kuota secara manual untuk mengaktifkan kembali
 
-### Field Kuota di Response API:
-- `quota`: Total kuota trip
-- `remaining_quota`: Sisa kuota yang tersedia
+### Field di Response API:
+- `quota`: Total kuota trip (berapa kali bisa dibooking)
+- `capacity`: Kapasitas peserta per trip (maksimal orang per booking)
+- `remaining_quota`: Sisa kuota trip yang tersedia
 - `is_available_for_booking`: Boolean, true jika masih bisa dibooking
 - `is_quota_full`: Boolean, true jika kuota sudah penuh
 
-### Contoh Response Trip dengan Kuota:
+### Contoh Response Trip:
 ```json
 {
     "id": "trip-123",
     "title": "Bromo Private Trip",
-    "quota": 10,
+    "quota": 5,
+    "capacity": 6,
     "remaining_quota": 3,
     "is_available_for_booking": true,
     "is_quota_full": false
