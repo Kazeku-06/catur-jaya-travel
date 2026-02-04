@@ -55,8 +55,11 @@ const TripDetail = () => {
         duration: tripData.duration || 'Durasi tidak diketahui',
         location: tripData.location || 'Lokasi tidak diketahui',
         quota: tripData.quota || 0,
+        remaining_quota: tripData.remaining_quota !== undefined ? tripData.remaining_quota : tripData.quota || 0,
         is_available: tripData.is_active !== undefined ? tripData.is_active : true,
         is_active: tripData.is_active !== undefined ? tripData.is_active : true,
+        is_available_for_booking: tripData.is_available_for_booking !== undefined ? tripData.is_available_for_booking : tripData.is_active,
+        is_quota_full: tripData.is_quota_full !== undefined ? tripData.is_quota_full : false,
         // Add default values for fields that might not exist in backend
         image: tripData.image || '/images/trip-placeholder.jpg',
         image_url: tripData.image_url || null,
@@ -282,7 +285,7 @@ const TripDetail = () => {
                 {/* Price */}
                 <div className="text-3xl font-bold text-primary-600">
                   {formatCurrency(trip?.price || 0)}
-                  <span className="text-lg text-gray-600 font-normal">/orang</span>
+                  <span className="text-lg text-gray-600 font-normal"> (Private Trip)</span>
                 </div>
               </div>
 
@@ -406,7 +409,7 @@ const TripDetail = () => {
                 <div className="text-center mb-6">
                   <div className="text-3xl font-bold text-primary-600 mb-2">
                     {formatCurrency(trip?.price || 0)}
-                    <span className="text-lg text-gray-600 font-normal">/orang</span>
+                    <span className="text-lg text-gray-600 font-normal"> (Private Trip)</span>
                   </div>
                   <p className="text-sm text-gray-600">Harga sudah termasuk pajak</p>
                 </div>
@@ -430,7 +433,9 @@ const TripDetail = () => {
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
-                    <span>Kuota: {trip?.quota || 0} orang</span>
+                    <span className={trip?.is_quota_full ? 'text-red-600 font-medium' : trip?.remaining_quota <= 2 ? 'text-orange-600 font-medium' : 'text-green-600'}>
+                      Sisa kuota: {trip?.remaining_quota || 0} dari {trip?.quota || 0}
+                    </span>
                   </div>
                 </div>
 
@@ -439,10 +444,18 @@ const TripDetail = () => {
                   variant="primary"
                   size="lg"
                   fullWidth
-                  disabled={!trip?.is_available || isAdmin}
+                  disabled={!trip?.is_available_for_booking || isAdmin}
                   onClick={() => {
                     if (isAdmin) {
                       alert('Admin tidak dapat melakukan booking. Silakan gunakan akun customer untuk booking.');
+                      return;
+                    }
+                    if (!trip?.is_available_for_booking) {
+                      if (trip?.is_quota_full) {
+                        alert('Maaf, kuota trip ini sudah penuh. Silakan pilih trip lain atau hubungi admin.');
+                      } else {
+                        alert('Trip tidak tersedia untuk booking saat ini.');
+                      }
                       return;
                     }
                     if (!authToken) {
@@ -454,17 +467,23 @@ const TripDetail = () => {
                 >
                   {isAdmin 
                     ? 'Admin Mode - Tidak Dapat Booking' 
-                    : !trip?.is_available 
-                      ? 'Tidak Tersedia' 
-                      : 'Pesan Sekarang'
+                    : trip?.is_quota_full
+                      ? 'Kuota Penuh'
+                      : !trip?.is_available_for_booking 
+                        ? 'Tidak Tersedia' 
+                        : 'Pesan Sekarang'
                   }
                 </Button>
 
                 {/* Status Badge */}
                 <div className="mt-4 text-center">
-                  <Badge variant={trip?.is_available ? 'success' : 'error'}>
-                    {trip?.is_available ? 'Tersedia' : 'Tidak Tersedia'}
-                  </Badge>
+                  {trip?.is_quota_full ? (
+                    <Badge variant="warning">Kuota Penuh</Badge>
+                  ) : (
+                    <Badge variant={trip?.is_available_for_booking ? 'success' : 'error'}>
+                      {trip?.is_available_for_booking ? 'Tersedia' : 'Tidak Tersedia'}
+                    </Badge>
+                  )}
                 </div>
 
                 {/* Contact Info */}

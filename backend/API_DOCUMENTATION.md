@@ -107,7 +107,10 @@ Tujuan utama sistem ini adalah mencatat pesanan sebelum pembayaran divalidasi.
         "catatan_tambahan": "Minta kursi depan"
     }
     ```
-- **Note**: Trip adalah private trip, tidak memerlukan jumlah peserta
+- **Note**: 
+  - Trip adalah private trip, tidak memerlukan jumlah peserta
+  - Sistem akan mengecek kuota tersedia sebelum membuat booking
+  - Kuota berkurang saat booking berstatus "lunas"
 
 ### Membuat Booking (Travel)
 
@@ -150,7 +153,37 @@ Tujuan utama sistem ini adalah mencatat pesanan sebelum pembayaran divalidasi.
 
 ---
 
-## 5. Field Penting Booking
+## 5. Sistem Kuota Trip
+
+Trip menggunakan sistem kuota per trip (bukan per orang) karena merupakan private trip:
+
+### Cara Kerja Kuota:
+- Setiap trip memiliki kuota maksimal yang ditetapkan admin
+- Kuota berkurang 1 setiap ada booking dengan status "lunas"
+- Trip tetap tampil di katalog meski kuota habis, tapi tidak bisa dibooking
+- Admin harus mengubah kuota secara manual untuk mengaktifkan kembali
+
+### Field Kuota di Response API:
+- `quota`: Total kuota trip
+- `remaining_quota`: Sisa kuota yang tersedia
+- `is_available_for_booking`: Boolean, true jika masih bisa dibooking
+- `is_quota_full`: Boolean, true jika kuota sudah penuh
+
+### Contoh Response Trip dengan Kuota:
+```json
+{
+    "id": "trip-123",
+    "title": "Bromo Private Trip",
+    "quota": 10,
+    "remaining_quota": 3,
+    "is_available_for_booking": true,
+    "is_quota_full": false
+}
+```
+
+---
+
+## 6. Field Penting Booking
 
 Setiap objek `Booking` sekarang memiliki field tambahan:
 

@@ -31,6 +31,15 @@ class BookingService
             throw new \Exception('Trip tidak ditemukan atau tidak aktif');
         }
 
+        // Check if trip is available for booking (has remaining quota)
+        if (!$trip->isAvailableForBooking()) {
+            if ($trip->isQuotaFull()) {
+                throw new \Exception('Maaf, kuota trip ini sudah penuh. Silakan pilih trip lain atau hubungi admin.');
+            } else {
+                throw new \Exception('Trip tidak tersedia untuk booking saat ini');
+            }
+        }
+
         // Validate booking data
         $this->validateTripBookingData($bookingData);
 

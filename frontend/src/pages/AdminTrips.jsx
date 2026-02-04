@@ -174,9 +174,14 @@ const AdminTrips = () => {
                             <p className="text-base lg:text-lg font-bold text-primary-600">
                               {formatCurrency(trip.price)}
                             </p>
-                            <p className="text-xs text-gray-500">
-                              Kuota: {trip.quota} orang
-                            </p>
+                            <div className="text-xs text-gray-500">
+                              <p>Kuota: {trip.quota}</p>
+                              {trip.remaining_quota !== undefined && (
+                                <p className={`${trip.remaining_quota === 0 ? 'text-red-600' : trip.remaining_quota <= 2 ? 'text-orange-600' : 'text-green-600'}`}>
+                                  Sisa: {trip.remaining_quota}
+                                </p>
+                              )}
+                            </div>
                           </div>
                         </div>
 

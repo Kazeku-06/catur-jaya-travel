@@ -30,7 +30,7 @@ class PaketTrip extends Model
         'facilities' => 'array',
     ];
 
-    protected $appends = ['image_url'];
+    protected $appends = ['image_url', 'remaining_quota'];
 
     /**
      * Get the image URL attribute
@@ -60,5 +60,38 @@ class PaketTrip extends Model
     {
         return $this->hasMany(Booking::class, 'catalog_id')
                     ->where('catalog_type', 'trip');
+    }
+
+    /**
+     * Get confirmed bookings (lunas status)
+     */
+    public function confirmedBookings()
+    {
+        return $this->bookings()->where('status', Booking::STATUS_LUNAS);
+    }
+
+    /**
+     * Get remaining quota
+     */
+    public function getRemainingQuotaAttribute()
+    {
+        $confirmedBookings = $this->confirmedBookings()->count();
+        return max(0, $this->quota - $confirmedBookings);
+    }
+
+    /**
+     * Check if trip is available for booking
+     */
+    public function isAvailableForBooking()
+    {
+        return $this->is_active && $this->remaining_quota > 0;
+    }
+
+    /**
+     * Check if quota is full
+     */
+    public function isQuotaFull()
+    {
+        return $this->remaining_quota <= 0;
     }
 }

@@ -63,14 +63,21 @@ const TripBooking = () => {
         duration: tripData.duration || 'Durasi tidak diketahui',
         location: tripData.location || 'Lokasi tidak diketahui',
         quota: tripData.quota || 0,
+        remaining_quota: tripData.remaining_quota !== undefined ? tripData.remaining_quota : tripData.quota || 0,
         is_available: tripData.is_active !== undefined ? tripData.is_active : true,
+        is_available_for_booking: tripData.is_available_for_booking !== undefined ? tripData.is_available_for_booking : tripData.is_active,
+        is_quota_full: tripData.is_quota_full !== undefined ? tripData.is_quota_full : false,
         image: tripData.image || '/images/trip-placeholder.jpg',
         image_url: tripData.image_url || null,
       };
       
-      // If trip is not available, redirect back to detail page
-      if (!mappedTrip.is_available) {
-        alert('Trip ini tidak tersedia untuk booking. Anda akan diarahkan ke halaman detail.');
+      // If trip is not available for booking, redirect back to detail page
+      if (!mappedTrip.is_available_for_booking) {
+        if (mappedTrip.is_quota_full) {
+          alert('Maaf, kuota trip ini sudah penuh. Anda akan diarahkan ke halaman detail.');
+        } else {
+          alert('Trip ini tidak tersedia untuk booking. Anda akan diarahkan ke halaman detail.');
+        }
         navigate(`/trips/${id}`);
         return;
       }
@@ -87,9 +94,13 @@ const TripBooking = () => {
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     
-    // Check if trip is available
-    if (!trip.is_available) {
-      alert('Trip ini tidak tersedia untuk booking');
+    // Check if trip is available for booking
+    if (!trip.is_available_for_booking) {
+      if (trip.is_quota_full) {
+        alert('Maaf, kuota trip ini sudah penuh');
+      } else {
+        alert('Trip ini tidak tersedia untuk booking');
+      }
       return;
     }
     
@@ -206,12 +217,17 @@ const TripBooking = () => {
                   <h3 className="font-semibold text-gray-900">{trip.name}</h3>
                   <p className="text-sm text-gray-600 mb-2">{trip.location}</p>
                   <p className="text-sm text-gray-600 mb-2">{trip.duration}</p>
+                  {trip.quota !== undefined && trip.remaining_quota !== undefined && (
+                    <p className={`text-sm mb-2 ${trip.is_quota_full ? 'text-red-600' : trip.remaining_quota <= 2 ? 'text-orange-600' : 'text-green-600'}`}>
+                      Sisa kuota: {trip.remaining_quota} dari {trip.quota}
+                    </p>
+                  )}
                   <div className="flex items-center justify-between">
                     <span className="text-lg font-bold text-primary-600">
                       {formatCurrency(trip.price)}
                     </span>
-                    <Badge variant={trip.is_available ? 'success' : 'error'}>
-                      {trip.is_available ? 'Tersedia' : 'Tidak Tersedia'}
+                    <Badge variant={trip.is_quota_full ? 'warning' : trip.is_available_for_booking ? 'success' : 'error'}>
+                      {trip.is_quota_full ? 'Kuota Penuh' : trip.is_available_for_booking ? 'Tersedia' : 'Tidak Tersedia'}
                     </Badge>
                   </div>
                 </div>
@@ -333,10 +349,10 @@ const TripBooking = () => {
                     variant="primary"
                     size="lg"
                     loading={bookingLoading}
-                    disabled={!trip.is_available}
+                    disabled={!trip.is_available_for_booking}
                     className="flex-1"
                   >
-                    Lanjutkan Pembayaran
+                    {trip.is_quota_full ? 'Kuota Penuh' : 'Lanjutkan Pembayaran'}
                   </Button>
                 </div>
               </form>

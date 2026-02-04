@@ -32,10 +32,14 @@ class PaketTripController extends Controller
             \Log::info('Fetching trips started');
             
             $trips = PaketTrip::select(['id', 'title', 'description', 'price', 'duration', 'location', 'quota', 'image', 'is_active', 'created_at', 'updated_at'])
+                ->withCount(['confirmedBookings'])
                 ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($trip) {
                     $trip->image_url = $trip->image ? $this->fileUploadService->getImageUrl($trip->image) : null;
+                    $trip->remaining_quota = $trip->remaining_quota;
+                    $trip->is_available_for_booking = $trip->isAvailableForBooking();
+                    $trip->is_quota_full = $trip->isQuotaFull();
                     return $trip;
                 });
 
@@ -76,6 +80,9 @@ class PaketTripController extends Controller
             }
 
             $trip->image_url = $trip->image ? $this->fileUploadService->getImageUrl($trip->image) : null;
+            $trip->remaining_quota = $trip->remaining_quota;
+            $trip->is_available_for_booking = $trip->isAvailableForBooking();
+            $trip->is_quota_full = $trip->isQuotaFull();
 
             return response()->json([
                 'message' => 'Trip retrieved successfully',
