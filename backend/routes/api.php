@@ -14,6 +14,11 @@ use App\Http\Controllers\Api\V1\Admin\AdminTravelController;
 use App\Http\Controllers\Api\V1\Admin\AdminBookingController;
 use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
 
+// Include test routes in development
+if (app()->environment('local')) {
+    require __DIR__ . '/test.php';
+}
+
 // API Version 1 Routes
 Route::prefix('v1')->middleware('throttle:api')->group(function () {
 

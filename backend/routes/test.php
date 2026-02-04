@@ -3,31 +3,24 @@
 use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Facades\Socialite;
 
-Route::get('/', function () {
-    return ['Laravel' => app()->version()];
-});
-
-// Test Google OAuth
-Route::get('/test-google', function () {
+// Test Google OAuth configuration
+Route::get('/test-google-config', function () {
     try {
         $config = config('services.google');
         
         return response()->json([
             'status' => 'success',
-            'message' => 'Google OAuth configuration test',
             'config' => [
-                'client_id' => $config['client_id'] ? 'Set (' . substr($config['client_id'], 0, 20) . '...)' : 'Not set',
+                'client_id' => $config['client_id'] ? 'Set' : 'Not set',
                 'client_secret' => $config['client_secret'] ? 'Set' : 'Not set',
                 'redirect' => $config['redirect'],
             ],
             'socialite_available' => class_exists('Laravel\Socialite\Facades\Socialite'),
-            'environment' => app()->environment(),
         ]);
     } catch (\Exception $e) {
         return response()->json([
             'status' => 'error',
             'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
         ], 500);
     }
 });
@@ -35,20 +28,14 @@ Route::get('/test-google', function () {
 // Test Google OAuth redirect
 Route::get('/test-google-redirect', function () {
     try {
-        \Log::info('Testing Google OAuth redirect...');
-        
         return Socialite::driver('google')
             ->stateless()
             ->scopes(['email', 'profile'])
             ->redirect();
-            
     } catch (\Exception $e) {
-        \Log::error('Google OAuth redirect test failed: ' . $e->getMessage());
-        
         return response()->json([
             'status' => 'error',
             'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
         ], 500);
     }
 });

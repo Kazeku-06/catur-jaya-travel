@@ -45,7 +45,23 @@ class GoogleAuthController extends Controller
     public function callback()
     {
         try {
-            Log::info('Google OAuth callback received');
+            Log::info('Google OAuth callback received', [
+                'request_url' => request()->fullUrl(),
+                'request_params' => request()->all()
+            ]);
+            
+            // Check for error in callback
+            if (request()->has('error')) {
+                $error = request()->get('error');
+                $errorDescription = request()->get('error_description', 'Unknown error');
+                
+                Log::error('Google OAuth callback error', [
+                    'error' => $error,
+                    'error_description' => $errorDescription
+                ]);
+                
+                return $this->redirectWithError('OAUTH_ERROR', 'Google OAuth error: ' . $errorDescription);
+            }
             
             // Get user data from Google
             $googleUser = Socialite::driver('google')->stateless()->user();
@@ -131,12 +147,23 @@ class GoogleAuthController extends Controller
             return redirect($redirectUrl);
 
         } catch (\Laravel\Socialite\Two\InvalidStateException $e) {
-            Log::error('Google OAuth invalid state: ' . $e->getMessage());
-            return $this->redirectWithError('INVALID_STATE', 'Sesi OAuth tidak valid');
+            Log::error('Google OAuth invalid state: ' . $e->getMessage(), [
+                'request_url' => request()->fullUrl(),
+                'session_state' => session('state'),
+                'request_state' => request()->get('state')
+            ]);
+            return $this->redirectWithError('INVALID_STATE', 'Sesi OAuth tidak valid. Silakan coba lagi.');
+            
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            Log::error('Google OAuth HTTP client error: ' . $e->getMessage(), [
+                'response' => $e->getResponse() ? $e->getResponse()->getBody()->getContents() : 'No response'
+            ]);
+            return $this->redirectWithError('OAUTH_ERROR', 'Gagal berkomunikasi dengan Google. Silakan coba lagi.');
             
         } catch (\Exception $e) {
             Log::error('Google OAuth callback error: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'request_url' => request()->fullUrl()
             ]);
             return $this->redirectWithError('OAUTH_ERROR', 'Terjadi kesalahan saat login dengan Google');
         }
