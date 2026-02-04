@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useDebounce } from '../../hooks/useDebounce';
 import Input from '../ui/Input';
@@ -8,37 +9,77 @@ const SearchForm = ({
   onSearch, 
   placeholder = "Cari destinasi, paket wisata...",
   showFilters = false,
-  filters = {},
   onFilterChange,
   className = ''
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Initialize state from URL params
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [localFilters, setLocalFilters] = useState({
-    category: '',
-    priceRange: '',
-    duration: '',
-    location: '',
-    ...filters
+    category: searchParams.get('category') || '',
+    priceRange: searchParams.get('price') || '',
+    duration: searchParams.get('duration') || '',
+    location: searchParams.get('location') || '',
   });
 
   // Debounce search query
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
-  // Handle search
+  // Update URL params when search query or filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    
+    if (debouncedSearchQuery.trim()) {
+      params.set('q', debouncedSearchQuery.trim());
+    }
+    
+    Object.entries(localFilters).forEach(([key, value]) => {
+      if (value) {
+        const paramKey = key === 'priceRange' ? 'price' : key;
+        params.set(paramKey, value);
+      }
+    });
+    
+    // Keep existing page param if it exists
+    const currentPage = searchParams.get('page');
+    if (currentPage && currentPage !== '1') {
+      params.set('page', currentPage);
+    }
+    
+    setSearchParams(params);
+    
+    // Call onSearch callback with current data
+    if (onSearch) {
+      onSearch({
+        query: debouncedSearchQuery,
+        filters: localFilters
+      });
+    }
+  }, [debouncedSearchQuery, localFilters, setSearchParams, onSearch]);
+
+  // Handle search form submission
   const handleSearch = (e) => {
     e.preventDefault();
-    onSearch({
-      query: searchQuery,
-      filters: localFilters
-    });
+    // The search is already handled by useEffect above
+    // This is just for explicit search button clicks
+    if (onSearch) {
+      onSearch({
+        query: searchQuery,
+        filters: localFilters
+      });
+    }
   };
 
   // Handle filter change
   const handleFilterChange = (key, value) => {
     const newFilters = { ...localFilters, [key]: value };
     setLocalFilters(newFilters);
-    onFilterChange?.(newFilters);
+    
+    if (onFilterChange) {
+      onFilterChange(newFilters);
+    }
   };
 
   // Clear all filters
@@ -51,8 +92,16 @@ const SearchForm = ({
     };
     setLocalFilters(clearedFilters);
     setSearchQuery('');
-    onFilterChange?.(clearedFilters);
-    onSearch({ query: '', filters: clearedFilters });
+    
+    // Clear URL params
+    setSearchParams(new URLSearchParams());
+    
+    if (onFilterChange) {
+      onFilterChange(clearedFilters);
+    }
+    if (onSearch) {
+      onSearch({ query: '', filters: clearedFilters });
+    }
   };
 
   return (

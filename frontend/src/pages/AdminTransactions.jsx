@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import AdminLayout from '../components/Layout/AdminLayout';
 import Button from '../components/ui/Button';
@@ -11,22 +12,42 @@ import { BOOKING_STATUS } from '../utils/constants';
 
 const AdminTransactions = () => {
   const [authToken] = useLocalStorage('auth_token', null);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState(searchParams.get('status') || 'all');
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [newStatus, setNewStatus] = useState('');
   const [rejectReason, setRejectReason] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+  const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page')) || 1);
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     fetchBookings();
   }, [currentPage, filter, searchTerm]);
+
+  // Update URL params when filter, search, or page changes
+  useEffect(() => {
+    const params = new URLSearchParams();
+    
+    if (filter !== 'all') {
+      params.set('status', filter);
+    }
+    
+    if (searchTerm.trim()) {
+      params.set('search', searchTerm.trim());
+    }
+    
+    if (currentPage > 1) {
+      params.set('page', currentPage.toString());
+    }
+    
+    setSearchParams(params);
+  }, [filter, searchTerm, currentPage, setSearchParams]);
 
   const fetchBookings = async () => {
     try {

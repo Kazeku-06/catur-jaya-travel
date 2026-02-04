@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../components/Layout/Layout';
 import Button from '../components/ui/Button';
@@ -12,12 +12,13 @@ import { formatCurrency } from '../utils/helpers';
 
 const Home = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [featuredTrips, setFeaturedTrips] = useState([]);
   const [featuredTravels, setFeaturedTravels] = useState([]);
   const [dailyContent, setDailyContent] = useState([]);
   const [searchData, setSearchData] = useState({
-    destination: '',
-    travelDates: ''
+    destination: searchParams.get('q') || '',
+    travelDates: searchParams.get('date') || ''
   });
   const [dateError, setDateError] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -86,8 +87,37 @@ const Home = () => {
   // Handle perubahan tanggal dengan validasi
   const handleDateChange = (e) => {
     const selectedDate = e.target.value;
-    setSearchData({...searchData, travelDates: selectedDate});
+    const newSearchData = {...searchData, travelDates: selectedDate};
+    setSearchData(newSearchData);
     validateDate(selectedDate);
+    
+    // Update URL params
+    updateSearchParams(newSearchData);
+  };
+
+  // Handle perubahan destination
+  const handleDestinationChange = (e) => {
+    const destination = e.target.value;
+    const newSearchData = {...searchData, destination};
+    setSearchData(newSearchData);
+    
+    // Update URL params
+    updateSearchParams(newSearchData);
+  };
+
+  // Update URL search params
+  const updateSearchParams = (data) => {
+    const params = new URLSearchParams();
+    
+    if (data.destination.trim()) {
+      params.set('q', data.destination.trim());
+    }
+    
+    if (data.travelDates) {
+      params.set('date', data.travelDates);
+    }
+    
+    setSearchParams(params);
   };
 
   // Fungsi Search dengan validasi yang lebih ketat
@@ -179,7 +209,7 @@ const Home = () => {
                     type="text"
                     placeholder="Tell us where you want to go"
                     value={searchData.destination}
-                    onChange={(e) => setSearchData({...searchData, destination: e.target.value})}
+                    onChange={handleDestinationChange}
                     className="w-full text-sm text-gray-500 focus:outline-none bg-transparent py-1 border-none focus:ring-0"
                     required
                   />

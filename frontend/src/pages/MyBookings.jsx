@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../components/Layout/Layout';
 import Button from '../components/ui/Button';
@@ -10,13 +10,14 @@ import { formatCurrency, formatDate, getImageUrl } from '../utils/helpers';
 
 const MyBookings = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [authToken] = useLocalStorage('auth_token', null);
   const [userData] = useLocalStorage('user_data', null);
   
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [downloadingTicket, setDownloadingTicket] = useState(null);
-  const [filter, setFilter] = useState('all'); // all, menunggu_pembayaran, menunggu_validasi, lunas, ditolak, expired
+  const [filter, setFilter] = useState(searchParams.get('status') || 'all'); // all, menunggu_pembayaran, menunggu_validasi, lunas, ditolak, expired
 
   useEffect(() => {
     if (!authToken) {
@@ -25,6 +26,17 @@ const MyBookings = () => {
     }
     fetchBookings();
   }, [authToken, navigate]);
+
+  // Update URL params when filter changes
+  useEffect(() => {
+    const params = new URLSearchParams();
+    
+    if (filter !== 'all') {
+      params.set('status', filter);
+    }
+    
+    setSearchParams(params);
+  }, [filter, setSearchParams]);
 
   const fetchBookings = async () => {
     try {
