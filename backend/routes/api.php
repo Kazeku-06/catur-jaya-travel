@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Auth\GoogleAuthController;
 use App\Http\Controllers\Api\V1\PaketTripController;
@@ -61,7 +62,7 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
         Route::get('debug-token', function (Request $request) {
             $token = $request->bearerToken();
             $user = $request->user();
-            
+
             return response()->json([
                 'has_token' => !!$token,
                 'token_prefix' => $token ? substr($token, 0, 10) . '...' : null,
@@ -99,7 +100,7 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
             try {
                 $user = $request->user();
                 $bookings = \App\Models\Booking::where('user_id', $user->id)->get();
-                
+
                 return response()->json([
                     'user_id' => $user->id,
                     'user_email' => $user->email,
@@ -122,21 +123,21 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
         // Test email sending
         Route::get('test-email', function () {
             try {
-                \Log::info('Testing email configuration...');
-                
+                Log::info('Testing email configuration...');
+
                 // Test basic mail configuration
                 $config = config('mail');
-                \Log::info('Mail config', $config);
-                
+                Log::info('Mail config', $config);
+
                 \Illuminate\Support\Facades\Mail::raw('Test email from Laravel - Catur Jaya Travel', function ($message) {
                     $message->to('tssytari@gmail.com')
                             ->subject('Test Email - Catur Jaya Travel');
                 });
-                
-                \Log::info('Test email sent successfully');
+
+                Log::info('Test email sent successfully');
                 return response()->json(['message' => 'Test email sent successfully!']);
             } catch (\Exception $e) {
-                \Log::error('Test email failed', [
+                Log::error('Test email failed', [
                     'error' => $e->getMessage(),
                     'trace' => $e->getTraceAsString()
                 ]);
@@ -147,17 +148,17 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
         // Test forgot password directly
         Route::get('test-forgot/{email}', function ($email) {
             try {
-                \Log::info('Testing forgot password for: ' . $email);
-                
+                Log::info('Testing forgot password for: ' . $email);
+
                 $service = new \App\Services\PasswordResetService();
                 $result = $service->sendResetEmail($email);
-                
+
                 return response()->json([
                     'message' => 'Forgot password test completed',
                     'result' => $result
                 ]);
             } catch (\Exception $e) {
-                \Log::error('Test forgot password failed', [
+                Log::error('Test forgot password failed', [
                     'error' => $e->getMessage(),
                     'trace' => $e->getTraceAsString()
                 ]);
