@@ -68,6 +68,9 @@ class AdminPaketTripController extends Controller
      */
     public function store(Request $request)
     {
+        // Log incoming request data for debugging
+        \Log::info('AdminPaketTripController@store - Incoming data:', $request->all());
+
         // JSON validation only - supports base64 OR image URL
         $request->validate([
             'title' => 'required|string|max:255',
@@ -76,7 +79,7 @@ class AdminPaketTripController extends Controller
             'rundown.*.time' => 'nullable|string|max:255',
             'rundown.*.activity' => 'required_with:rundown.*|string|max:500',
             'facilities' => 'nullable|array',
-            'facilities.*' => 'string|max:255',
+            'facilities.*' => 'nullable|string|max:255',
             'price' => 'required|numeric|min:0',
             'duration' => 'required|string|max:255',
             'location' => 'required|string|max:255',
@@ -159,7 +162,7 @@ class AdminPaketTripController extends Controller
             'rundown.*.time' => 'nullable|string|max:255',
             'rundown.*.activity' => 'required_with:rundown.*|string|max:500',
             'facilities' => 'nullable|array',
-            'facilities.*' => 'string|max:255',
+            'facilities.*' => 'nullable|string|max:255',
             'price' => 'sometimes|required|numeric|min:0',
             'duration' => 'sometimes|required|string|max:255',
             'location' => 'sometimes|required|string|max:255',

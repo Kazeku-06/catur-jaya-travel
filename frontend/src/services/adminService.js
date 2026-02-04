@@ -126,12 +126,13 @@ export const imageHelpers = {
     const data = {
       title: formData.title,
       description: formData.description,
-      rundown: formData.rundown || [],
-      facilities: formData.facilities || [],
+      rundown: formData.rundown ? formData.rundown.filter(item => item.activity && item.activity.trim()) : [],
+      facilities: formData.facilities ? formData.facilities.filter(item => item && item.trim()) : [],
       price: parseFloat(formData.price),
       duration: formData.duration,
       location: formData.location,
       quota: parseInt(formData.quota),
+      capacity: parseInt(formData.capacity),
       is_active: formData.is_active !== undefined ? formData.is_active : true
     };
 

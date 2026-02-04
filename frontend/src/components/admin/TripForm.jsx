@@ -124,7 +124,11 @@ const TripForm = ({ trip = null, onSuccess, onCancel }) => {
       }
     } catch (error) {
       console.error('Error saving trip:', error);
-      showAlert('error', error.message || 'Gagal menyimpan trip');
+      console.error('Error response:', error.response?.data);
+      console.error('Trip data sent:', tripData);
+      
+      const errorMessage = error.response?.data?.message || error.message || 'Gagal menyimpan trip';
+      showAlert('error', errorMessage);
     } finally {
       setLoading(false);
     }
