@@ -68,7 +68,7 @@ const Header = () => {
             <Logo size="medium" />
             <div className="flex flex-col">
               <span className="text-lg lg:text-xl font-bold text-gray-900 leading-tight">
-                Catur Jaya Mandiri
+                Global Internindo
               </span>
               <span className="text-xs lg:text-sm font-semibold text-gray-600 tracking-wider -mt-1">
                 Tour & Travel

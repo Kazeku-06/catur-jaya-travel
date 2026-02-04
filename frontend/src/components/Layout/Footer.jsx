@@ -72,11 +72,12 @@ const Footer = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </div>
-              <span className="text-xl font-bold">Catur Jaya Travel</span>
+              <span className="text-xl font-bold">Global Internindo Travel</span>
             </div>
             <p className="text-gray-300 mb-4">
-              Menyediakan layanan perjalanan terbaik dengan pengalaman tak terlupakan. 
-              Jelajahi Indonesia bersama kami dengan paket wisata yang menarik dan terpercaya.
+              Dari komunitas driver online menjadi penyedia jasa wisata terpercaya. 
+              Kami menghadirkan pengalaman berwisata yang menyenangkan, murah tapi tidak murahan 
+              di wilayah Malang, Batu, Bromo dan sekitarnya.
             </p>
             
             {/* Contact Info */}
@@ -86,7 +87,7 @@ const Footer = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <span>Jl. Terong, Bumiayu, Kec. Kedungkandang, Kota Malang, Jawa Timur 65135, Indonesia</span>
+                <span>Jalan Lesti Utara No.6 Bunulrejo Blimbing Malang, Jawa Timur, Indonesia</span>
               </div>
               <div className="flex items-center space-x-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -173,7 +174,7 @@ const Footer = () => {
           viewport={{ once: true }}
         >
           <div className="text-gray-300 text-sm mb-4 md:mb-0">
-            © {currentYear} Catur Jaya Travel. Semua hak dilindungi.
+            © {currentYear} Global Internindo Travel. Semua hak dilindungi.
           </div>
           
           {/* Social Links */}

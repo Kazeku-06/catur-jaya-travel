@@ -14,28 +14,34 @@ const About = () => {
 
   const teamMembers = [
     {
-      name: 'Budi Santoso',
+      name: 'Edison',
       position: 'Founder & CEO',
       image: '/images/placeholder.jpg',
-      description: 'Berpengalaman lebih dari 10 tahun di industri pariwisata Indonesia.'
+      description: 'Pendiri CV. Global Internindo yang memiliki visi mengembangkan bisnis dari konstruksi ke pariwisata.'
     },
     {
-      name: 'Sari Dewi',
+      name: 'Deriawan',
+      position: 'Co-Founder',
+      image: '/images/placeholder.jpg',
+      description: 'Salah satu pendiri yang berpengalaman dalam industri transportasi dan pariwisata.'
+    },
+    {
+      name: 'Sulton',
       position: 'Operations Manager',
       image: '/images/placeholder.jpg',
-      description: 'Ahli dalam perencanaan perjalanan dan koordinasi operasional.'
+      description: 'Bertanggung jawab dalam operasional harian dan koordinasi tim lapangan.'
     },
     {
-      name: 'Ahmad Rizki',
-      position: 'Tour Guide Senior',
+      name: 'Maskur',
+      position: 'Tour Coordinator',
       image: '/images/placeholder.jpg',
-      description: 'Guide berpengalaman dengan pengetahuan mendalam tentang destinasi wisata.'
+      description: 'Ahli dalam perencanaan rute wisata dan koordinasi dengan mitra lokal.'
     }
   ];
 
   const achievements = [
     {
-      number: '5+',
+      number: '6+',
       label: 'Tahun Pengalaman',
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,7 +50,7 @@ const About = () => {
       )
     },
     {
-      number: '1000+',
+      number: '500+',
       label: 'Pelanggan Puas',
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,7 +59,7 @@ const About = () => {
       )
     },
     {
-      number: '50+',
+      number: '25+',
       label: 'Destinasi Wisata',
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,10 +107,10 @@ const About = () => {
             transition={{ duration: 0.8 }}
           >
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Tentang Catur Jaya Mandiri
+              Tentang Global Internindo
             </h1>
             <p className="text-xl md:text-2xl opacity-90 max-w-3xl mx-auto">
-              Mewujudkan perjalanan impian Anda dengan layanan terpercaya dan pengalaman tak terlupakan
+              Dari komunitas driver online menjadi penyedia jasa wisata terpercaya di Malang dan sekitarnya
             </p>
           </motion.div>
         </div>
@@ -125,18 +131,30 @@ const About = () => {
               </h2>
               <div className="space-y-4 text-gray-600 leading-relaxed">
                 <p>
-                  Catur Jaya Mandiri Travel Services didirikan dengan visi untuk memberikan 
-                  pengalaman perjalanan terbaik bagi setiap pelanggan. Kami memahami bahwa 
-                  setiap perjalanan adalah momen berharga yang harus direncanakan dengan sempurna.
+                  CV. Global Internindo awalnya merupakan sebuah badan usaha yang bergerak dalam bidang 
+                  perdagangan besar bahan konstruksi, didirikan pada tanggal 3 Maret 2018 oleh saudara Edison.
                 </p>
                 <p>
-                  Dengan pengalaman lebih dari 5 tahun di industri pariwisata, kami telah 
-                  melayani ribuan pelanggan dan mengantarkan mereka ke berbagai destinasi 
-                  wisata menakjubkan di seluruh Indonesia.
+                  Untuk bergerak dalam bidang jasa Tour & Travel sendiri bermula dari seringnya berkumpul 
+                  saudara Edison, Deriawan, Sulton dan Maskur di sebuah kedai kopi di sekitaran lapangan 
+                  Rampal Malang. Diawali sekitar bulan Juli 2018, kami sering berkumpul karena mempunyai 
+                  profesi yang sama yaitu sebagai driver online.
                 </p>
                 <p>
-                  Tim profesional kami berkomitmen untuk memberikan pelayanan terbaik, 
-                  mulai dari perencanaan perjalanan hingga pendampingan selama tour berlangsung.
+                  Sambil menunggu order, disitulah muncul pemikiran untuk membentuk sebuah komunitas jasa 
+                  Tour & Travel melihat peluang di kota Malang dan Batu yang merupakan kota wisata dan 
+                  pendidikan. Maka dibentuklah komunitas yang diawali kami berempat untuk menawarkan jasa 
+                  wisata di Kota Malang – Batu – Bromo dan terkadang sampai keluar daerah.
+                </p>
+                <p>
+                  Seiring berjalannya waktu, komunitas kami semakin banyak kawan-kawan sesama driver online 
+                  yang bergabung. Untuk itu kami berempat sepakat membentuk wadah yang resmi dan saudara 
+                  Edison mempunyai badan hukum yang resmi yaitu CV. Global Internindo.
+                </p>
+                <p>
+                  Sejak tanggal 25 Agustus 2018, kami memutuskan untuk menggunakan nama Global Internindo 
+                  Tour & Travel Malang sebagai wadah kami dalam menjalankan aktivitas yang beralamatkan 
+                  di Jalan Lesti Utara No.6 Bunulrejo Blimbing Malang sebagai basecamp sekaligus kantor kami.
                 </p>
               </div>
             </motion.div>
@@ -158,10 +176,95 @@ const About = () => {
               />
               <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-primary-600 rounded-2xl flex items-center justify-center text-white">
                 <div className="text-center">
-                  <div className="text-2xl font-bold">5+</div>
-                  <div className="text-sm">Tahun</div>
+                  <div className="text-2xl font-bold">2018</div>
+                  <div className="text-sm">Berdiri</div>
                 </div>
               </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Visi Misi Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <motion.div
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Visi & Misi Kami
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Komitmen kami dalam memberikan pelayanan wisata terbaik
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Visi */}
+            <motion.div
+              className="bg-white rounded-2xl p-8 shadow-lg"
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+            >
+              <div className="w-16 h-16 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">
+                Visi
+              </h3>
+              <p className="text-gray-600 text-center leading-relaxed">
+                Untuk menjadi jasa wisata terbaik dan memperkenalkan potensi yang ada 
+                di wilayah Malang dan sekitarnya.
+              </p>
+            </motion.div>
+
+            {/* Misi */}
+            <motion.div
+              className="bg-white rounded-2xl p-8 shadow-lg"
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+            >
+              <div className="w-16 h-16 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">
+                Misi
+              </h3>
+              <ul className="text-gray-600 space-y-3">
+                <li className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-primary-600 rounded-full mt-2 flex-shrink-0"></div>
+                  <span>Membuat standar berwisata yang menyenangkan, murah tapi tidak murahan</span>
+                </li>
+                <li className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-primary-600 rounded-full mt-2 flex-shrink-0"></div>
+                  <span>Membuat paket wisata yang menawarkan kemudahan bagi konsumen dengan berbagai pilihan</span>
+                </li>
+                <li className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-primary-600 rounded-full mt-2 flex-shrink-0"></div>
+                  <span>Menjalin kerjasama dengan berbagai pihak yang berkompeten</span>
+                </li>
+                <li className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-primary-600 rounded-full mt-2 flex-shrink-0"></div>
+                  <span>Memberi jaminan keselamatan bagi anggota dan konsumen</span>
+                </li>
+                <li className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-primary-600 rounded-full mt-2 flex-shrink-0"></div>
+                  <span>Menjalankan aktivitas secara terbuka bagi semua anggota</span>
+                </li>
+              </ul>
             </motion.div>
           </div>
         </div>
@@ -371,7 +474,7 @@ const About = () => {
                   {[
                     {
                       title: 'Alamat',
-                      content: 'Jl. Terong, Bumiayu, Kec. Kedungkandang, Kota Malang, Jawa Timur 65135, Indonesia',
+                      content: 'Jalan Lesti Utara No.6 Bunulrejo Blimbing Malang, Jawa Timur, Indonesia',
                       icon: (
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -503,7 +606,7 @@ const About = () => {
                     <strong>Alamat Lengkap:</strong>
                   </p>
                   <p>
-                    Jl. Terong, Bumiayu, Kec. Kedungkandang, Kota Malang, Jawa Timur 65135, Indonesia
+                    Jalan Lesti Utara No.6 Bunulrejo Blimbing Malang, Jawa Timur, Indonesia
                   </p>
                 </div>
               </div>
