@@ -19,6 +19,7 @@ const ResetPassword = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [validationErrors, setValidationErrors] = useState({});
 
   useEffect(() => {
@@ -50,6 +51,10 @@ const ResetPassword = () => {
         [name]: ''
       }));
     }
+
+    // Clear messages when user starts typing
+    if (error) setError('');
+    if (success) setSuccess('');
   };
 
   const validateForm = () => {
@@ -79,13 +84,21 @@ const ResetPassword = () => {
     try {
       setLoading(true);
       setError('');
+      setSuccess('');
 
-      await authService.resetPassword(formData);
+      console.log('Attempting to reset password...', formData);
+      const response = await authService.resetPassword(formData);
+      console.log('Reset password response:', response);
 
-      alert('Password berhasil direset. Silakan login dengan password baru Anda.');
-      navigate('/login');
+      setSuccess('Password berhasil direset! Anda akan diarahkan ke halaman login dalam 3 detik...');
+      
+      // Redirect to login after 3 seconds
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000);
     } catch (error) {
       console.error('Reset password error:', error);
+      console.error('Error response:', error.response);
 
       // Handle specific Google user error
       if (error.response?.data?.error === 'GOOGLE_USER_RESET_NOT_ALLOWED') {
@@ -155,8 +168,94 @@ const ResetPassword = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
           >
+            {/* Notification Banner */}
+            <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
+              <div className="flex items-start gap-3">
+                <svg
+                  className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <div>
+                  <h3 className="text-sm font-semibold text-blue-800 mb-1">
+                    Link Reset Password Valid
+                  </h3>
+                  <p className="text-sm text-blue-700">
+                    Link ini berlaku selama <strong>5 menit</strong> sejak dikirim ke email Anda. 
+                    Silakan segera reset password Anda sebelum link expired.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <form className="space-y-5" onSubmit={handleSubmit}>
-              {error && <Alert variant="error">{error}</Alert>}
+              {/* Debug info - remove in production */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="text-xs text-gray-500 space-y-2">
+                  <div>Debug: error={error ? 'true' : 'false'}, success={success ? 'true' : 'false'}</div>
+                  <div className="flex gap-2">
+                    <button 
+                      type="button" 
+                      onClick={() => setError('Test error message')}
+                      className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded"
+                    >
+                      Test Error
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => setSuccess('Test success message')}
+                      className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded"
+                    >
+                      Test Success
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => { setError(''); setSuccess(''); }}
+                      className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              {/* Error Notification */}
+              {error && (
+                <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm text-red-800">{error}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Success Notification */}
+              {success && (
+                <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm text-green-800">{success}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
