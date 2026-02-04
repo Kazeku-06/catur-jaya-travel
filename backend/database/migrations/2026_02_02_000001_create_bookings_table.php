@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('bookings', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->string('booking_code')->unique()->nullable();
             $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade')->index();
             $table->enum('catalog_type', ['trip', 'travel'])->index();
             $table->uuid('catalog_id')->index(); // ID Trip atau Travel
@@ -21,6 +22,10 @@ return new class extends Migration
             $table->enum('status', ['menunggu_pembayaran', 'menunggu_validasi', 'lunas', 'ditolak', 'expired'])->default('menunggu_pembayaran')->index();
             $table->timestamp('expired_at')->index();
             $table->timestamps();
+
+            // Composite index for efficient catalog lookups
+            $table->index(['catalog_type', 'catalog_id']);
+            $table->index('created_at');
         });
     }
 

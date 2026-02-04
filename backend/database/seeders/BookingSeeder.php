@@ -31,52 +31,46 @@ class BookingSeeder extends Seeder
         // Create sample bookings for trips
         foreach ($trips as $trip) {
             foreach ($users as $user) {
-                $bookings[] = [
-                    'id' => \Str::uuid(),
+                Booking::create([
                     'user_id' => $user->id,
                     'catalog_type' => 'trip',
                     'catalog_id' => $trip->id,
-                    'booking_data' => json_encode([
+                    'booking_data' => [
                         'nama_pemesan' => $user->name,
-                        'nomor_hp' => '081234567890',
+                        'nomor_hp' => '0812' . rand(11111111, 99999999),
                         'tanggal_keberangkatan' => Carbon::now()->addDays(rand(7, 30))->format('Y-m-d'),
                         'jumlah_orang' => rand(1, 4),
                         'catatan_tambahan' => 'Tidak ada catatan khusus',
-                    ]),
+                    ],
                     'total_price' => $trip->price * rand(1, 4),
-                    'status' => collect(['menunggu_pembayaran', 'menunggu_validasi', 'lunas'])->random(),
+                    'status' => collect(Booking::getStatuses())->random(),
                     'expired_at' => Carbon::now()->addHours(24),
                     'created_at' => Carbon::now()->subDays(rand(0, 7)),
-                    'updated_at' => Carbon::now()->subDays(rand(0, 7)),
-                ];
+                ]);
             }
         }
 
         // Create sample bookings for travels
         foreach ($travels as $travel) {
             foreach ($users->take(2) as $user) {
-                $bookings[] = [
-                    'id' => \Str::uuid(),
+                Booking::create([
                     'user_id' => $user->id,
                     'catalog_type' => 'travel',
                     'catalog_id' => $travel->id,
-                    'booking_data' => json_encode([
+                    'booking_data' => [
                         'nama_pemesan' => $user->name,
-                        'nomor_hp' => '081234567890',
+                        'nomor_hp' => '0812' . rand(11111111, 99999999),
                         'tanggal_keberangkatan' => Carbon::now()->addDays(rand(7, 30))->format('Y-m-d'),
                         'jumlah_orang' => rand(1, 3),
                         'catatan_tambahan' => 'Mohon dijemput tepat waktu',
-                    ]),
+                    ],
                     'total_price' => $travel->price_per_person * rand(1, 3),
-                    'status' => collect(['menunggu_pembayaran', 'menunggu_validasi', 'lunas', 'ditolak'])->random(),
+                    'status' => collect(Booking::getStatuses())->random(),
                     'expired_at' => Carbon::now()->addHours(24),
                     'created_at' => Carbon::now()->subDays(rand(0, 7)),
-                    'updated_at' => Carbon::now()->subDays(rand(0, 7)),
-                ];
+                ]);
             }
         }
-
-        Booking::insert($bookings);
 
         $this->command->info('Sample bookings created successfully!');
     }

@@ -13,7 +13,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create Admin Users using firstOrCreate to avoid duplicates
+        // Admin Users
         User::firstOrCreate(
             ['email' => 'admin@caturjaya.com'],
             [
@@ -34,7 +34,7 @@ class UserSeeder extends Seeder
             ]
         );
 
-        // Create Regular Users using firstOrCreate to avoid duplicates
+        // Regular Users
         User::firstOrCreate(
             ['email' => 'john@example.com'],
             [
