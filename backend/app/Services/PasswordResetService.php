@@ -14,7 +14,7 @@ class PasswordResetService
     /**
      * Token expiry time in minutes
      */
-    const TOKEN_EXPIRY_MINUTES = 60;
+    const TOKEN_EXPIRY_MINUTES = 5;
 
     /**
      * Send password reset email

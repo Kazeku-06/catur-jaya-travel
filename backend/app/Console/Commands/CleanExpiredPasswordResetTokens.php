@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Services\PasswordResetService;
 
 class CleanExpiredPasswordResetTokens extends Command
 {
@@ -11,20 +12,26 @@ class CleanExpiredPasswordResetTokens extends Command
      *
      * @var string
      */
-    protected $signature = 'app:clean-expired-password-reset-tokens';
+    protected $signature = 'auth:clean-expired-tokens';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Clean expired password reset tokens from database';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        //
+        $passwordResetService = app(PasswordResetService::class);
+        
+        $deletedCount = $passwordResetService->cleanExpiredTokens();
+        
+        $this->info("Cleaned {$deletedCount} expired password reset tokens.");
+        
+        return Command::SUCCESS;
     }
 }

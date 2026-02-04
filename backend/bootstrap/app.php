@@ -24,4 +24,5 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withSchedule(function ($schedule) {
         $schedule->command('bookings:mark-expired')->hourly();
+        $schedule->command('auth:clean-expired-tokens')->everyFiveMinutes();
     })->create();
