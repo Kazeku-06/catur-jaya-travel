@@ -34,7 +34,6 @@ class BookingController extends Controller
             'nama_pemesan' => 'required|string|max:255',
             'nomor_hp' => 'required|string|max:20',
             'tanggal_keberangkatan' => 'required|date|after:today',
-            'participants' => 'required|integer|min:1|max:50',
             'catatan_tambahan' => 'nullable|string|max:1000'
         ]);
 
@@ -46,7 +45,6 @@ class BookingController extends Controller
                     'nama_pemesan',
                     'nomor_hp',
                     'tanggal_keberangkatan',
-                    'participants',
                     'catatan_tambahan'
                 ])
             );

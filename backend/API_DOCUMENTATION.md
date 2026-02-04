@@ -104,10 +104,10 @@ Tujuan utama sistem ini adalah mencatat pesanan sebelum pembayaran divalidasi.
         "nama_pemesan": "Budi",
         "nomor_hp": "0812...",
         "tanggal_keberangkatan": "2026-05-10",
-        "participants": 2,
         "catatan_tambahan": "Minta kursi depan"
     }
     ```
+- **Note**: Trip adalah private trip, tidak memerlukan jumlah peserta
 
 ### Membuat Booking (Travel)
 

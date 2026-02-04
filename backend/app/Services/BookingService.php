@@ -34,8 +34,9 @@ class BookingService
         // Validate booking data
         $this->validateTripBookingData($bookingData);
 
-        $participants = $bookingData['participants'] ?? 1;
-        $totalPrice = $trip->price * $participants;
+        // For trips, participants is always 1 (private trip)
+        $participants = 1;
+        $totalPrice = $trip->price;
 
         // Set expired time (24 hours from now)
         $expiredAt = Carbon::now()->addHours(24);
@@ -268,16 +269,12 @@ class BookingService
      */
     private function validateTripBookingData($data)
     {
-        $required = ['nama_pemesan', 'nomor_hp', 'tanggal_keberangkatan', 'participants'];
+        $required = ['nama_pemesan', 'nomor_hp', 'tanggal_keberangkatan'];
 
         foreach ($required as $field) {
             if (empty($data[$field])) {
                 throw new \InvalidArgumentException("Field {$field} wajib diisi");
             }
-        }
-
-        if ($data['participants'] < 1 || $data['participants'] > 50) {
-            throw new \InvalidArgumentException('Jumlah peserta harus antara 1-50 orang');
         }
 
         $departureDate = Carbon::parse($data['tanggal_keberangkatan']);

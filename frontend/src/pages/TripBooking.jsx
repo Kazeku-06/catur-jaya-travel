@@ -23,7 +23,6 @@ const TripBooking = () => {
   const [bookingData, setBookingData] = useState({
     nama_pemesan: userData?.name || '',
     nomor_hp: userData?.phone || '',
-    participants: 1,
     tanggal_keberangkatan: '',
     catatan_tambahan: '',
   });
@@ -141,7 +140,7 @@ const TripBooking = () => {
     { label: 'Booking' }
   ];
 
-  const totalPrice = (trip?.price || 0) * bookingData.participants;
+  const totalPrice = trip?.price || 0;
 
   if (loading) {
     return (
@@ -209,7 +208,7 @@ const TripBooking = () => {
                   <p className="text-sm text-gray-600 mb-2">{trip.duration}</p>
                   <div className="flex items-center justify-between">
                     <span className="text-lg font-bold text-primary-600">
-                      {formatCurrency(trip.price)}/orang
+                      {formatCurrency(trip.price)}
                     </span>
                     <Badge variant={trip.is_available ? 'success' : 'error'}>
                       {trip.is_available ? 'Tersedia' : 'Tidak Tersedia'}
@@ -263,28 +262,6 @@ const TripBooking = () => {
                     />
                   </div>
 
-                  {/* Participants */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Jumlah Peserta *
-                    </label>
-                    <select
-                      value={bookingData.participants}
-                      onChange={(e) => setBookingData({
-                        ...bookingData,
-                        participants: parseInt(e.target.value)
-                      })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      required
-                    >
-                      {[...Array(Math.min(trip.quota || 10, 50))].map((_, i) => (
-                        <option key={i + 1} value={i + 1}>
-                          {i + 1} orang
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
                   {/* Departure Date */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -328,7 +305,7 @@ const TripBooking = () => {
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">
-                          {formatCurrency(trip.price)} x {bookingData.participants} orang
+                          Harga Trip Private
                         </span>
                         <span className="font-medium">{formatCurrency(totalPrice)}</span>
                       </div>

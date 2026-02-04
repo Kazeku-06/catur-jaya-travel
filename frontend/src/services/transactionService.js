@@ -7,7 +7,6 @@ export const transactionService = {
       nama_pemesan: bookingData.nama_pemesan,
       nomor_hp: bookingData.nomor_hp,
       tanggal_keberangkatan: bookingData.tanggal_keberangkatan,
-      participants: bookingData.participants,
       catatan_tambahan: bookingData.catatan_tambahan || ''
     });
     return response.data;

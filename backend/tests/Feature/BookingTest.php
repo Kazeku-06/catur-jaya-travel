@@ -33,7 +33,6 @@ class BookingTest extends TestCase
             'nama_pemesan' => 'Test User',
             'nomor_hp' => '08123456789',
             'tanggal_keberangkatan' => now()->addDays(7)->format('Y-m-d'),
-            'participants' => 2,
             'catatan_tambahan' => 'Minta yang seru'
         ];
 
@@ -52,7 +51,7 @@ class BookingTest extends TestCase
                 ])
                 ->assertJson([
                     'data' => [
-                        'total_price' => 2000000,
+                        'total_price' => 1000000,
                         'status' => Booking::STATUS_MENUNGGU_PEMBAYARAN
                     ]
                 ]);
@@ -61,7 +60,7 @@ class BookingTest extends TestCase
             'user_id' => $user->id,
             'catalog_type' => 'trip',
             'catalog_id' => $trip->id,
-            'total_price' => 2000000,
+            'total_price' => 1000000,
             'status' => Booking::STATUS_MENUNGGU_PEMBAYARAN
         ]);
     }
@@ -111,6 +110,6 @@ class BookingTest extends TestCase
         $response = $this->actingAs($user)->postJson("/api/v1/bookings/trip/{$trip->id}", []);
 
         $response->assertStatus(422)
-                ->assertJsonValidationErrors(['nama_pemesan', 'nomor_hp', 'tanggal_keberangkatan', 'participants']);
+                ->assertJsonValidationErrors(['nama_pemesan', 'nomor_hp', 'tanggal_keberangkatan']);
     }
 }
