@@ -156,9 +156,9 @@ const AdminDashboard = () => {
                 </svg>
               </div>
               <div className="ml-2 lg:ml-4 min-w-0 flex-1">
-                <p className="text-xs lg:text-sm font-medium text-gray-600 truncate">Trips Aktif</p>
+                <p className="text-xs lg:text-sm font-medium text-gray-600 truncate">Trips Tersedia</p>
                 <p className="text-lg lg:text-2xl font-bold text-gray-900">
-                  {trips.filter(trip => trip.is_active).length}
+                  {trips.filter(trip => trip.is_active && !trip.is_quota_full).length}
                 </p>
               </div>
             </div>
@@ -171,15 +171,15 @@ const AdminDashboard = () => {
             transition={{ delay: 0.4 }}
           >
             <div className="flex items-center">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <svg className="w-4 h-4 lg:w-6 lg:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              <div className="p-2 bg-red-100 rounded-lg">
+                <svg className="w-4 h-4 lg:w-6 lg:h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728" />
                 </svg>
               </div>
               <div className="ml-2 lg:ml-4 min-w-0 flex-1">
-                <p className="text-xs lg:text-sm font-medium text-gray-600 truncate">Travels Aktif</p>
+                <p className="text-xs lg:text-sm font-medium text-gray-600 truncate">Trips Penuh</p>
                 <p className="text-lg lg:text-2xl font-bold text-gray-900">
-                  {travels.filter(travel => travel.is_active).length}
+                  {trips.filter(trip => trip.is_quota_full).length}
                 </p>
               </div>
             </div>
@@ -286,13 +286,29 @@ const AdminDashboard = () => {
                               {formatCurrency(trip.price)}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                trip.is_active 
-                                  ? 'bg-green-100 text-green-800' 
-                                  : 'bg-red-100 text-red-800'
-                              }`}>
-                                {trip.is_active ? 'Aktif' : 'Nonaktif'}
-                              </span>
+                              <div className="flex flex-col space-y-1">
+                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                  trip.is_active 
+                                    ? 'bg-green-100 text-green-800' 
+                                    : 'bg-red-100 text-red-800'
+                                }`}>
+                                  {trip.is_active ? 'Aktif' : 'Nonaktif'}
+                                </span>
+                                {trip.is_active && trip.remaining_quota !== undefined && (
+                                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                    trip.is_quota_full
+                                      ? 'bg-red-100 text-red-800'
+                                      : trip.remaining_quota <= 2
+                                        ? 'bg-yellow-100 text-yellow-800'
+                                        : 'bg-blue-100 text-blue-800'
+                                  }`}>
+                                    {trip.is_quota_full 
+                                      ? 'Kuota Penuh' 
+                                      : `Sisa ${trip.remaining_quota} trip`
+                                    }
+                                  </span>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         ))
@@ -346,7 +362,7 @@ const AdminDashboard = () => {
                               className="w-full h-full object-cover"
                               fallback="/images/trip-placeholder.jpg"
                             />
-                            <div className="absolute top-1 right-1">
+                            <div className="absolute top-1 right-1 space-y-1">
                               <span className={`inline-flex px-1.5 py-0.5 text-xs font-semibold rounded-full ${
                                 trip.is_active 
                                   ? 'bg-green-100 text-green-800' 
@@ -354,6 +370,11 @@ const AdminDashboard = () => {
                               }`}>
                                 {trip.is_active ? 'Aktif' : 'Nonaktif'}
                               </span>
+                              {trip.is_active && trip.is_quota_full && (
+                                <span className="inline-flex px-1.5 py-0.5 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                  Penuh
+                                </span>
+                              )}
                             </div>
                           </div>
                           
@@ -381,14 +402,24 @@ const AdminDashboard = () => {
                                 </div>
                               </div>
                               
-                              {/* Price */}
+                              {/* Price and Quota */}
                               <div className="mt-2">
                                 <p className="text-sm font-bold text-primary-600">
                                   {formatCurrency(trip.price)}
                                 </p>
-                                <p className="text-xs text-gray-500">
-                                  Kuota: {trip.quota} orang
-                                </p>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  <p className="text-xs text-gray-500">
+                                    Kuota: {trip.quota} trip
+                                  </p>
+                                  {trip.remaining_quota !== undefined && (
+                                    <p className={`text-xs font-medium ${
+                                      trip.remaining_quota === 0 ? 'text-red-600' : 
+                                      trip.remaining_quota <= 2 ? 'text-orange-600' : 'text-green-600'
+                                    }`}>
+                                      • Sisa: {trip.remaining_quota}
+                                    </p>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </div>

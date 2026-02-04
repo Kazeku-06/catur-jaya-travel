@@ -147,14 +147,37 @@ const AdminTrips = () => {
                             e.target.src = '/images/trip-placeholder.jpg';
                           }}
                         />
-                        <div className="absolute top-2 lg:top-3 right-2 lg:right-3">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            trip.is_active 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {trip.is_active ? 'Aktif' : 'Nonaktif'}
-                          </span>
+                        <div className="absolute top-2 lg:top-3 right-2 lg:right-3 space-y-1">
+                          {/* Status Aktif/Nonaktif */}
+                          <div>
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              trip.is_active 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {trip.is_active ? 'Aktif' : 'Nonaktif'}
+                            </span>
+                          </div>
+                          
+                          {/* Status Kuota */}
+                          {trip.is_active && (
+                            <div>
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                trip.is_quota_full
+                                  ? 'bg-red-100 text-red-800'
+                                  : trip.remaining_quota <= 2
+                                    ? 'bg-yellow-100 text-yellow-800'
+                                    : 'bg-blue-100 text-blue-800'
+                              }`}>
+                                {trip.is_quota_full 
+                                  ? 'Kuota Penuh' 
+                                  : trip.remaining_quota <= 2 
+                                    ? 'Kuota Sedikit' 
+                                    : 'Tersedia'
+                                }
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -178,10 +201,25 @@ const AdminTrips = () => {
                               <p>Kapasitas: {trip.capacity || 1} orang/trip</p>
                               <p>Kuota: {trip.quota} trip</p>
                               {trip.remaining_quota !== undefined && (
-                                <p className={`${trip.remaining_quota === 0 ? 'text-red-600' : trip.remaining_quota <= 2 ? 'text-orange-600' : 'text-green-600'}`}>
+                                <p className={`font-medium ${trip.remaining_quota === 0 ? 'text-red-600' : trip.remaining_quota <= 2 ? 'text-orange-600' : 'text-green-600'}`}>
                                   Sisa: {trip.remaining_quota} trip
                                 </p>
                               )}
+                              {/* Status Booking */}
+                              <p className={`text-xs font-medium mt-1 ${
+                                !trip.is_active 
+                                  ? 'text-gray-500'
+                                  : trip.is_quota_full 
+                                    ? 'text-red-600' 
+                                    : 'text-green-600'
+                              }`}>
+                                {!trip.is_active 
+                                  ? 'Trip Nonaktif'
+                                  : trip.is_quota_full 
+                                    ? 'Tidak Bisa Dibooking (Kuota Penuh)' 
+                                    : 'Bisa Dibooking'
+                                }
+                              </p>
                             </div>
                           </div>
                         </div>

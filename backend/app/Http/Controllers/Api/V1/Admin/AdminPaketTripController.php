@@ -32,11 +32,15 @@ class AdminPaketTripController extends Controller
             }
 
             $trips = PaketTrip::orderBy('created_at', 'desc')
+                ->withCount(['confirmedBookings'])
                 ->paginate($perPage);
 
-            // Add image URLs to each trip
+            // Add image URLs and quota information to each trip
             $trips->getCollection()->transform(function ($trip) {
                 $trip->image_url = $trip->image ? $this->fileUploadService->getImageUrl($trip->image) : null;
+                $trip->remaining_quota = $trip->remaining_quota;
+                $trip->is_available_for_booking = $trip->isAvailableForBooking();
+                $trip->is_quota_full = $trip->isQuotaFull();
                 return $trip;
             });
 
