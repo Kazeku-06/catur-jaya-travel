@@ -81,6 +81,7 @@ class AdminPaketTripController extends Controller
             'duration' => 'required|string|max:255',
             'location' => 'required|string|max:255',
             'quota' => 'required|integer|min:1',
+            'capacity' => 'required|integer|min:1',
             'image_base64' => 'required_without:image_url|string', // Base64 image
             'image_url' => 'required_without:image_base64|url', // Direct image URL
             'image_name' => 'required_with:image_base64|string|max:255',
@@ -90,7 +91,7 @@ class AdminPaketTripController extends Controller
         try {
             $data = $request->only([
                 'title', 'description', 'rundown', 'facilities', 'price', 'duration',
-                'location', 'quota', 'is_active'
+                'location', 'quota', 'capacity', 'is_active'
             ]);
 
             // Set default is_active if not provided
@@ -163,6 +164,7 @@ class AdminPaketTripController extends Controller
             'duration' => 'sometimes|required|string|max:255',
             'location' => 'sometimes|required|string|max:255',
             'quota' => 'sometimes|required|integer|min:1',
+            'capacity' => 'sometimes|required|integer|min:1',
             'image_base64' => 'nullable|string', // Base64 image
             'image_url' => 'nullable|url', // Direct image URL
             'image_name' => 'required_with:image_base64|string|max:255',
@@ -174,7 +176,7 @@ class AdminPaketTripController extends Controller
 
             $data = $request->only([
                 'title', 'description', 'rundown', 'facilities', 'price', 'duration',
-                'location', 'quota', 'is_active'
+                'location', 'quota', 'capacity', 'is_active'
             ]);
 
             // Handle image processing

@@ -189,27 +189,31 @@ const TripForm = ({ trip = null, onSuccess, onCancel }) => {
             placeholder="Bromo, Jawa Timur"
           />
 
-          <Input
-            label="Kuota Trip"
-            name="quota"
-            type="number"
-            value={formData.quota}
-            onChange={handleInputChange}
-            required
-            placeholder="5"
-            help="Berapa kali trip ini bisa dibooking"
-          />
+          <div>
+            <Input
+              label="Kuota Trip"
+              name="quota"
+              type="number"
+              value={formData.quota}
+              onChange={handleInputChange}
+              required
+              placeholder="5"
+            />
+            <p className="text-xs text-gray-500 mt-1">Berapa kali trip ini bisa dibooking</p>
+          </div>
 
-          <Input
-            label="Kapasitas Peserta"
-            name="capacity"
-            type="number"
-            value={formData.capacity}
-            onChange={handleInputChange}
-            required
-            placeholder="6"
-            help="Maksimal berapa orang per trip"
-          />
+          <div>
+            <Input
+              label="Kapasitas Peserta"
+              name="capacity"
+              type="number"
+              value={formData.capacity}
+              onChange={handleInputChange}
+              required
+              placeholder="6"
+            />
+            <p className="text-xs text-gray-500 mt-1">Maksimal berapa orang per trip</p>
+          </div>
 
           <div className="flex items-center">
             <input

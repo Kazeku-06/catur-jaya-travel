@@ -20,6 +20,7 @@ class PaketTripSeeder extends Seeder
                 'duration' => '3 hari 2 malam',
                 'location' => 'Bromo, Jawa Timur',
                 'quota' => 25,
+                'capacity' => 6,
                 'image' => null,
                 'rundown' => [
                     ['time' => '03.00', 'activity' => 'Sunrise Penanjakan'],
@@ -36,6 +37,7 @@ class PaketTripSeeder extends Seeder
                 'duration' => '4 hari 3 malam',
                 'location' => 'Bali',
                 'quota' => 30,
+                'capacity' => 8,
                 'image' => null,
                 'rundown' => [
                     ['time' => '09.00', 'activity' => 'Tanah Lot Tour'],
@@ -51,6 +53,7 @@ class PaketTripSeeder extends Seeder
                 'duration' => '2 hari 1 malam',
                 'location' => 'Yogyakarta',
                 'quota' => 20,
+                'capacity' => 5,
                 'image' => null,
                 'rundown' => [
                     ['time' => '08.00', 'activity' => 'Borobudur Temple'],
@@ -66,6 +69,7 @@ class PaketTripSeeder extends Seeder
                 'duration' => '3 hari 2 malam',
                 'location' => 'Lombok, NTB',
                 'quota' => 15,
+                'capacity' => 4,
                 'image' => null,
                 'rundown' => [
                     ['time' => '10.00', 'activity' => 'Snorkeling 3 Gili'],
@@ -81,6 +85,7 @@ class PaketTripSeeder extends Seeder
                 'duration' => '2 hari 1 malam',
                 'location' => 'Bandung, Jawa Barat',
                 'quota' => 35,
+                'capacity' => 7,
                 'image' => null,
                 'rundown' => [
                     ['time' => '09.00', 'activity' => 'Tangkuban Perahu'],
@@ -96,6 +101,7 @@ class PaketTripSeeder extends Seeder
                 'duration' => '5 hari 4 malam',
                 'location' => 'Raja Ampat, Papua Barat',
                 'quota' => 12,
+                'capacity' => 4,
                 'image' => null,
                 'rundown' => [
                     ['time' => '07.00', 'activity' => 'First Dive at Cape Kri'],
@@ -110,6 +116,7 @@ class PaketTripSeeder extends Seeder
                 'duration' => '3 hari 2 malam',
                 'location' => 'Danau Toba, Sumatera Utara',
                 'quota' => 20,
+                'capacity' => 6,
                 'image' => null,
                 'rundown' => [
                     ['time' => '09.00', 'activity' => 'Tomok Village Tour'],
@@ -124,6 +131,7 @@ class PaketTripSeeder extends Seeder
                 'duration' => '4 hari 3 malam',
                 'location' => 'Flores, NTT',
                 'quota' => 16,
+                'capacity' => 5,
                 'image' => null,
                 'rundown' => [
                     ['time' => '05.00', 'activity' => 'Padar Island Summit'],
@@ -138,6 +146,7 @@ class PaketTripSeeder extends Seeder
                 'duration' => '2 hari 1 malam',
                 'location' => 'Malang-Batu, Jawa Timur',
                 'quota' => 25,
+                'capacity' => 8,
                 'image' => null,
                 'rundown' => [
                     ['time' => '10.00', 'activity' => 'Jatim Park 3'],
@@ -152,6 +161,7 @@ class PaketTripSeeder extends Seeder
                 'duration' => '3 hari 2 malam',
                 'location' => 'Belitung, Bangka Belitung',
                 'quota' => 18,
+                'capacity' => 6,
                 'image' => null,
                 'rundown' => [
                     ['time' => '09.00', 'activity' => 'Lighthouse Island'],
