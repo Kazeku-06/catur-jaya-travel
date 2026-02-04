@@ -488,14 +488,14 @@ const About = () => {
                 </h3>
                 <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden mb-6">
                   <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3951.4234567890123!2d112.6234567!3d-7.9876543!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zN8KwNTknMTUuNiJTIDExMsKwMzcnMjQuNCJF!5e0!3m2!1sen!2sid!4v1234567890123!5m2!1sen!2sid"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d30044.200711500318!2d112.65668086262525!3d-7.997059424415161!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd627dcd88415f3%3A0x65cb277427b11768!2sCV.%20Catur%20jaya%20mandiri%20tour%20and%20travel!5e1!3m2!1sen!2sid!4v1770164285486!5m2!1sen!2sid"
                     width="100%"
                     height="100%"
                     style={{ border: 0 }}
                     allowFullScreen=""
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
-                    title="Lokasi Catur Jaya Travel"
+                    title="Lokasi CV. Catur Jaya Mandiri Tour and Travel"
                   />
                 </div>
                 <div className="text-gray-600">
