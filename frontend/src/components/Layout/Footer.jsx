@@ -72,7 +72,7 @@ const Footer = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </div>
-              <span className="text-xl font-bold">Global Internindo Travel</span>
+              <span className="text-xl font-bold">Catur Jaya Mandiri</span>
             </div>
             <p className="text-gray-300 mb-4">
               Dari komunitas driver online menjadi penyedia jasa wisata terpercaya. 
