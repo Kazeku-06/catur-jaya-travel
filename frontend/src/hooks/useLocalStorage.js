@@ -102,7 +102,7 @@ export const useLocalStorage = (key, initialValue) => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('localStorageChange', handleCustomStorageChange);
     };
-  }, [key, initialValue]);
+  }, [key]); // Remove initialValue from dependency array to prevent infinite loops
 
   // Method to remove item from localStorage
   const removeValue = () => {

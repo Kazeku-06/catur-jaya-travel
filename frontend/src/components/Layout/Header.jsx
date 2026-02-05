@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
@@ -9,11 +9,17 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [authToken] = useLocalStorage('auth_token', null);
-  const [userData] = useLocalStorage('user_data', null);
+  const [authToken] = useLocalStorage('auth_token', '');
+  const [userData] = useLocalStorage('user_data', {});
   
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Memoize user state to prevent unnecessary re-renders
+  const isLoggedIn = Boolean(authToken && authToken.trim());
+  const isAdmin = Boolean(isLoggedIn && userData?.role === 'admin');
+  const userName = userData?.name || '';
+  const userInitial = userName ? userName.charAt(0).toUpperCase() : '?';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,7 +34,7 @@ const Header = () => {
     setShowProfileMenu(false);
   }, [location]);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_data');
     navigate('/');
@@ -36,18 +42,31 @@ const Header = () => {
     setIsMenuOpen(false);
     // Reload opsional jika state localstorage tidak auto-update di komponen lain
     window.location.reload();
-  };
+  }, [navigate]);
 
-  const navigation = [
+  const toggleProfileMenu = useCallback(() => {
+    setShowProfileMenu(prev => !prev);
+  }, []);
+
+  const closeMenus = useCallback(() => {
+    setShowProfileMenu(false);
+    setIsMenuOpen(false);
+  }, []);
+
+  const toggleMobileMenu = useCallback(() => {
+    setIsMenuOpen(prev => !prev);
+  }, []);
+
+  const navigation = useMemo(() => [
     { name: 'Beranda', href: '/' },
     { name: 'Paket Trip', href: '/trips' },
     { name: 'Travel', href: '/travels' },
-  ];
+  ], []);
 
-  const isActive = (path) => {
+  const isActive = useCallback((path) => {
     if (path === '/') return location.pathname === '/';
     return location.pathname.startsWith(path);
-  };
+  }, [location.pathname]);
 
   return (
     <motion.header
@@ -68,7 +87,7 @@ const Header = () => {
             <Logo size="medium" />
             <div className="flex flex-col">
               <span className="text-lg lg:text-xl font-bold text-gray-900 leading-tight">
-                Catur Jaya Mandiri
+                Global Internindo
               </span>
               <span className="text-xs lg:text-sm font-semibold text-gray-600 tracking-wider -mt-1">
                 Tour & Travel
@@ -95,16 +114,16 @@ const Header = () => {
           <div className="hidden lg:flex items-center space-x-4">
             <div className="relative">
               <button
-                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                onClick={toggleProfileMenu}
                 className="flex items-center space-x-2 text-gray-700 hover:text-primary-600 transition-colors duration-200"
               >
                 <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
                   <span className="text-white text-sm font-medium">
-                    {authToken ? (userData?.name?.charAt(0)?.toUpperCase() || 'U') : '?'}
+                    {userInitial}
                   </span>
                 </div>
                 <span className="text-gray-700 font-medium">
-                  {authToken ? (userData?.name || 'User') : 'Menu'}
+                  {isLoggedIn ? userName || 'User' : 'Menu'}
                 </span>
                 <svg className={`w-4 h-4 transition-transform duration-200 ${showProfileMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -128,22 +147,18 @@ const Header = () => {
                       </div>
                       <div className="overflow-hidden">
                         <h4 className="text-white font-bold leading-tight truncate">
-                          {!authToken ? "Anonymous" : (userData?.name || "User")}
+                          {isLoggedIn ? userName || 'User' : 'Anonymous'}
                         </h4>
                         <p className="text-blue-100 text-[10px] font-bold uppercase tracking-widest">
-                          {!authToken 
-                            ? "Guest" 
-                            : userData?.role === 'admin' 
-                              ? "ADMIN" 
-                              : "CUSTOMER"}
+                          {!isLoggedIn ? 'Guest' : isAdmin ? 'ADMIN' : 'CUSTOMER'}
                         </p>
                       </div>
                     </div>
 
                     <div className="bg-white">
                       {/* JIKA ADMIN: Hanya Admin Dashboard yang muncul */}
-                      {authToken && userData?.role === 'admin' ? (
-                        <Link to="/admin" onClick={() => setShowProfileMenu(false)} className="flex items-center space-x-4 px-5 py-4 text-primary-600 hover:bg-primary-50 border-b border-gray-100 transition-colors">
+                      {isAdmin ? (
+                        <Link to="/admin" onClick={closeMenus} className="flex items-center space-x-4 px-5 py-4 text-primary-600 hover:bg-primary-50 border-b border-gray-100 transition-colors">
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                           </svg>
@@ -152,8 +167,8 @@ const Header = () => {
                       ) : (
                         /* JIKA BUKAN ADMIN (USER ATAU GUEST): Tampil Booking (jika login), Contact, dan About */
                         <>
-                          {authToken && (
-                            <Link to="/my-bookings" onClick={() => setShowProfileMenu(false)} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
+                          {isLoggedIn && (
+                            <Link to="/my-bookings" onClick={closeMenus} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
                               <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                               <span className="font-medium">My Bookings</span>
                             </Link>
@@ -162,7 +177,7 @@ const Header = () => {
                             href={generateWhatsAppUrl('081346474165', 'Halo, saya ingin bertanya tentang paket wisata')}
                             target="_blank"
                             rel="noopener noreferrer"
-                            onClick={() => setShowProfileMenu(false)} 
+                            onClick={closeMenus} 
                             className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100"
                           >
                             <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
@@ -170,7 +185,7 @@ const Header = () => {
                             </svg>
                             <span className="font-medium">WhatsApp</span>
                           </a>
-                          <Link to="/about" onClick={() => setShowProfileMenu(false)} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
+                          <Link to="/about" onClick={closeMenus} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
                             <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             <span className="font-medium">About Us</span>
                           </Link>
@@ -179,7 +194,7 @@ const Header = () => {
                     </div>
 
                     <div className="p-4 bg-gray-50/50">
-                      {authToken ? (
+                      {isLoggedIn ? (
                         <button
                           onClick={handleLogout}
                           className="w-full bg-[#0095f6] hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center space-x-2"
@@ -188,7 +203,7 @@ const Header = () => {
                           <span>Keluar</span>
                         </button>
                       ) : (
-                        <Link to="/login" onClick={() => setShowProfileMenu(false)}>
+                        <Link to="/login" onClick={closeMenus}>
                           <button className="w-full bg-[#0095f6] hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl transition-all shadow-md active:scale-95">
                             Masuk
                           </button>
@@ -203,7 +218,7 @@ const Header = () => {
 
           {/* Mobile Menu Button */}
           <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            onClick={toggleMobileMenu}
             className="lg:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors duration-200"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -247,22 +262,18 @@ const Header = () => {
                     </div>
                     <div className="overflow-hidden">
                       <h4 className="text-white font-bold leading-tight truncate">
-                        {!authToken ? "Anonymous" : (userData?.name || "User")}
+                        {isLoggedIn ? userName || 'User' : 'Anonymous'}
                       </h4>
                       <p className="text-blue-100 text-[10px] font-bold uppercase tracking-widest">
-                        {!authToken 
-                          ? "Guest" 
-                          : userData?.role === 'admin' 
-                            ? "ADMIN" 
-                            : "CUSTOMER"}
+                        {!isLoggedIn ? 'Guest' : isAdmin ? 'ADMIN' : 'CUSTOMER'}
                       </p>
                     </div>
                   </div>
 
                   <div className="bg-white">
                     {/* LOGIKA MOBILE SAMA DENGAN DESKTOP */}
-                    {authToken && userData?.role === 'admin' ? (
-                      <Link to="/admin" onClick={() => setIsMenuOpen(false)} className="flex items-center space-x-4 px-5 py-4 text-primary-600 hover:bg-primary-50 border-b border-gray-100 transition-colors">
+                    {isAdmin ? (
+                      <Link to="/admin" onClick={closeMenus} className="flex items-center space-x-4 px-5 py-4 text-primary-600 hover:bg-primary-50 border-b border-gray-100 transition-colors">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                         </svg>
@@ -270,8 +281,8 @@ const Header = () => {
                       </Link>
                     ) : (
                       <>
-                        {authToken && (
-                          <Link to="/my-bookings" onClick={() => setIsMenuOpen(false)} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
+                        {isLoggedIn && (
+                          <Link to="/my-bookings" onClick={closeMenus} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
                             <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                             <span className="font-medium">My Bookings</span>
                           </Link>
@@ -280,7 +291,7 @@ const Header = () => {
                           href={generateWhatsAppUrl('081346474165', 'Halo, saya ingin bertanya tentang paket wisata')}
                           target="_blank"
                           rel="noopener noreferrer"
-                          onClick={() => setIsMenuOpen(false)} 
+                          onClick={closeMenus} 
                           className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100"
                         >
                           <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
@@ -288,7 +299,7 @@ const Header = () => {
                           </svg>
                           <span className="font-medium">WhatsApp</span>
                         </a>
-                        <Link to="/about" onClick={() => setIsMenuOpen(false)} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
+                        <Link to="/about" onClick={closeMenus} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
                           <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                           <span className="font-medium">About Us</span>
                         </Link>
@@ -297,7 +308,7 @@ const Header = () => {
                   </div>
 
                   <div className="p-4 bg-gray-50/50">
-                    {authToken ? (
+                    {isLoggedIn ? (
                       <button
                         onClick={handleLogout}
                         className="w-full bg-[#0095f6] hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center space-x-2"
