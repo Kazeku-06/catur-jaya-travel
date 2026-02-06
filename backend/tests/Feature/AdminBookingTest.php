@@ -46,7 +46,7 @@ class AdminBookingTest extends TestCase
             'status' => Booking::STATUS_MENUNGGU_VALIDASI
         ]);
 
-        $response = $this->actingAs($this->admin)->postJson("/api/v1/admin/bookings/{$booking->id}/approve");
+        $response = $this->actingAs($this->admin)->putJson("/api/v1/admin/bookings/{$booking->id}/approve");
 
         $response->assertStatus(200)
                 ->assertJson([
@@ -65,7 +65,7 @@ class AdminBookingTest extends TestCase
             'status' => Booking::STATUS_MENUNGGU_VALIDASI
         ]);
 
-        $response = $this->actingAs($this->admin)->postJson("/api/v1/admin/bookings/{$booking->id}/reject", [
+        $response = $this->actingAs($this->admin)->putJson("/api/v1/admin/bookings/{$booking->id}/reject", [
             'reason' => 'Bukti transfer palsu'
         ]);
 

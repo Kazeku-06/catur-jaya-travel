@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('origin');
             $table->string('destination');
             $table->string('vehicle_type');
+            $table->integer('capacity')->default(1)->comment('Kapasitas penumpang');
             $table->decimal('price_per_person', 15, 2)->index();
             $table->string('image')->nullable();
             $table->json('rundown')->nullable();

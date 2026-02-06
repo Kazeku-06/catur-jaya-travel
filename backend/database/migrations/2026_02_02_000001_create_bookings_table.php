@@ -23,8 +23,6 @@ return new class extends Migration
             $table->timestamp('expired_at')->index();
             $table->timestamps();
 
-            // Composite index for efficient catalog lookups
-            $table->index(['catalog_type', 'catalog_id']);
             $table->index('created_at');
         });
     }

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('duration');
             $table->string('location');
             $table->integer('quota');
+            $table->integer('capacity')->default(1)->comment('Kapasitas peserta per trip');
             $table->string('image')->nullable();
             $table->json('rundown')->nullable();
             $table->json('facilities')->nullable();

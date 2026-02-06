@@ -22,8 +22,8 @@ class PaketTripFactory extends Factory
             'price' => $this->faker->numberBetween(500000, 5000000),
             'duration' => $this->faker->randomElement(['1 hari', '2 hari 1 malam', '3 hari 2 malam', '4 hari 3 malam']),
             'location' => $this->faker->city(),
-            'quota' => $this->faker->numberBetween(5, 20),
-            'capacity' => $this->faker->numberBetween(4, 10),
+            'capacity' => $capacity = $this->faker->numberBetween(10, 50),
+            'quota' => $this->faker->numberBetween(1, $capacity), // Quota (sisa) tidak boleh > capacity
             'rundown' => [
                 ['time' => '08:00', 'activity' => 'Penjemputan'],
                 ['time' => '10:00', 'activity' => 'Mulai Wisata'],
