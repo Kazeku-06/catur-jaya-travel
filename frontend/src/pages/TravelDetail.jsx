@@ -25,16 +25,6 @@ const TravelDetail = () => {
     fetchTravelDetail();
   }, [id]);
 
-  useEffect(() => {
-    console.log('TravelDetail Debug Info:', {
-      travel: travel,
-      isAdmin: isAdmin,
-      authToken: !!authToken,
-      travelAvailable: travel?.is_available,
-      travelIsActive: travel?.is_active,
-      buttonDisabled: isAdmin || (travel?.is_available === false)
-    });
-  }, [travel, isAdmin, authToken]);
 
   const fetchTravelDetail = async () => {
     try {
@@ -42,7 +32,6 @@ const TravelDetail = () => {
       const travelRes = await api.get(endpoints.travelDetail(id));
       const travelData = travelRes.data.data;
       
-      console.log('Raw travel data from API:', travelData);
       
       if (!travelData) {
         navigate('/travels');
@@ -59,7 +48,6 @@ const TravelDetail = () => {
         is_available: travelData.is_active !== undefined ? travelData.is_active : true, // Map is_active to is_available
       };
       
-      console.log('Mapped travel data:', mappedTravel);
       
       setTravel(mappedTravel);
       
@@ -239,22 +227,12 @@ const TravelDetail = () => {
                   Travel Services
                 </p>
                 {/* Debug info - remove in production */}
-                <p className="text-[8px] text-red-500 mt-1">
-                  Debug: Admin={isAdmin ? 'Y' : 'N'}, Available={travel?.is_available ? 'Y' : 'N'}, Active={travel?.is_active ? 'Y' : 'N'}
-                </p>
               </div>
 
               <Button
                 className="!rounded-xl px-6 py-3.5 !bg-blue-500 hover:!bg-blue-600 text-white font-bold transition-all shadow-lg text-sm sm:text-base relative z-10"
                 disabled={isAdmin || (travel?.is_available === false)}
                 onClick={() => {
-                  console.log('Booking button clicked!', {
-                    isAdmin,
-                    authToken: !!authToken,
-                    travelAvailable: travel?.is_available,
-                    travelId: id,
-                    disabled: isAdmin || (travel?.is_available === false)
-                  });
                   
                   if (isAdmin) {
                     alert('Admin tidak bisa booking');
@@ -262,10 +240,8 @@ const TravelDetail = () => {
                   }
                   
                   if (!authToken) {
-                    console.log('No auth token, redirecting to login');
                     navigate('/login', { state: { from: `/travels/${id}` } });
                   } else {
-                    console.log('Navigating to booking page');
                     navigate(`/travels/${id}/booking`);
                   }
                 }}

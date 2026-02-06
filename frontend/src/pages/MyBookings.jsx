@@ -42,7 +42,7 @@ const MyBookings = () => {
     try {
       setLoading(true);
       const response = await bookingService.getUserBookings();
-      setBookings(response.data || []);
+      setBookings(response.data || []); 
     } catch (error) {
       console.error('Error fetching bookings:', error);
       if (error.response?.status === 401) {

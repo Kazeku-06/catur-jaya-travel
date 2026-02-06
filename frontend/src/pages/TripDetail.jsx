@@ -140,6 +140,24 @@ const TripDetail = () => {
               className="w-full h-full object-cover object-center"
             />
             <div className="absolute inset-0 bg-black/10" />
+            
+            {/* Sisa Kuota Badge */}
+            <div className="absolute top-4 right-4 z-20">
+              {trip?.is_available && (
+                <div className={`px-4 py-2 rounded-full backdrop-blur-md shadow-lg border border-white/20 font-bold text-sm ${
+                  trip.is_quota_full 
+                    ? 'bg-red-500/90 text-white' 
+                    : trip.remaining_quota <= 5 
+                      ? 'bg-orange-500/90 text-white animate-pulse' 
+                      : 'bg-green-500/90 text-white'
+                }`}>
+                  {trip.is_quota_full 
+                    ? 'Kuota Penuh' 
+                    : `Sisa ${trip.remaining_quota} Kursi`
+                  }
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

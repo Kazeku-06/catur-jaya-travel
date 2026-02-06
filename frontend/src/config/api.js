@@ -12,17 +12,39 @@ const api = axios.create({
   },
 });
 
+// Global flag to prevent multiple simultaneous /auth/me requests
+let isAuthMeInProgress = false;
+let lastAuthMeRequest = 0;
+const AUTH_ME_DEBOUNCE_TIME = 5000; // 5 seconds
+
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
+    // Prevent multiple simultaneous /auth/me requests with debouncing
+    if (config.url?.includes('/auth/me')) {
+      const now = Date.now();
+      
+      if (isAuthMeInProgress) {
+        console.log('Blocking duplicate /auth/me request (in progress)');
+        return Promise.reject(new Error('Duplicate /auth/me request blocked'));
+      }
+      
+      if (now - lastAuthMeRequest < AUTH_ME_DEBOUNCE_TIME) {
+        console.log('Blocking /auth/me request (debounce)');
+        return Promise.reject(new Error('Duplicate /auth/me request blocked'));
+      }
+      
+      isAuthMeInProgress = true;
+      lastAuthMeRequest = now;
+    }
+
     let token = localStorage.getItem('auth_token');
     
-    if (token) {
-      try {
-        const parsed = JSON.parse(token);
-        if (parsed) token = parsed;
-      } catch (e) {
-        // Token likely not a JSON string, use as-is
+    // Check if token matches expected format (not JSON stringified "undefined" or null)
+    if (token && token !== 'undefined' && token !== 'null') {
+      // Clean token if it has extra quotes
+      if (token.startsWith('"') && token.endsWith('"')) {
+        token = token.slice(1, -1);
       }
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -34,16 +56,35 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor - Temporarily disabled for debugging
+// Response interceptor
 api.interceptors.response.use(
   (response) => {
+    // Reset flag when /auth/me request completes successfully
+    if (response.config?.url?.includes('/auth/me')) {
+      isAuthMeInProgress = false;
+    }
     return response;
   },
   (error) => {
+    // Reset flag when /auth/me request fails
+    if (error.config?.url?.includes('/auth/me')) {
+      isAuthMeInProgress = false;
+    }
+
     if (error.response?.status === 401) {
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user_data');
-      window.location.href = '/login';
+      // Check if we are already on an auth page to prevent redirect loops
+      const currentPath = window.location.pathname;
+      const isAuthPage = currentPath.includes('/login') || 
+                        currentPath.includes('/register') || 
+                        currentPath.includes('/oauth') ||
+                        currentPath.includes('/forgot-password') ||
+                        currentPath.includes('/reset-password');
+      
+      if (!isAuthPage) {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user_data');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
