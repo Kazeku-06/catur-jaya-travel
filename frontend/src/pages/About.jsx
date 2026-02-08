@@ -160,7 +160,7 @@ const About = () => {
             </p>
           </motion.div>
 
-          <div className="max-w-4xl mx-auto space-y-8 md:space-y-10">
+          <div className="max-w-4xl mx-auto space-y-8 md:space-y-12">
             {/* Visi Section */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -168,10 +168,10 @@ const About = () => {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <h3 className="text-xl md:text-2xl font-bold text-primary-600 mb-3 md:mb-4">
+              <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary-600 mb-4 md:mb-6">
                 Visi
               </h3>
-              <p className="text-base md:text-lg text-gray-700 leading-relaxed border-l-4 border-primary-500 pl-4 md:pl-6">
+              <p className="text-base md:text-lg lg:text-xl text-gray-700 leading-relaxed border-l-4 border-primary-500 pl-4 md:pl-6">
                 Untuk menjadi jasa wisata terbaik dan memperkenalkan potensi yang ada di wilayah Malang dan sekitarnya.
               </p>
             </motion.div>
@@ -183,10 +183,10 @@ const About = () => {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <h3 className="text-xl md:text-2xl font-bold text-primary-600 mb-3 md:mb-4">
+              <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary-600 mb-4 md:mb-6">
                 Misi
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-4 md:space-y-5">
                 {[
                   'Membuat standart berwisata yang menyenangkan, murah tapi tidak murahan',
                   'Membuat paket wisata yang menawarkan kemudahan bagi konsumen dengan berbagai pilihan',
@@ -196,16 +196,16 @@ const About = () => {
                 ].map((misi, index) => (
                   <motion.div
                     key={index}
-                    className="flex items-start gap-3"
+                    className="flex items-start gap-3 md:gap-4"
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                     viewport={{ once: true }}
                   >
-                    <span className="flex-shrink-0 text-primary-600 font-semibold text-sm md:text-base mt-0.5">
+                    <span className="flex-shrink-0 text-primary-600 font-semibold text-base md:text-lg lg:text-xl mt-0.5">
                       {index + 1}.
                     </span>
-                    <p className="text-sm md:text-base text-gray-700 leading-relaxed flex-1">
+                    <p className="text-base md:text-lg lg:text-xl text-gray-700 leading-relaxed flex-1">
                       {misi}
                     </p>
                   </motion.div>
