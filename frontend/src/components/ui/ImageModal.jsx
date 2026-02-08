@@ -37,7 +37,7 @@ const ImageModal = ({ isOpen, onClose, imageUrl, title = 'Gambar' }) => {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-90"
+        className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black bg-opacity-90"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -46,7 +46,7 @@ const ImageModal = ({ isOpen, onClose, imageUrl, title = 'Gambar' }) => {
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-50 p-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full text-white transition-all"
+          className="absolute top-4 right-4 z-[70] p-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full text-white transition-all"
           aria-label="Close"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,7 +60,7 @@ const ImageModal = ({ isOpen, onClose, imageUrl, title = 'Gambar' }) => {
             e.stopPropagation();
             setIsZoomed(!isZoomed);
           }}
-          className="absolute top-4 left-4 z-50 p-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full text-white transition-all"
+          className="absolute top-4 left-4 z-[70] p-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full text-white transition-all"
           aria-label={isZoomed ? 'Zoom Out' : 'Zoom In'}
         >
           {isZoomed ? (
@@ -81,7 +81,7 @@ const ImageModal = ({ isOpen, onClose, imageUrl, title = 'Gambar' }) => {
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="absolute bottom-4 right-4 z-50 p-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full text-white transition-all"
+          className="absolute bottom-4 right-4 z-[70] p-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full text-white transition-all"
           aria-label="Download"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,7 +91,7 @@ const ImageModal = ({ isOpen, onClose, imageUrl, title = 'Gambar' }) => {
 
         {/* Title */}
         {title && (
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 bg-white bg-opacity-20 rounded-lg text-white text-sm font-medium">
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[70] px-4 py-2 bg-white bg-opacity-20 rounded-lg text-white text-sm font-medium">
             {title}
           </div>
         )}
@@ -115,7 +115,7 @@ const ImageModal = ({ isOpen, onClose, imageUrl, title = 'Gambar' }) => {
         </motion.div>
 
         {/* Instructions */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 bg-white bg-opacity-20 rounded-lg text-white text-xs">
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-[70] px-4 py-2 bg-white bg-opacity-20 rounded-lg text-white text-xs">
           Klik gambar untuk zoom • ESC untuk tutup
         </div>
       </motion.div>

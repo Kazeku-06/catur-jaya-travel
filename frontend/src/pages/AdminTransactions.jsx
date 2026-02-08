@@ -5,13 +5,11 @@ import AdminLayout from '../components/Layout/AdminLayout';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Modal from '../components/ui/Modal';
-<<<<<<< HEAD
 import ImageModal from '../components/ui/ImageModal';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-=======
->>>>>>> 4254e0df4de11377502225bf16ed08387cfac72f
 import api from '../config/api';
 import { formatCurrency, formatDate } from '../utils/helpers';
+import { BOOKING_STATUS } from '../utils/constants';
 
 const AdminTransactions = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -27,12 +25,9 @@ const AdminTransactions = () => {
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page')) || 1);
   const [totalPages, setTotalPages] = useState(1);
-<<<<<<< HEAD
+  const [totalItems, setTotalItems] = useState(0);
   const [showImageModal, setShowImageModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-=======
-  const [totalItems, setTotalItems] = useState(0);
->>>>>>> 4254e0df4de11377502225bf16ed08387cfac72f
 
   useEffect(() => {
     fetchBookings();
