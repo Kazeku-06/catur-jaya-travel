@@ -5,14 +5,15 @@ import AdminLayout from '../components/Layout/AdminLayout';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Modal from '../components/ui/Modal';
+<<<<<<< HEAD
 import ImageModal from '../components/ui/ImageModal';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+=======
+>>>>>>> 4254e0df4de11377502225bf16ed08387cfac72f
 import api from '../config/api';
 import { formatCurrency, formatDate } from '../utils/helpers';
-import { BOOKING_STATUS } from '../utils/constants';
 
 const AdminTransactions = () => {
-  const [authToken] = useLocalStorage('auth_token', null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,8 +27,12 @@ const AdminTransactions = () => {
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page')) || 1);
   const [totalPages, setTotalPages] = useState(1);
+<<<<<<< HEAD
   const [showImageModal, setShowImageModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+=======
+  const [totalItems, setTotalItems] = useState(0);
+>>>>>>> 4254e0df4de11377502225bf16ed08387cfac72f
 
   useEffect(() => {
     fetchBookings();
@@ -57,7 +62,7 @@ const AdminTransactions = () => {
       setLoading(true);
       const params = new URLSearchParams({
         page: currentPage,
-        per_page: 20,
+        per_page: 5, // Changed to 5 items per page
       });
 
       if (filter !== 'all') {
@@ -73,6 +78,7 @@ const AdminTransactions = () => {
       
       if (response.data.pagination) {
         setTotalPages(response.data.pagination.last_page);
+        setTotalItems(response.data.pagination.total);
       }
     } catch (error) {
       console.error('Error fetching bookings:', error);
@@ -288,6 +294,23 @@ const AdminTransactions = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
+            {/* Table Header Info */}
+            <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900">Daftar Transaksi</h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Menampilkan {bookings.length} dari {totalItems} transaksi (5 per halaman)
+                  </p>
+                </div>
+                {filter !== 'all' && (
+                  <Badge variant="info">
+                    Filter: {getStatusLabel(filter)}
+                  </Badge>
+                )}
+              </div>
+            </div>
+
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50">
@@ -460,41 +483,103 @@ const AdminTransactions = () => {
                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
                     variant="outline"
+                    size="sm"
                   >
-                    Previous
+                    Sebelumnya
                   </Button>
                   <Button
                     onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}
                     variant="outline"
+                    size="sm"
                   >
-                    Next
+                    Selanjutnya
                   </Button>
                 </div>
                 <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                   <div>
                     <p className="text-sm text-gray-700">
-                      Halaman <span className="font-medium">{currentPage}</span> dari{' '}
-                      <span className="font-medium">{totalPages}</span>
+                      Menampilkan <span className="font-medium">{((currentPage - 1) * 5) + 1}</span> sampai{' '}
+                      <span className="font-medium">{Math.min(currentPage * 5, totalItems)}</span> dari{' '}
+                      <span className="font-medium">{totalItems}</span> transaksi
+                      {' '}(Halaman <span className="font-medium">{currentPage}</span> dari{' '}
+                      <span className="font-medium">{totalPages}</span>)
                     </p>
                   </div>
                   <div>
-                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                      <Button
+                        onClick={() => setCurrentPage(1)}
+                        disabled={currentPage === 1}
+                        variant="outline"
+                        size="sm"
+                        className="rounded-l-md"
+                      >
+                        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                        </svg>
+                      </Button>
                       <Button
                         onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                         disabled={currentPage === 1}
                         variant="outline"
                         size="sm"
                       >
-                        Previous
+                        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
                       </Button>
+                      
+                      {/* Page Numbers */}
+                      {[...Array(totalPages)].map((_, index) => {
+                        const pageNumber = index + 1;
+                        // Show first page, last page, current page, and pages around current
+                        if (
+                          pageNumber === 1 ||
+                          pageNumber === totalPages ||
+                          (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+                        ) {
+                          return (
+                            <Button
+                              key={pageNumber}
+                              onClick={() => setCurrentPage(pageNumber)}
+                              variant={currentPage === pageNumber ? 'primary' : 'outline'}
+                              size="sm"
+                              className="min-w-[40px]"
+                            >
+                              {pageNumber}
+                            </Button>
+                          );
+                        } else if (
+                          pageNumber === currentPage - 2 ||
+                          pageNumber === currentPage + 2
+                        ) {
+                          return <span key={pageNumber} className="px-2 py-2 text-gray-500">...</span>;
+                        }
+                        return null;
+                      })}
+                      
                       <Button
                         onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                         disabled={currentPage === totalPages}
                         variant="outline"
                         size="sm"
                       >
-                        Next
+                        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </Button>
+                      <Button
+                        onClick={() => setCurrentPage(totalPages)}
+                        disabled={currentPage === totalPages}
+                        variant="outline"
+                        size="sm"
+                        className="rounded-r-md"
+                      >
+                        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                          <path fillRule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                        </svg>
                       </Button>
                     </nav>
                   </div>
