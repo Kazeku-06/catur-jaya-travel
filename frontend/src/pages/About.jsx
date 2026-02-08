@@ -123,29 +123,30 @@ const About = () => {
               </div>
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7 }}
-              viewport={{ once: true }}
-              className="w-full"
-            >
-              <img
-                src="tim_catur_jaya_mandiri (1).jpeg"
-                alt="Our Story"
-                className="w-full h-64 md:h-96 object-cover rounded-2xl shadow-xl"
-                onError={(e) => (e.target.src = '/images/placeholder.jpg')}
-              />
-            </motion.div>
+           <motion.div
+                initial={{ opacity: 0, x: 40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.7 }}
+                viewport={{ once: true }}
+                className="w-full"
+              >
+                <img
+                  src="tim_catur_jaya_mandiri (1).jpeg"
+                  alt="Our Story"
+                  // h-64 untuk mobile, h-[600px] atau h-[700px] untuk desktop agar sangat panjang/besar
+                  className="w-full h-80 md:h-[650px] lg:h-[750px] object-cover rounded-[2rem] shadow-2xl border-4 border-white"
+                  onError={(e) => (e.target.src = '/images/placeholder.jpg')}
+                />
+          </motion.div>
           </div>
         </div>
       </section>
 
       {/* Vision & Mission Section */}
-      <section className="py-12 md:py-20 bg-gray-50">
+      <section className="py-12 md:py-20 bg-gradient-to-br from-primary-50 via-white to-primary-50">
         <div className="container mx-auto px-4">
           <motion.div
-            className="text-center mb-8 md:mb-12"
+            className="text-center mb-12 md:mb-16"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -159,39 +160,33 @@ const About = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 max-w-6xl mx-auto">
-            {/* Visi Card */}
+          <div className="max-w-4xl mx-auto space-y-8 md:space-y-10">
+            {/* Visi Section */}
             <motion.div
-              className="bg-white rounded-2xl shadow-lg p-6 md:p-8"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1 }}
+              transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <div className="mb-6">
-                <div className="inline-block bg-primary-100 text-primary-600 px-4 py-2 rounded-lg font-bold text-sm md:text-base mb-4">
-                  VISI
-                </div>
-                <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                  Untuk menjadi jasa wisata terbaik dan memperkenalkan potensi yang ada di wilayah Malang dan sekitarnya.
-                </p>
-              </div>
+              <h3 className="text-xl md:text-2xl font-bold text-primary-600 mb-3 md:mb-4">
+                Visi
+              </h3>
+              <p className="text-base md:text-lg text-gray-700 leading-relaxed border-l-4 border-primary-500 pl-4 md:pl-6">
+                Untuk menjadi jasa wisata terbaik dan memperkenalkan potensi yang ada di wilayah Malang dan sekitarnya.
+              </p>
             </motion.div>
 
-            {/* Misi Card */}
+            {/* Misi Section */}
             <motion.div
-              className="bg-white rounded-2xl shadow-lg p-6 md:p-8"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <div className="mb-4">
-                <div className="inline-block bg-primary-100 text-primary-600 px-4 py-2 rounded-lg font-bold text-sm md:text-base mb-4">
-                  MISI
-                </div>
-              </div>
-              <ul className="space-y-3">
+              <h3 className="text-xl md:text-2xl font-bold text-primary-600 mb-3 md:mb-4">
+                Misi
+              </h3>
+              <div className="space-y-3">
                 {[
                   'Membuat standart berwisata yang menyenangkan, murah tapi tidak murahan',
                   'Membuat paket wisata yang menawarkan kemudahan bagi konsumen dengan berbagai pilihan',
@@ -199,12 +194,23 @@ const About = () => {
                   'Memberi jaminan keselamatan bagi anggota dan konsumen',
                   'Menjalankan aktifitas secara terbuka bagi semua anggota'
                 ].map((misi, index) => (
-                  <li key={index} className="flex items-start text-gray-700 text-sm md:text-base">
-                    <span className="text-primary-600 font-bold mr-3 flex-shrink-0 mt-1">•</span>
-                    <span className="leading-relaxed">{misi}</span>
-                  </li>
+                  <motion.div
+                    key={index}
+                    className="flex items-start gap-3"
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <span className="flex-shrink-0 text-primary-600 font-semibold text-sm md:text-base mt-0.5">
+                      {index + 1}.
+                    </span>
+                    <p className="text-sm md:text-base text-gray-700 leading-relaxed flex-1">
+                      {misi}
+                    </p>
+                  </motion.div>
                 ))}
-              </ul>
+              </div>
             </motion.div>
           </div>
         </div>
