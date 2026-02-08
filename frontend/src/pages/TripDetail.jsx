@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom'; // Tambah Link
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../components/Layout/Layout';
 import Button from '../components/ui/Button';
@@ -26,6 +26,7 @@ const TripDetail = () => {
 
   useEffect(() => {
     fetchTripDetail();
+    window.scrollTo(0, 0); // Reset scroll ke atas saat ganti ID
   }, [id]);
 
   const fetchTripDetail = async () => {
@@ -60,11 +61,11 @@ const TripDetail = () => {
         rating: tripData.rating || null,
         total_reviews: tripData.total_reviews || 0,
         category: tripData.category || 'Wisata',
-        rundown: tripData.rundown || [],
-        facilities: tripData.facilities || [],
-        itinerary: tripData.itinerary || [],
-        includes: tripData.includes || [],
-        excludes: tripData.excludes || [],
+        // Pastikan ini array
+        facilities: Array.isArray(tripData.facilities) ? tripData.facilities : [],
+        itinerary: Array.isArray(tripData.itinerary) ? tripData.itinerary : [],
+        includes: Array.isArray(tripData.includes) ? tripData.includes : [],
+        excludes: Array.isArray(tripData.excludes) ? tripData.excludes : [],
       };
       
       setTrip(mappedTrip);
@@ -102,7 +103,6 @@ const TripDetail = () => {
 
   const images = trip?.images || [trip?.image];
 
-  // Breadcrumb items - Pastikan path benar
   const breadcrumbItems = [
     { label: 'Beranda', path: '/' },
     { label: 'Paket Trip', path: '/trips' },
@@ -113,7 +113,7 @@ const TripDetail = () => {
     <Layout>
       <div className="bg-[#F8F9FA] min-h-screen">
         
-        {/* Navigasi Breadcrumb (Navigasi Atas) */}
+        {/* Navigasi Breadcrumb */}
         <div className="container mx-auto px-4 py-3">
           <nav className="flex text-sm text-gray-500 space-x-2 overflow-x-auto whitespace-nowrap py-1">
             {breadcrumbItems.map((item, index) => (
@@ -131,7 +131,7 @@ const TripDetail = () => {
           </nav>
         </div>
 
-       {/* HERO SECTION - Diperbesar lebarnya, diatur tingginya agar tetap proporsional */}
+        {/* HERO SECTION */}
         <div className="container mx-auto px-0 sm:px-4 mt-4">
           <div className="relative h-[250px] md:h-[350px] w-full overflow-hidden sm:rounded-[2rem] shadow-lg">
             <img
@@ -141,7 +141,6 @@ const TripDetail = () => {
             />
             <div className="absolute inset-0 bg-black/10" />
             
-            {/* Sisa Kuota Badge */}
             <div className="absolute top-4 right-4 z-20">
               {trip?.is_available && (
                 <div className={`px-4 py-2 rounded-full backdrop-blur-md shadow-lg border border-white/20 font-bold text-sm ${
@@ -151,10 +150,7 @@ const TripDetail = () => {
                       ? 'bg-orange-500/90 text-white animate-pulse' 
                       : 'bg-green-500/90 text-white'
                 }`}>
-                  {trip.is_quota_full 
-                    ? 'Kuota Penuh' 
-                    : `Sisa ${trip.remaining_quota} Kursi`
-                  }
+                  {trip.is_quota_full ? 'Kuota Penuh' : `Sisa ${trip.remaining_quota} Kursi`}
                 </div>
               )}
             </div>
@@ -179,7 +175,7 @@ const TripDetail = () => {
                 </div>
                 <div>
                   <h2 className="text-xl font-extrabold text-gray-900 leading-tight">{trip?.name}</h2>
-                  <p className="text-gray-400 font-medium text-sm">{trip?.location}</p>
+                  <p className="text-gray-400 font-medium text-sm">{trip?.location} • {trip?.duration}</p>
                 </div>
               </div>
               <hr className="my-4 border-gray-50" />
@@ -193,7 +189,7 @@ const TripDetail = () => {
               </div>
             </motion.div>
 
-            {/* CARD 2: Deskripsi & Fasilitas */}
+            {/* CARD 2: Deskripsi, Fasilitas & Itinerary */}
             <motion.div 
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -201,34 +197,53 @@ const TripDetail = () => {
               className="bg-white rounded-3xl p-6 sm:p-8 shadow-lg mb-8 border border-gray-100"
             >
               <h3 className="text-lg font-bold text-gray-900 mb-3">Detail Perjalanan</h3>
-              <p className="text-gray-500 text-sm sm:text-base leading-relaxed mb-8">
+              <p className="text-gray-500 text-sm sm:text-base leading-relaxed mb-8 whitespace-pre-line">
                 {trip?.description}
               </p>
               
               <hr className="my-6 border-gray-100" />
 
+              {/* BAGIAN FASILITAS (Dinamis dari Admin) */}
               <h3 className="text-lg font-bold text-gray-900 mb-5">Fasilitas</h3>
-              <div className="grid grid-cols-2 gap-x-3 gap-y-5">
-                <div className="flex items-center space-x-3">
-                  <div className="flex-shrink-0 bg-blue-50 text-blue-500 p-2.5 rounded-xl"><i className="fas fa-car text-base"></i></div>
-                  <span className="font-semibold text-gray-700 text-xs sm:text-sm">Transport Jeep</span>
+              {trip?.facilities && trip.facilities.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-4 mb-8">
+                  {trip.facilities.map((item, index) => (
+                    <div key={index} className="flex items-center space-x-3">
+                      <div className="flex-shrink-0 bg-blue-50 text-blue-500 p-2 rounded-xl">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <span className="font-semibold text-gray-700 text-xs sm:text-sm">{item}</span>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex items-center space-x-3">
-                  <div className="flex-shrink-0 bg-blue-50 text-blue-500 p-2.5 rounded-xl"><i className="fas fa-user-shield text-base"></i></div>
-                  <span className="font-semibold text-gray-700 text-xs sm:text-sm">Guide</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="flex-shrink-0 bg-blue-50 text-blue-500 p-2.5 rounded-xl"><i className="fas fa-hotel text-base"></i></div>
-                  <span className="font-semibold text-gray-700 text-xs sm:text-sm">Hotel</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="flex-shrink-0 bg-blue-50 text-blue-500 p-2.5 rounded-xl"><i className="fas fa-ticket-alt text-base"></i></div>
-                  <span className="font-semibold text-gray-700 text-xs sm:text-sm">Tiket All-in</span>
-                </div>
-              </div>
+              ) : (
+                <p className="text-gray-400 text-sm italic mb-8">Fasilitas tidak dicantumkan.</p>
+              )}
+
+              {/* BAGIAN RUNDOWN / ITINERARY (Dinamis) */}
+              {trip?.itinerary && trip.itinerary.length > 0 && (
+                <>
+                  <h3 className="text-lg font-bold text-gray-900 mb-5">Rencana Perjalanan</h3>
+                  <div className="space-y-4 mb-8">
+                    {trip.itinerary.map((step, index) => (
+                      <div key={index} className="flex space-x-4">
+                        <div className="flex flex-col items-center">
+                          <div className="w-3 h-3 rounded-full bg-blue-500 mt-1.5"></div>
+                          {index !== trip.itinerary.length - 1 && <div className="w-0.5 h-full bg-blue-100"></div>}
+                        </div>
+                        <div className="pb-4">
+                          <p className="text-sm text-gray-700 font-medium">{step}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
 
               {/* Bantuan Section */}
-              <div className="mt-10 pt-6 border-t border-gray-100">
+              <div className="mt-6 pt-6 border-t border-gray-100">
                 <p className="text-xs text-gray-400 font-medium mb-2">Butuh bantuan?</p>
                 <div className="flex items-center text-blue-500 font-bold text-sm">
                   <div className="bg-blue-50 p-2 rounded-full mr-3">
@@ -258,7 +273,7 @@ const TripDetail = () => {
                   else navigate(`/trips/${id}/booking`);
                 }}
               >
-                Booking Sekarang
+                {trip?.is_quota_full ? 'Kuota Habis' : 'Booking Sekarang'}
               </Button>
             </div>
 
