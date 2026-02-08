@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import AdminLayout from '../components/Layout/AdminLayout';
 import Alert from '../components/ui/Alert';
@@ -13,6 +13,14 @@ const AdminDashboard = () => {
   const [travels, setTravels] = useState([]);
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState({ show: false, type: '', message: '' });
+  
+  // Statistics state
+  const [stats, setStats] = useState({
+    totalTrips: 0,
+    totalTravels: 0,
+    availableTrips: 0,
+    fullTrips: 0
+  });
   
   // Pagination states
   const [tripsPagination, setTripsPagination] = useState({
@@ -38,6 +46,32 @@ const AdminDashboard = () => {
     setTimeout(() => setAlert({ show: false, type: '', message: '' }), 5000);
   };
 
+  // Load statistics
+  const loadStatistics = async () => {
+    try {
+      // Load all trips without pagination to get accurate stats
+      const tripsResponse = await adminService.trips.getAll({ per_page: 1000 });
+      const allTrips = tripsResponse.data || [];
+      
+      const totalTrips = allTrips.length;
+      const availableTrips = allTrips.filter(trip => trip.is_active && !trip.is_quota_full).length;
+      const fullTrips = allTrips.filter(trip => trip.is_quota_full).length;
+      
+      // Load travels count
+      const travelsResponse = await adminService.travels.getAll({ per_page: 1 });
+      const totalTravels = travelsResponse.pagination?.total || 0;
+      
+      setStats({
+        totalTrips,
+        totalTravels,
+        availableTrips,
+        fullTrips
+      });
+    } catch (error) {
+      console.error('Error loading statistics:', error);
+    }
+  };
+
   // Load data
   const loadTrips = async (page = 1) => {
     try {
@@ -45,6 +79,8 @@ const AdminDashboard = () => {
       const response = await adminService.trips.getAll({ page, per_page: 5 });
       setTrips(response.data || []);
       setTripsPagination(response.pagination || {});
+      // Reload statistics when trips data changes
+      loadStatistics();
       showAlert('success', 'Data trips berhasil dimuat');
     } catch (error) {
       console.error('Error loading trips:', error);
@@ -84,6 +120,13 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
+    // Load statistics and initial data
+    loadStatistics();
+    loadTrips();
+    loadTravels();
+  }, []);
+
+  useEffect(() => {
     if (activeTab === 'trips') {
       loadTrips();
     } else if (activeTab === 'travels') {
@@ -119,7 +162,7 @@ const AdminDashboard = () => {
               </div>
               <div className="ml-2 lg:ml-4 min-w-0 flex-1">
                 <p className="text-xs lg:text-sm font-medium text-gray-600 truncate">Total Trips</p>
-                <p className="text-lg lg:text-2xl font-bold text-gray-900">{trips.length}</p>
+                <p className="text-lg lg:text-2xl font-bold text-gray-900">{stats.totalTrips}</p>
               </div>
             </div>
           </motion.div>
@@ -138,7 +181,7 @@ const AdminDashboard = () => {
               </div>
               <div className="ml-2 lg:ml-4 min-w-0 flex-1">
                 <p className="text-xs lg:text-sm font-medium text-gray-600 truncate">Total Travels</p>
-                <p className="text-lg lg:text-2xl font-bold text-gray-900">{travels.length}</p>
+                <p className="text-lg lg:text-2xl font-bold text-gray-900">{stats.totalTravels}</p>
               </div>
             </div>
           </motion.div>
@@ -157,9 +200,7 @@ const AdminDashboard = () => {
               </div>
               <div className="ml-2 lg:ml-4 min-w-0 flex-1">
                 <p className="text-xs lg:text-sm font-medium text-gray-600 truncate">Trips Tersedia</p>
-                <p className="text-lg lg:text-2xl font-bold text-gray-900">
-                  {trips.filter(trip => trip.is_active && !trip.is_quota_full).length}
-                </p>
+                <p className="text-lg lg:text-2xl font-bold text-gray-900">{stats.availableTrips}</p>
               </div>
             </div>
           </motion.div>
@@ -178,9 +219,7 @@ const AdminDashboard = () => {
               </div>
               <div className="ml-2 lg:ml-4 min-w-0 flex-1">
                 <p className="text-xs lg:text-sm font-medium text-gray-600 truncate">Trips Penuh</p>
-                <p className="text-lg lg:text-2xl font-bold text-gray-900">
-                  {trips.filter(trip => trip.is_quota_full).length}
-                </p>
+                <p className="text-lg lg:text-2xl font-bold text-gray-900">{stats.fullTrips}</p>
               </div>
             </div>
           </motion.div>
