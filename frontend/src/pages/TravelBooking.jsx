@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../components/Layout/Layout';
 import Button from '../components/ui/Button';
-import Badge from '../components/ui/Badge';
 import Breadcrumb from '../components/navigation/Breadcrumb';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { authService } from '../services/authService';
@@ -20,10 +19,15 @@ const TravelBooking = () => {
   const [travel, setTravel] = useState(null);
   const [loading, setLoading] = useState(true);
   const [bookingLoading, setBookingLoading] = useState(false);
+  
   const [bookingData, setBookingData] = useState({
     nama_pemesan: userData?.name || '',
     nomor_hp: userData?.phone || '',
+    email: userData?.email || '',
     passengers: 1,
+    jumlah_barang: 'Pilih jumlah Barang',
+    alamat_jemput: '',
+    alamat_tujuan: '',
     tanggal_keberangkatan: '',
     catatan_tambahan: '',
   });
@@ -33,14 +37,11 @@ const TravelBooking = () => {
       navigate('/login', { state: { from: `/travels/${id}/booking` } });
       return;
     }
-    
-    // Check if user is admin and redirect to detail page
     if (authService.isAdmin()) {
-      alert('Admin tidak dapat melakukan booking. Anda akan diarahkan ke halaman detail.');
+      alert('Admin tidak dapat melakukan booking.');
       navigate(`/travels/${id}`);
       return;
     }
-    
     fetchTravelDetail();
   }, [id, authToken, navigate]);
 
@@ -50,47 +51,22 @@ const TravelBooking = () => {
       const travelRes = await api.get(endpoints.travelDetail(id));
       const travelData = travelRes.data.data;
       
-      if (!travelData) {
-        navigate('/travels');
-        return;
-      }
-      
       const mappedTravel = {
         id: travelData.id,
-        name: travelData.title || travelData.origin + ' - ' + travelData.destination || 'Travel Tidak Diketahui',
-        title: travelData.title || travelData.origin + ' - ' + travelData.destination || 'Travel Tidak Diketahui',
-        description: travelData.description || 'Deskripsi tidak tersedia',
+        name: travelData.title || `${travelData.origin} - ${travelData.destination}`,
+        origin: travelData.origin || 'Malang',
+        destination: travelData.destination || 'Surabaya',
         price: travelData.price_per_person || travelData.price || 0,
-        duration: travelData.duration || 'Durasi tidak diketahui',
-        departure_location: travelData.origin || 'Lokasi tidak diketahui',
-        destination_location: travelData.destination || 'Lokasi tidak diketahui',
-        vehicle_type: travelData.vehicle_type || 'Kendaraan tidak diketahui',
-        capacity: travelData.capacity || null,
-        is_available: travelData.is_active !== undefined ? travelData.is_active : true,
-        image: travelData.image || '/images/travel-placeholder.jpg',
         image_url: travelData.image_url || null,
-        departure_date: travelData.departure_date || null,
-        departure_time: travelData.departure_time || null,
+        departure_date: travelData.departure_date || '',
+        capacity: travelData.capacity || 10,
       };
       
-      // If travel is not available, redirect back to detail page
-      if (!mappedTravel.is_available) {
-        alert('Travel ini tidak tersedia untuk booking. Anda akan diarahkan ke halaman detail.');
-        navigate(`/travels/${id}`);
-        return;
-      }
-      
       setTravel(mappedTravel);
-      
-      // Set default departure date if travel has fixed schedule
       if (mappedTravel.departure_date) {
-        setBookingData(prev => ({
-          ...prev,
-          tanggal_keberangkatan: mappedTravel.departure_date
-        }));
+        setBookingData(prev => ({ ...prev, tanggal_keberangkatan: mappedTravel.departure_date }));
       }
     } catch (error) {
-      console.error('Error fetching travel detail:', error);
       navigate('/travels');
     } finally {
       setLoading(false);
@@ -99,51 +75,14 @@ const TravelBooking = () => {
 
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
-    
-    // Check if travel is available
-    if (!travel.is_available) {
-      alert('Travel ini tidak tersedia untuk booking');
-      return;
-    }
-    
-    // Validate required fields
-    if (!bookingData.nama_pemesan) {
-      alert('Silakan masukkan nama pemesan');
-      return;
-    }
-    
-    if (!bookingData.nomor_hp) {
-      alert('Silakan masukkan nomor HP');
-      return;
-    }
-    
-    if (!travel?.departure_date && !bookingData.tanggal_keberangkatan) {
-      alert('Silakan pilih tanggal keberangkatan');
-      return;
-    }
-
     try {
       setBookingLoading(true);
-      
-      const response = await transactionService.createTravelTransaction(id, {
-        ...bookingData,
-        tanggal_keberangkatan: travel?.departure_date || bookingData.tanggal_keberangkatan
+      const response = await transactionService.createTravelTransaction(id, bookingData);
+      navigate(`/payment/${response.data.booking_id}`, {
+        state: { booking: response.data, catalog: travel, bookingData }
       });
-      const bookingResult = response.data;
-      
-      // Redirect to payment page with booking data
-      navigate(`/payment/${bookingResult.booking_id}`, {
-        state: {
-          booking: bookingResult,
-          catalog: travel,
-          bookingData: bookingData
-        }
-      });
-      
     } catch (error) {
-      console.error('Error creating booking:', error);
-      const errorMessage = error.response?.data?.message || 'Gagal membuat booking. Silakan coba lagi.';
-      alert(errorMessage);
+      alert(error.response?.data?.message || 'Gagal membuat booking.');
     } finally {
       setBookingLoading(false);
     }
@@ -158,241 +97,181 @@ const TravelBooking = () => {
 
   const totalPrice = (travel?.price || 0) * bookingData.passengers;
 
-  if (loading) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-300 rounded w-1/3 mb-8"></div>
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <div className="h-6 bg-gray-300 rounded w-1/2 mb-4"></div>
-              <div className="h-4 bg-gray-300 rounded mb-2"></div>
-              <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-            </div>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (!travel) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Travel tidak ditemukan</h1>
-          <Button onClick={() => navigate('/travels')}>
-            Kembali ke Daftar Travel
-          </Button>
-        </div>
-      </Layout>
-    );
-  }
+  if (loading || !travel) return <Layout><div className="p-20 text-center">Memuat...</div></Layout>;
 
   return (
     <Layout>
-      <div className="bg-gray-50 min-h-screen">
-        {/* Header */}
-        <div className="bg-white shadow-sm">
-          <div className="container mx-auto px-4 py-6">
-            <Breadcrumb items={breadcrumbItems} />
-          </div>
+      {/* Navbar & Breadcrumb tetap dari Layout kamu */}
+      <div className="bg-white border-b px-4 py-3">
+        <div className="container mx-auto">
+          <Breadcrumb items={breadcrumbItems} />
+        </div>
+      </div>
+
+      <div className="bg-[#F8F9FB] min-h-screen pb-32">
+        {/* Hero Image Section */}
+        <div className="w-full h-64 md:h-80 relative">
+          <img 
+            src={getImageUrl(travel.image_url)} 
+            className="w-full h-full object-cover" 
+            alt="Travel Hero"
+          />
         </div>
 
-        <div className="container mx-auto px-4 py-8">
-          <div className="max-w-4xl mx-auto">
-            {/* Travel Summary */}
-            <motion.div
-              className="bg-white rounded-xl p-6 shadow-sm mb-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+        {/* Form Content */}
+        <div className="max-w-2xl mx-auto px-4 -mt-16 relative z-10">
+          <form onSubmit={handleBookingSubmit} className="space-y-6">
+            
+            {/* Card 1: Data Pemesanan */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-gray-100"
             >
-              <h1 className="text-2xl font-bold text-gray-900 mb-6">Form Pemesanan Travel</h1>
-              
-              <div className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg">
-                <img
-                  src={getImageUrl(travel.image_url || travel.image)}
-                  alt={travel.name}
-                  className="w-20 h-20 object-cover rounded-lg"
-                  onError={(e) => {
-                    e.target.src = '/images/travel-placeholder.jpg';
-                  }}
-                />
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900">{travel.name}</h3>
-                  <p className="text-sm text-gray-600 mb-2">
-                    {travel.departure_location} → {travel.destination_location}
-                  </p>
-                  <p className="text-sm text-gray-600 mb-2">{travel.vehicle_type}</p>
-                  {travel.departure_date && (
-                    <p className="text-sm text-blue-600 mb-2">
-                      Keberangkatan: {formatDate(travel.departure_date)}
-                      {travel.departure_time && ` - ${travel.departure_time}`}
-                    </p>
-                  )}
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold text-primary-600">
-                      {formatCurrency(travel.price)}/orang
-                    </span>
-                    <Badge variant={travel.is_available ? 'success' : 'error'}>
-                      {travel.is_available ? 'Tersedia' : 'Tidak Tersedia'}
-                    </Badge>
+              <h2 className="text-xl font-bold text-gray-900">Isi Data Pemesanan</h2>
+              <p className="text-gray-400 text-sm mb-8">Lengkapi data untuk melanjutkan booking</p>
+
+              <div className="space-y-5">
+                {/* Nama Lengkap */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Nama Lengkap</label>
+                  <input
+                    type="text"
+                    placeholder="Masukkan nama lengkap"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl outline-none focus:border-blue-400 transition-all"
+                    value={bookingData.nama_pemesan}
+                    onChange={(e) => setBookingData({...bookingData, nama_pemesan: e.target.value})}
+                  />
+                </div>
+
+                {/* Nomor HP */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Nomor HP</label>
+                  <input
+                    type="tel"
+                    placeholder="08xxxxxxxxxx"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl outline-none focus:border-blue-400"
+                    value={bookingData.nomor_hp}
+                    onChange={(e) => setBookingData({...bookingData, nomor_hp: e.target.value})}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Email */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                    <input
+                      type="email"
+                      placeholder="example@email.com"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl outline-none"
+                      value={bookingData.email}
+                      onChange={(e) => setBookingData({...bookingData, email: e.target.value})}
+                    />
                   </div>
+                  {/* Tanggal */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Tanggal Keberangkatan</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Pilih Tanggal"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl outline-none bg-white"
+                        value={bookingData.tanggal_keberangkatan ? formatDate(bookingData.tanggal_keberangkatan) : ''}
+                        readOnly
+                      />
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]">▶</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Jumlah Anggota */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Jumlah Anggota</label>
+                  <div className="relative">
+                    <select 
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl appearance-none outline-none text-gray-500 bg-white"
+                      value={bookingData.passengers}
+                      onChange={(e) => setBookingData({...bookingData, passengers: parseInt(e.target.value)})}
+                    >
+                      {[...Array(travel.capacity)].map((_, i) => (
+                        <option key={i+1} value={i+1}>{i+1} orang</option>
+                      ))}
+                    </select>
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]">▶</span>
+                  </div>
+                </div>
+
+                {/* Alamat jemput */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Alamat jemput</label>
+                  <input 
+                    type="text" 
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl outline-none"
+                    value={bookingData.alamat_jemput}
+                    onChange={(e) => setBookingData({...bookingData, alamat_jemput: e.target.value})}
+                  />
+                </div>
+
+                {/* Alamat Tujuan */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Alamat Tujuan</label>
+                  <input 
+                    type="text" 
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl outline-none"
+                    value={bookingData.alamat_tujuan}
+                    onChange={(e) => setBookingData({...bookingData, alamat_tujuan: e.target.value})}
+                  />
                 </div>
               </div>
             </motion.div>
 
-            {/* Booking Form */}
-            <motion.div
-              className="bg-white rounded-xl p-6 shadow-sm"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
+            {/* Card 2: Ringkasan Harga */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+              className="bg-white rounded-3xl p-6 shadow-xl border border-gray-100"
             >
-              <form onSubmit={handleBookingSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Nama Pemesan */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nama Pemesan *
-                    </label>
-                    <input
-                      type="text"
-                      value={bookingData.nama_pemesan}
-                      onChange={(e) => setBookingData({
-                        ...bookingData,
-                        nama_pemesan: e.target.value
-                      })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Ringkasan Harga</h3>
+              <div className="border border-gray-100 rounded-xl overflow-hidden">
+                <table className="w-full text-left">
+                  <tbody>
+                    <tr className="border-b border-gray-100">
+                      <td className="bg-[#BCE7FF] px-4 py-4 font-semibold text-blue-800 w-1/3 text-sm">Travel</td>
+                      <td className="bg-[#D9F1FF] px-4 py-4 text-blue-800 font-medium text-sm">
+                        {travel.origin} - {travel.destination}
+                      </td>
+                    </tr>
+                    <tr className="border-b border-gray-100 text-sm">
+                      <td className="px-4 py-4 text-gray-500">Jumlah Peserta</td>
+                      <td className="px-4 py-4 text-gray-900 font-semibold">{bookingData.passengers} orang</td>
+                    </tr>
+                    <tr className="border-b border-gray-100 text-sm">
+                      <td className="px-4 py-4 text-gray-500">Harga per Orang</td>
+                      <td className="px-4 py-4 text-gray-900 font-semibold">{formatCurrency(travel.price)}</td>
+                    </tr>
+                    <tr className="text-sm">
+                      <td className="px-4 py-4 text-gray-500">Total Harga</td>
+                      <td className="px-4 py-4 text-gray-900 font-bold">{formatCurrency(totalPrice)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </motion.div>
 
-                  {/* Nomor HP */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nomor HP *
-                    </label>
-                    <input
-                      type="tel"
-                      value={bookingData.nomor_hp}
-                      onChange={(e) => setBookingData({
-                        ...bookingData,
-                        nomor_hp: e.target.value
-                      })}
-                      placeholder="+62812345678"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
-
-                  {/* Passengers */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Jumlah Penumpang *
-                      {travel?.capacity && (
-                        <span className="text-sm text-gray-500 ml-1">(Maks: {travel.capacity} orang)</span>
-                      )}
-                    </label>
-                    <select
-                      value={bookingData.passengers}
-                      onChange={(e) => setBookingData({
-                        ...bookingData,
-                        passengers: parseInt(e.target.value)
-                      })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      required
-                    >
-                      {[...Array(Math.min(travel?.capacity || 10, 10))].map((_, i) => (
-                        <option key={i + 1} value={i + 1}>
-                          {i + 1} orang
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Departure Date - only show if travel doesn't have fixed date */}
-                  {!travel?.departure_date && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Tanggal Keberangkatan *
-                      </label>
-                      <input
-                        type="date"
-                        value={bookingData.tanggal_keberangkatan}
-                        onChange={(e) => setBookingData({
-                          ...bookingData,
-                          tanggal_keberangkatan: e.target.value
-                        })}
-                        min={new Date().toISOString().split('T')[0]}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                        required
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Catatan Tambahan */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Catatan Tambahan
-                  </label>
-                  <textarea
-                    value={bookingData.catatan_tambahan}
-                    onChange={(e) => setBookingData({
-                      ...bookingData,
-                      catatan_tambahan: e.target.value
-                    })}
-                    rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="Masukkan catatan tambahan jika ada (bantuan kursi roda, dll.)"
-                  />
-                </div>
-
-                {/* Price Summary */}
-                <div className="border-t border-gray-200 pt-6">
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h3 className="font-semibold text-gray-900 mb-3">Ringkasan Harga</h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">
-                          {formatCurrency(travel.price)} x {bookingData.passengers} orang
-                        </span>
-                        <span className="font-medium">{formatCurrency(totalPrice)}</span>
-                      </div>
-                      <div className="flex justify-between text-lg font-bold border-t border-gray-200 pt-2">
-                        <span>Total</span>
-                        <span className="text-primary-600">{formatCurrency(totalPrice)}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex space-x-4 pt-6">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="lg"
-                    onClick={() => navigate(`/travels/${id}`)}
-                    className="flex-1"
-                  >
-                    Kembali
-                  </Button>
+            {/* Sticky Action Bar */}
+            <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t p-4 z-50">
+              <div className="container mx-auto max-w-2xl">
+                <div className="bg-[#E0F2FF] rounded-2xl p-4 flex justify-between items-center shadow-sm">
+                  <span className="text-xl font-extrabold text-gray-900 pl-2">{formatCurrency(totalPrice)}</span>
                   <Button
                     type="submit"
-                    variant="primary"
-                    size="lg"
+                    className="!bg-[#008CD9] !text-white !rounded-xl !px-8 !py-3 !font-bold hover:bg-[#0077B8] transition-colors"
                     loading={bookingLoading}
-                    disabled={!travel.is_available}
-                    className="flex-1"
                   >
-                    Lanjutkan Pembayaran
+                    Lanjutkan Booking
                   </Button>
                 </div>
-              </form>
-            </motion.div>
-          </div>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
     </Layout>
