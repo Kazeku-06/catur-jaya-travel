@@ -105,10 +105,10 @@ const Footer = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                 </svg>
                 <a 
-                  href="mailto:info@caturjayatravel.com"
+                  href="mailto:caturjayamandiri4@gmail.com"
                   className="hover:text-white transition-colors duration-200"
                 >
-                  info@caturjayatravel.com
+                  caturjayamandiri4@gmail.com
                 </a>
               </div>
               <div className="flex items-center space-x-2">

@@ -123,7 +123,17 @@ const Payment = () => {
 
   const breadcrumbItems = [
     { label: 'Beranda', href: '/' },
-    { label: 'My Bookings', href: '/my-bookings' },
+    { 
+      label: booking?.catalog_type === 'trip' ? 'Trip' : 'Travel', 
+      href: booking?.catalog_type === 'trip' ? '/trips' : '/travels' 
+    },
+    { 
+      label: booking?.catalog?.title || booking?.catalog?.name || 'Detail', 
+      href: booking?.catalog_type === 'trip' 
+        ? `/trips/${booking?.catalog_id}` 
+        : `/travels/${booking?.catalog_id}` 
+    },
+    { label: 'Booking', href: '/my-bookings' },
     { label: 'Pembayaran' }
   ];
 
@@ -162,311 +172,200 @@ const Payment = () => {
 
   return (
     <Layout>
-      <div className="bg-gray-50 min-h-screen">
-        {/* Header */}
-        <div className="bg-white shadow-sm">
-          <div className="container mx-auto px-4 py-6">
+      <div className="bg-gray-50 min-h-screen pb-20 md:pb-8">
+        {/* Breadcrumb Navigation - Above Image */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="container mx-auto px-4 py-4">
             <Breadcrumb items={breadcrumbItems} />
           </div>
         </div>
 
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-4 md:py-8">
           <div className="max-w-4xl mx-auto">
-            {/* Booking Status */}
+            {/* Hero Image - Mobile Optimized */}
             <motion.div
-              className="bg-white rounded-xl p-6 shadow-sm mb-8"
+              className="bg-white rounded-3xl overflow-hidden shadow-lg mb-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold text-gray-900">Pembayaran</h1>
-                <Badge 
-                  variant={
-                    booking.status === 'lunas' ? 'success' :
-                    booking.status === 'menunggu_validasi' ? 'warning' :
-                    booking.status === 'ditolak' ? 'error' :
-                    booking.status === 'expired' ? 'error' : 'info'
-                  }
-                >
-                  {booking.status === 'menunggu_pembayaran' ? 'Menunggu Pembayaran' :
-                   booking.status === 'menunggu_validasi' ? 'Menunggu Validasi' :
-                   booking.status === 'lunas' ? 'Lunas' :
-                   booking.status === 'ditolak' ? 'Ditolak' :
-                   booking.status === 'expired' ? 'Expired' : booking.status}
-                </Badge>
-              </div>
-
-              {/* Booking Details */}
-              <div className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg mb-6">
+              <div className="relative h-48 md:h-64">
                 <img
                   src={getImageUrl(booking.catalog?.image_url || booking.catalog?.image)}
                   alt={booking.catalog?.title || booking.catalog?.name}
-                  className="w-20 h-20 object-cover rounded-lg"
+                  className="w-full h-full object-cover"
                   onError={(e) => {
                     e.target.src = booking.catalog_type === 'trip' 
                       ? '/images/trip-placeholder.jpg' 
                       : '/images/travel-placeholder.jpg';
                   }}
                 />
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900">
-                    {booking.catalog?.title || booking.catalog?.name}
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-2">
-                    {booking.catalog_type === 'trip' ? 'Paket Trip' : 'Travel'}
-                  </p>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-600">Nama Pemesan:</span>
-                      <p className="font-medium">{booking.booking_data?.nama_pemesan}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Nomor HP:</span>
-                      <p className="font-medium">{booking.booking_data?.nomor_hp}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Tanggal Keberangkatan:</span>
-                      <p className="font-medium">{formatDate(booking.booking_data?.tanggal_keberangkatan)}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Jumlah Orang:</span>
-                      <p className="font-medium">{booking.booking_data?.jumlah_orang} orang</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold text-primary-600">
-                    {formatCurrency(booking.total_price)}
-                  </p>
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
               </div>
-
-              {/* Expired Warning */}
-              {isExpired && booking.status === 'menunggu_pembayaran' && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <div className="ml-3">
-                      <h3 className="text-sm font-medium text-red-800">
-                        Booking Expired
-                      </h3>
-                      <p className="text-sm text-red-700 mt-1">
-                        Booking ini telah expired karena belum ada pembayaran dalam 24 jam. Silakan booking ulang.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Countdown Timer */}
-              {canUploadPayment && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <div className="ml-3">
-                      <h3 className="text-sm font-medium text-yellow-800">
-                        Batas Waktu Pembayaran
-                      </h3>
-                      <p className="text-sm text-yellow-700 mt-1">
-                        Silakan lakukan pembayaran sebelum {formatDate(booking.expired_at)} pukul {new Date(booking.expired_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
             </motion.div>
 
-            {/* Payment Instructions */}
+            {/* Payment Method & Upload - Mobile First Design */}
             {canUploadPayment && (
-              <motion.div
-                className="bg-white rounded-xl p-6 shadow-sm mb-8"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-              >
-                <h2 className="text-xl font-bold text-gray-900 mb-6">Instruksi Pembayaran</h2>
-                
-                <div className="space-y-6">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h3 className="font-semibold text-blue-900 mb-2">Langkah Pembayaran:</h3>
-                    <ol className="list-decimal list-inside space-y-1 text-sm text-blue-800">
-                      <li>Pilih bank tujuan transfer di bawah ini</li>
-                      <li>Transfer sesuai nominal yang tertera</li>
-                      <li>Simpan bukti transfer</li>
-                      <li>Upload bukti transfer di form di bawah</li>
-                      <li>Tunggu validasi dari admin (maksimal 1x24 jam)</li>
-                    </ol>
-                  </div>
+              <>
+                <motion.div
+                  className="bg-white rounded-3xl p-5 md:p-6 shadow-lg mb-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
+                >
+                  <h2 className="text-lg font-bold text-gray-900 mb-3">Metode Pembayaran</h2>
+                  <p className="text-sm text-gray-500 mb-4">Pilih metode pembayaran yang tersedia</p>
 
-                  {/* Bank Selection */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Pilih Bank Tujuan Transfer:
-                    </label>
-                    <div className="space-y-3">
-                      {Object.values(bankAccounts).map((bank, index) => (
-                        <div key={index} className="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                                <span className="text-primary-600 font-bold text-sm">{bank.bank}</span>
+                  {/* Transfer Bank Option */}
+                  <div className="border-2 border-blue-100 bg-blue-50 rounded-2xl p-4">
+                    <div className="flex items-start space-x-3">
+                      <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 mb-1">Transfer Bank</h3>
+                        <p className="text-xs text-gray-600 mb-3">
+                          Pilih bank dan transfer sesuai nominal
+                        </p>
+                        
+                        {/* Bank Selection Dropdown */}
+                        <select
+                          value={selectedBank}
+                          onChange={(e) => setSelectedBank(e.target.value)}
+                          className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                        >
+                          <option value="">Pilih Bank Tujuan</option>
+                          {Object.entries(bankAccounts).map(([key, bank]) => (
+                            <option key={key} value={key}>
+                              Bank {bank.bank} - {bank.accountName}
+                            </option>
+                          ))}
+                        </select>
+
+                        {/* Selected Bank Details */}
+                        {selectedBank && (
+                          <div className="mt-3 p-3 bg-white rounded-xl border border-gray-200">
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Bank:</span>
+                                <span className="font-semibold text-gray-900">{bankAccounts[selectedBank].bank}</span>
                               </div>
-                              <div>
-                                <h4 className="font-semibold text-gray-900">Bank {bank.bank}</h4>
-                                <p className="text-sm text-gray-600">Transfer Bank</p>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">No. Rekening:</span>
+                                <span className="font-mono font-semibold text-gray-900">{bankAccounts[selectedBank].accountNumber}</span>
                               </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="space-y-1 text-sm">
-                                <div>
-                                  <span className="text-gray-600">No. Rekening:</span>
-                                  <p className="font-mono font-bold text-gray-900">{bank.accountNumber}</p>
-                                </div>
-                                <div>
-                                  <span className="text-gray-600">Atas Nama:</span>
-                                  <p className="font-medium text-gray-900">{bank.accountName}</p>
-                                </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Atas Nama:</span>
+                                <span className="font-semibold text-gray-900">{bankAccounts[selectedBank].accountName}</span>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="font-semibold text-gray-900 mb-2">Total yang harus dibayar:</h4>
-                    <p className="text-2xl font-bold text-primary-600">{formatCurrency(booking.total_price)}</p>
-                    <p className="text-sm text-gray-600 mt-1">
-                      Transfer tepat sesuai nominal di atas untuk mempercepat proses validasi
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Upload Payment Proof */}
-            {canUploadPayment && (
-              <motion.div
-                className="bg-white rounded-xl p-6 shadow-sm mb-8"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <h2 className="text-xl font-bold text-gray-900 mb-6">Upload Bukti Pembayaran</h2>
-                
-                <div className="space-y-4">
-                  {/* Bank Selection */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Bank Tujuan Transfer *
-                    </label>
-                    <select
-                      value={selectedBank}
-                      onChange={(e) => setSelectedBank(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      required
-                    >
-                      <option value="">Pilih Bank Tujuan Transfer</option>
-                      {Object.entries(bankAccounts).map(([key, bank]) => (
-                        <option key={key} value={key}>
-                          Bank {bank.bank} - {bank.accountNumber} ({bank.accountName})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Selected Bank Details */}
-                  {selectedBank && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <h4 className="font-semibold text-blue-900 mb-2">Detail Transfer:</h4>
-                      <div className="space-y-1 text-sm text-blue-800">
-                        <p><span className="font-medium">Bank:</span> {bankAccounts[selectedBank].bank}</p>
-                        <p><span className="font-medium">No. Rekening:</span> {bankAccounts[selectedBank].accountNumber}</p>
-                        <p><span className="font-medium">Atas Nama:</span> {bankAccounts[selectedBank].accountName}</p>
-                        <p><span className="font-medium">Jumlah Transfer:</span> <span className="font-bold text-lg">{formatCurrency(booking.total_price)}</span></p>
+                        )}
                       </div>
                     </div>
-                  )}
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Pilih File Bukti Transfer *
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileSelect}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Format: JPG, PNG, GIF, WEBP. Maksimal 5MB.
-                    </p>
                   </div>
 
-                  {previewUrl && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Preview:
-                      </label>
-                      <img
-                        src={previewUrl}
-                        alt="Preview bukti pembayaran"
-                        className="max-w-xs h-auto border border-gray-300 rounded-lg"
+                  {/* Upload Payment Proof */}
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Upload Bukti Transfer
+                    </label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-blue-400 transition-colors cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                        id="payment-proof-upload"
                       />
+                      <label htmlFor="payment-proof-upload" className="cursor-pointer">
+                        {previewUrl ? (
+                          <div className="space-y-2">
+                            <img
+                              src={previewUrl}
+                              alt="Preview"
+                              className="max-h-40 mx-auto rounded-lg"
+                            />
+                            <p className="text-sm text-green-600 font-medium">✓ File terpilih</p>
+                            <p className="text-xs text-gray-500">Klik untuk mengganti</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
+                              <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                              </svg>
+                            </div>
+                            <p className="text-sm text-gray-600 font-medium">Pilih file bukti transfer</p>
+                            <p className="text-xs text-gray-500">JPG, PNG, max 5MB</p>
+                          </div>
+                        )}
+                      </label>
                     </div>
-                  )}
+                  </div>
+                </motion.div>
 
-                  <Button
-                    onClick={handleUploadPaymentProof}
-                    loading={uploadLoading}
-                    disabled={!selectedFile || !selectedBank}
-                    className="w-full"
-                  >
-                    Upload Bukti Pembayaran
-                  </Button>
-                </div>
-              </motion.div>
+                {/* Countdown Timer */}
+                <motion.div
+                  className="bg-yellow-50 border-2 border-yellow-200 rounded-3xl p-5 mb-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  <div className="flex items-start space-x-3">
+                    <div className="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-bold text-yellow-900 mb-1">Batas Waktu Pembayaran</h3>
+                      <p className="text-sm text-yellow-800">
+                        {formatDate(booking.expired_at)} • {new Date(booking.expired_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              </>
             )}
 
             {/* Payment Proof Status */}
             {booking.payment_proof && (
               <motion.div
-                className="bg-white rounded-xl p-6 shadow-sm mb-8"
+                className="bg-white rounded-3xl p-5 md:p-6 shadow-lg mb-4"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
               >
-                <h2 className="text-xl font-bold text-gray-900 mb-6">Bukti Pembayaran</h2>
+                <h2 className="text-lg font-bold text-gray-900 mb-4">Bukti Pembayaran</h2>
                 
                 <div className="flex items-start space-x-4">
                   <img
                     src={booking.payment_proof.image_url}
                     alt="Bukti pembayaran"
-                    className="w-32 h-32 object-cover border border-gray-300 rounded-lg"
+                    className="w-24 h-24 object-cover border-2 border-gray-200 rounded-xl"
                   />
                   <div className="flex-1">
                     <p className="text-sm text-gray-600 mb-2">
-                      Diupload pada: {formatDate(booking.payment_proof.uploaded_at)}
+                      Diupload: {formatDate(booking.payment_proof.uploaded_at)}
                     </p>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                      <p className="text-sm text-blue-800">
+                    <div className={`rounded-xl p-3 ${
+                      booking.status === 'menunggu_validasi' ? 'bg-yellow-50 border border-yellow-200' :
+                      booking.status === 'lunas' ? 'bg-green-50 border border-green-200' :
+                      'bg-red-50 border border-red-200'
+                    }`}>
+                      <p className={`text-sm ${
+                        booking.status === 'menunggu_validasi' ? 'text-yellow-800' :
+                        booking.status === 'lunas' ? 'text-green-800' :
+                        'text-red-800'
+                      }`}>
                         {booking.status === 'menunggu_validasi' 
-                          ? 'Bukti pembayaran sedang divalidasi oleh admin. Mohon tunggu maksimal 1x24 jam.'
+                          ? '⏳ Sedang divalidasi admin (maks 1x24 jam)'
                           : booking.status === 'lunas'
-                          ? 'Pembayaran telah disetujui. Booking Anda sudah lunas.'
-                          : booking.status === 'ditolak'
-                          ? 'Pembayaran ditolak. Silakan booking ulang.'
-                          : 'Status pembayaran tidak diketahui.'
+                          ? '✓ Pembayaran disetujui'
+                          : '✗ Pembayaran ditolak'
                         }
                       </p>
                     </div>
@@ -475,29 +374,122 @@ const Payment = () => {
               </motion.div>
             )}
 
-            {/* Action Buttons */}
-            <div className="flex space-x-4">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => navigate('/my-bookings')}
-                className="flex-1"
-              >
-                Kembali ke My Bookings
-              </Button>
+            {/* Price Summary Card - Mobile Optimized */}
+            <motion.div
+              className="bg-white rounded-3xl p-5 md:p-6 shadow-lg mb-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <h2 className="text-lg font-bold text-gray-900 mb-4">Ringkasan Harga</h2>
               
-              {(booking.status === 'expired' || booking.status === 'ditolak') && (
+              <div className="space-y-3">
+                <div className="flex justify-between items-start py-2 border-b border-gray-100">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">
+                      {booking.catalog_type === 'trip' ? 'Paket Trip' : 'Travel'}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {booking.catalog?.title || booking.catalog?.name}
+                    </p>
+                  </div>
+                  <p className="text-sm font-medium text-gray-900 ml-2">
+                    {booking.booking_data?.tanggal_keberangkatan ? formatDate(booking.booking_data.tanggal_keberangkatan) : '-'}
+                  </p>
+                </div>
+
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span className="text-sm text-gray-600">Jumlah Peserta</span>
+                  <span className="text-sm font-medium text-gray-900">{booking.booking_data?.jumlah_orang || 1} orang</span>
+                </div>
+
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span className="text-sm text-gray-600">Harga per Orang</span>
+                  <span className="text-sm font-medium text-gray-900">
+                    {formatCurrency(booking.total_price / (booking.booking_data?.jumlah_orang || 1))}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center pt-3">
+                  <span className="text-base font-bold text-gray-900">Total Harga</span>
+                  <span className="text-xl font-bold text-blue-600">
+                    {formatCurrency(booking.total_price)}
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Expired/Rejected Warning */}
+            {(isExpired || booking.status === 'ditolak') && (
+              <motion.div
+                className="bg-red-50 border-2 border-red-200 rounded-3xl p-5 mb-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+              >
+                <div className="flex items-start space-x-3">
+                  <div className="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-bold text-red-900 mb-1">
+                      {isExpired ? 'Booking Expired' : 'Pembayaran Ditolak'}
+                    </h3>
+                    <p className="text-sm text-red-800">
+                      {isExpired 
+                        ? 'Booking expired karena belum ada pembayaran dalam 24 jam. Silakan booking ulang.'
+                        : 'Pembayaran Anda ditolak. Silakan booking ulang dan pastikan bukti transfer valid.'
+                      }
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Action Buttons - Mobile Optimized */}
+            <motion.div
+              className="sticky bottom-0 left-0 right-0 bg-white border-t-2 border-gray-100 p-4 md:relative md:border-0 md:bg-transparent md:p-0"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+            >
+              {canUploadPayment ? (
                 <Button
+                  onClick={handleUploadPaymentProof}
+                  loading={uploadLoading}
+                  disabled={!selectedFile || !selectedBank}
+                  className="w-full !rounded-2xl !py-4 !text-base !font-bold shadow-lg"
                   variant="primary"
-                  size="lg"
-                  onClick={() => navigate(`/${booking.catalog_type}s/${booking.catalog_id}`)}
-                  className="flex-1"
                 >
-                  Booking Ulang
+                  Lanjutkan Pembayaran
                 </Button>
+              ) : (
+                <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => navigate('/my-bookings')}
+                    className="flex-1 !rounded-2xl"
+                  >
+                    Kembali ke My Bookings
+                  </Button>
+                  
+                  {(booking.status === 'expired' || booking.status === 'ditolak') && (
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      onClick={() => navigate(`/${booking.catalog_type}s/${booking.catalog_id}`)}
+                      className="flex-1 !rounded-2xl"
+                    >
+                      Booking Ulang
+                    </Button>
+                  )}
+                </div>
               )}
-            </div>
-          </div>
+            </motion.div>
+          </div>  
         </div>
       </div>
     </Layout>
