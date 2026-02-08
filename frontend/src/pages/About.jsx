@@ -426,13 +426,14 @@ const About = () => {
                 <div className="relative mb-4 md:mb-6">
                   <div className="aspect-[4/3] bg-gray-200 rounded-xl overflow-hidden">
                     <iframe
-                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3951.2721464450516!2d112.6425713!3d-7.9707577!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd6284693998f8b%3A0xc3f6d78772a80696!2sJl.%20Lesti%20Utara%20No.6%2C%20Bunulrejo%2C%20Kec.%20Blimbing%2C%20Kota%20Malang!5e0!3m2!1sid!2sid!4v1700000000000"
+                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3755.381073264436!2d112.63254877476854!3d-8.012683692013544!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd627dcd88415f3%3A0x65cb277427b11768!2sCV.%20Catur%20jaya%20mandiri%20tour%20and%20travel!5e1!3m2!1sen!2sid!4v1770539846117!5m2!1sen!2sid"
                       width="100%"
                       height="100%"
                       style={{ border: 0 }}
                       allowFullScreen=""
                       loading="lazy"
-                      title="Lokasi"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title="Lokasi CV. Catur Jaya Mandiri Tour and Travel"
                     />
                   </div>
                 </div>
@@ -451,7 +452,7 @@ const About = () => {
                         <h4 className="text-base md:text-lg font-bold text-gray-900">Kantor Pusat</h4>
                       </div>
                       <p className="text-gray-700 text-xs md:text-sm leading-relaxed ml-11 break-words">
-                        Jalan Lesti Utara No.6 Bunulrejo Blimbing Malang, Jawa Timur, Indonesia.
+                        CV. Catur Jaya Mandiri Tour and Travel, Malang, Jawa Timur, Indonesia.
                       </p>
                     </div>
                   </div>
@@ -459,7 +460,7 @@ const About = () => {
                   {/* Action Buttons */}
                   <div className="flex flex-col sm:flex-row gap-2 md:gap-3 ml-0 sm:ml-11">
                     <a
-                      href="https://maps.google.com/?q=Jl.+Lesti+Utara+No.6,+Bunulrejo,+Kec.+Blimbing,+Kota+Malang,+Jawa+Timur+65126"
+                      href="https://www.google.com/maps/place/CV.+Catur+jaya+mandiri+tour+and+travel/@-8.0126837,112.6325488,17z/data=!3m1!4b1!4m6!3m5!1s0x2dd627dcd88415f3:0x65cb277427b11768!8m2!3d-8.0126837!4d112.6351237!16s%2Fg%2F11j8y8zy0y"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center justify-center px-3 md:px-4 py-2 md:py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md group text-xs md:text-sm"
@@ -472,7 +473,7 @@ const About = () => {
                     </a>
                     
                     <a
-                      href="https://maps.google.com/maps/dir//Jl.+Lesti+Utara+No.6,+Bunulrejo,+Kec.+Blimbing,+Kota+Malang,+Jawa+Timur+65126"
+                      href="https://www.google.com/maps/dir/?api=1&destination=-8.0126837,112.6351237"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center justify-center px-3 md:px-4 py-2 md:py-2.5 bg-white hover:bg-gray-50 text-blue-600 font-medium rounded-lg border border-blue-200 transition-all duration-200 shadow-sm hover:shadow-md group text-xs md:text-sm"
