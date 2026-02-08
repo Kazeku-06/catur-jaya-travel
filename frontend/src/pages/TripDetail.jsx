@@ -26,7 +26,7 @@ const TripDetail = () => {
 
   useEffect(() => {
     fetchTripDetail();
-    window.scrollTo(0, 0); // Reset scroll ke atas saat ganti ID
+    window.scrollTo(0, 0); 
   }, [id]);
 
   const fetchTripDetail = async () => {
@@ -61,7 +61,6 @@ const TripDetail = () => {
         rating: tripData.rating || null,
         total_reviews: tripData.total_reviews || 0,
         category: tripData.category || 'Wisata',
-        // Pastikan ini array
         facilities: Array.isArray(tripData.facilities) ? tripData.facilities : [],
         itinerary: Array.isArray(tripData.itinerary) ? tripData.itinerary : [],
         includes: Array.isArray(tripData.includes) ? tripData.includes : [],
@@ -133,27 +132,13 @@ const TripDetail = () => {
 
         {/* HERO SECTION */}
         <div className="container mx-auto px-0 sm:px-4 mt-4">
-          <div className="relative h-[250px] md:h-[350px] w-full overflow-hidden sm:rounded-[2rem] shadow-lg">
+          <div className="relative h-[250px] md:h-[400px] w-full overflow-hidden sm:rounded-[2rem] shadow-lg">
             <img
               src={getImageUrl(images[selectedImage])}
               alt={trip?.name}
               className="w-full h-full object-cover object-center"
             />
-            <div className="absolute inset-0 bg-black/10" />
-            
-            <div className="absolute top-4 right-4 z-20">
-              {trip?.is_available && (
-                <div className={`px-4 py-2 rounded-full backdrop-blur-md shadow-lg border border-white/20 font-bold text-sm ${
-                  trip.is_quota_full 
-                    ? 'bg-red-500/90 text-white' 
-                    : trip.remaining_quota <= 5 
-                      ? 'bg-orange-500/90 text-white animate-pulse' 
-                      : 'bg-green-500/90 text-white'
-                }`}>
-                  {trip.is_quota_full ? 'Kuota Penuh' : `Sisa ${trip.remaining_quota} Kursi`}
-                </div>
-              )}
-            </div>
+            <div className="absolute inset-0 bg-black/20" />
           </div>
         </div>
 
@@ -174,7 +159,7 @@ const TripDetail = () => {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-xl font-extrabold text-gray-900 leading-tight">{trip?.name}</h2>
+                  <h2 className="text-xl md:text-2xl font-extrabold text-gray-900 leading-tight">{trip?.name}</h2>
                   <p className="text-gray-400 font-medium text-sm">{trip?.location} • {trip?.duration}</p>
                 </div>
               </div>
@@ -185,7 +170,7 @@ const TripDetail = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                   </svg>
                 </div>
-                <span className="text-xs sm:text-sm">Mulai dari <span className="text-blue-500 font-bold text-base ml-1">{formatCurrency(trip?.price)} / orang</span></span>
+                <span className="text-xs sm:text-sm">Mulai dari <span className="text-blue-500 font-bold text-base md:text-lg ml-1">{formatCurrency(trip?.price)} / orang</span></span>
               </div>
             </motion.div>
 
@@ -203,18 +188,20 @@ const TripDetail = () => {
               
               <hr className="my-6 border-gray-100" />
 
-              {/* BAGIAN FASILITAS (Dinamis dari Admin) */}
+              {/* BAGIAN FASILITAS (Layout Ke Samping) */}
               <h3 className="text-lg font-bold text-gray-900 mb-5">Fasilitas</h3>
               {trip?.facilities && trip.facilities.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-4 mb-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
                   {trip.facilities.map((item, index) => (
-                    <div key={index} className="flex items-center space-x-3">
-                      <div className="flex-shrink-0 bg-blue-50 text-blue-500 p-2 rounded-xl">
+                    <div key={index} className="flex items-center p-3 bg-gray-50 rounded-2xl border border-gray-100">
+                      <div className="flex-shrink-0 bg-blue-100 text-blue-600 p-1.5 rounded-lg mr-3">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <span className="font-semibold text-gray-700 text-xs sm:text-sm">{item}</span>
+                      <span className="font-semibold text-gray-700 text-xs sm:text-sm truncate" title={item}>
+                        {item}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -222,19 +209,19 @@ const TripDetail = () => {
                 <p className="text-gray-400 text-sm italic mb-8">Fasilitas tidak dicantumkan.</p>
               )}
 
-              {/* BAGIAN RUNDOWN / ITINERARY (Dinamis) */}
+              {/* BAGIAN RUNDOWN / ITINERARY */}
               {trip?.itinerary && trip.itinerary.length > 0 && (
                 <>
                   <h3 className="text-lg font-bold text-gray-900 mb-5">Rencana Perjalanan</h3>
-                  <div className="space-y-4 mb-8">
+                  <div className="space-y-4 mb-8 px-2">
                     {trip.itinerary.map((step, index) => (
                       <div key={index} className="flex space-x-4">
                         <div className="flex flex-col items-center">
-                          <div className="w-3 h-3 rounded-full bg-blue-500 mt-1.5"></div>
-                          {index !== trip.itinerary.length - 1 && <div className="w-0.5 h-full bg-blue-100"></div>}
+                          <div className="w-3 h-3 rounded-full bg-blue-500 mt-1.5 ring-4 ring-blue-50"></div>
+                          {index !== trip.itinerary.length - 1 && <div className="w-0.5 h-full bg-blue-100 my-1"></div>}
                         </div>
                         <div className="pb-4">
-                          <p className="text-sm text-gray-700 font-medium">{step}</p>
+                          <p className="text-sm text-gray-700 font-medium leading-snug">{step}</p>
                         </div>
                       </div>
                     ))}
@@ -244,8 +231,8 @@ const TripDetail = () => {
 
               {/* Bantuan Section */}
               <div className="mt-6 pt-6 border-t border-gray-100">
-                <p className="text-xs text-gray-400 font-medium mb-2">Butuh bantuan?</p>
-                <div className="flex items-center text-blue-500 font-bold text-sm">
+                <p className="text-xs text-gray-400 font-medium mb-2 uppercase tracking-wider">Butuh bantuan?</p>
+                <div className="flex items-center text-blue-600 font-bold text-sm">
                   <div className="bg-blue-50 p-2 rounded-full mr-3">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -257,15 +244,15 @@ const TripDetail = () => {
             </motion.div>
 
             {/* BAR BOOKING BAWAH (Sticky) */}
-            <div className="bg-white rounded-2xl p-4 shadow-2xl border border-gray-50 flex items-center justify-between sticky bottom-6 z-20">
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl p-4 shadow-2xl border border-white/50 flex items-center justify-between sticky bottom-6 z-20">
               <div className="pl-2">
-                <p className="text-lg font-black text-gray-900 leading-none">
+                <p className="text-xl font-black text-gray-900 leading-none">
                   {formatCurrency(trip?.price)} <span className="text-xs font-normal text-gray-400">/ pax</span>
                 </p>
-                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1">Travel Services</p>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Instant Confirmation</p>
               </div>
               <Button
-                className="!rounded-xl px-6 py-3.5 !bg-blue-500 hover:!bg-blue-600 text-white font-bold transition-all shadow-lg text-sm sm:text-base"
+                className="!rounded-xl px-8 py-3.5 !bg-blue-600 hover:!bg-blue-700 text-white font-bold transition-all shadow-lg text-sm sm:text-base"
                 disabled={!trip?.is_available_for_booking || isAdmin}
                 onClick={() => {
                   if (isAdmin) return alert('Admin tidak bisa booking');
@@ -282,7 +269,7 @@ const TripDetail = () => {
               <div className="mt-16">
                 <div className="flex justify-between items-end mb-6 px-2">
                   <h2 className="text-xl font-bold text-gray-900">Rekomendasi Trip</h2>
-                  <button onClick={() => navigate('/trips')} className="text-blue-500 font-semibold text-xs hover:underline">Lihat Semua</button>
+                  <button onClick={() => navigate('/trips')} className="text-blue-500 font-semibold text-sm hover:underline">Lihat Semua</button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {relatedTrips.map((relatedTrip) => (

@@ -172,22 +172,26 @@ const TravelDetail = () => {
               
               <hr className="border-gray-100 mb-8" />
               
-              <h3 className="text-lg font-black text-gray-900 mb-6">Fasilitas</h3>
-              <div className="grid grid-cols-2 gap-y-6 gap-x-4">
-                {travel?.facilities?.length > 0 ? (
-                  travel.facilities.map((facility, i) => (
-                    <div key={i} className="border border-gray-100 rounded-xl px-4 py-3">
-                      <span className="text-sm font-semibold text-gray-700">
+             {/* LAYOUT FASILITAS MENYAMPING (GRID) */}
+              {travel?.facilities?.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {travel.facilities.map((facility, i) => (
+                    <div key={i} className="flex items-center p-3 bg-gray-50 rounded-2xl border border-gray-100">
+                      <div className="flex-shrink-0 bg-blue-100 text-blue-600 p-1.5 rounded-lg mr-3">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <span className="font-semibold text-gray-700 text-xs sm:text-sm truncate">
                         {facility}
                       </span>
                     </div>
-                  ))
-                ) : (
-                  <p className="text-gray-400 text-sm italic">Fasilitas belum ditambahkan</p>
-                )}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-400 text-sm italic">Fasilitas belum tersedia</p>
+              )}
             </motion.div>
-
            
 
             {/* CARD 3 */}
@@ -260,7 +264,7 @@ const TravelDetail = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {relatedTravels.map((t) => (
-                    <TravelCard key={t.id} travel={t} />
+                    <TravelCard key={t.id} travel={t} />  
                   ))}
                 </div>
               </div>
