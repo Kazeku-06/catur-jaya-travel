@@ -341,47 +341,61 @@ const TripBooking = () => {
                   />
                 </div>
 
-                {/* Price Summary */}
-                <div className="border-t border-gray-200 pt-6">
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h3 className="font-semibold text-gray-900 mb-3">Ringkasan Harga</h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">
-                          Harga Trip Private ({bookingData.participants} orang)
-                        </span>
-                        <span className="font-medium">{formatCurrency(totalPrice)}</span>
-                      </div>
-                      <div className="flex justify-between text-lg font-bold border-t border-gray-200 pt-2">
-                        <span>Total</span>
-                        <span className="text-primary-600">{formatCurrency(totalPrice)}</span>
-                      </div>
-                    </div>
+                {/* Price Summary - UPDATED TO TABLE */}
+                <div className="border-t border-gray-200 pt-8">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">Ringkasan Harga</h3>
+                  <div className="overflow-hidden border border-gray-200 rounded-xl shadow-sm">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr>
+                          <th className="bg-blue-100/50 py-3 px-4 text-primary-700 font-bold border-b border-gray-200 w-1/3">Trip</th>
+                          <th className="bg-blue-50/50 py-3 px-4 text-primary-600 font-medium border-b border-gray-200">{trip.name}</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        <tr>
+                          <td className="py-4 px-4 text-gray-500 text-sm md:text-base">Jumlah Peserta</td>
+                          <td className="py-4 px-4 text-gray-900 font-bold">{bookingData.participants} orang</td>
+                        </tr>
+                        <tr>
+                          <td className="py-4 px-4 text-gray-500 text-sm md:text-base">Harga per Orang</td>
+                          <td className="py-4 px-4 text-gray-900 font-bold">{formatCurrency(trip.price)}</td>
+                        </tr>
+                        <tr className="bg-gray-50/50">
+                          <td className="py-4 px-4 text-gray-900 font-bold text-sm md:text-base">Total Harga</td>
+                          <td className="py-4 px-4 text-primary-600 font-black text-lg">
+                            {formatCurrency(totalPrice * bookingData.participants)}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex space-x-4 pt-6">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="lg"
-                    onClick={() => navigate(`/trips/${id}`)}
-                    className="flex-1"
-                  >
-                    Kembali
-                  </Button>
+                {/* Bottom Total Bar (Mobile Optimized like image) */}
+                <div className="fixed bottom-0 left-0 right-0 bg-blue-50 border-t border-blue-100 p-4 md:relative md:bg-blue-50 md:rounded-xl md:mt-6 md:border-none flex items-center justify-between z-50">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] md:text-xs text-primary-600 font-bold uppercase tracking-wider">Total Pembayaran</span>
+                    <span className="text-xl md:text-2xl font-black text-gray-900">
+                      {formatCurrency(totalPrice * bookingData.participants)}
+                    </span>
+                  </div>
                   <Button
                     type="submit"
                     variant="primary"
                     size="lg"
                     loading={bookingLoading}
                     disabled={!trip.is_available_for_booking}
-                    className="flex-1"
+                    className="px-6 md:px-10 rounded-xl shadow-lg shadow-primary-200"
                   >
-                    {trip.is_quota_full ? 'Kuota Penuh' : 'Lanjutkan Pembayaran'}
+                    {trip.is_quota_full ? 'Kuota Penuh' : 'Lanjutkan Booking'}
                   </Button>
                 </div>
+
+                {/* Space for fixed bottom bar on mobile */}
+                <div className="h-20 md:hidden"></div>
+
+               
               </form>
             </motion.div>
           </div>
