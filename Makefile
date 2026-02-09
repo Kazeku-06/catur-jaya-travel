@@ -5,12 +5,12 @@ help:
 	@echo "  make dev      - Run both Backend and Frontend concurrently"
 	@echo "  make backend  - Run Backend server (Laravel)"
 	@echo "  make frontend - Run Frontend server (Vite)"
-	@echo "  make install  - Install dependencies for both"
+	@echo "  make install  - Install dependencies for both (Wajib Pertama Kali)"
 	@echo "  make setup    - Setup project (copy .env, migrate, key generate)"
 
 clean-ports:
-	@echo "=== 🧹 Cleaning Ports 8000 & 5173... ==="
-	@npx -y kill-port 8000 5173 2>/dev/null || true
+	@echo "=== 🧹 Cleaning Ports 8000 & 3000 & 5173... ==="
+	@npx -y kill-port 8000 3000 5173 2>/dev/null || true
 
 dev: clean-ports
 	@echo "=== 🚀 Starting Papal Application (Laravel + Vite)... ==="
@@ -29,10 +29,11 @@ frontend:
 	@cd frontend && npm run dev -- --host 0.0.0.0
 
 install:
-	@echo "Installing Backend dependencies..."
+	@echo "=== 📦 Installing Backend Dependencies... ==="
 	@cd backend && composer install
-	@echo "Installing Frontend dependencies..."
+	@echo "=== 📦 Installing Frontend Dependencies... ==="
 	@cd frontend && npm install
+	@echo "=== ✅ All Dependencies Installed! ==="
 
 setup:
 	@echo "Setting up Backend..."
