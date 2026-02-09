@@ -148,10 +148,6 @@ const Footer = () => {
         {/* Bottom Footer */}
         <div className="mt-12 lg:mt-16 pt-8 border-t border-gray-800 flex flex-col md:flex-row items-center justify-between text-sm text-gray-500 space-y-4 md:space-y-0 text-center md:text-left">
           <p>© {currentYear} Catur Jaya Mandiri. <br className="block sm:hidden" /> All Rights Reserved.</p>
-          <div className="flex space-x-6">
-            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-          </div>
         </div>
       </div>
     </footer>
