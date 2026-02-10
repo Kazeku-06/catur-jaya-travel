@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useForm } from '../../hooks/useForm';
 import { authValidation } from '../../utils/validation';
 import Alert from '../ui/Alert';
+import api, { endpoints } from '../../config/api';
 
 const RegisterForm = ({ onSubmit, loading = false }) => {
   const [showAlert, setShowAlert] = useState(false);
@@ -38,6 +39,20 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
     } catch (error) {
       setAlertType('error');
       setAlertMessage(error.message || 'Registrasi gagal. Silakan coba lagi.');
+      setShowAlert(true);
+    }
+  };
+
+  // Handler untuk Google Register
+  const handleGoogleRegister = async () => {
+    try {
+      const response = await api.get(endpoints.googleRedirect);
+      if (response.data?.url) {
+        window.location.href = response.data.url;
+      }
+    } catch (error) {
+      setAlertType('error');
+      setAlertMessage('Gagal menghubungkan ke Google. Silakan coba lagi.');
       setShowAlert(true);
     }
   };
@@ -132,7 +147,8 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
           {/* Google Button - Outlined (Sesuai Gambar Login) */}
           <button
             type="button"
-            className="w-full py-4 text-gray-700 text-base font-semibold bg-white border-2 border-[#0091FF] rounded-full shadow-sm hover:bg-gray-50 transition-all flex items-center justify-center gap-3"
+            onClick={handleGoogleRegister}
+            className="w-full py-4 text-gray-700 text-base font-semibold bg-white border-2 border-[#0091FF] rounded-full shadow-sm hover:bg-gray-50 transition-all flex items-center justify-center gap-3 cursor-pointer"
           >
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
             Sign up with Google

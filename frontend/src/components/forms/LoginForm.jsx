@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useForm } from '../../hooks/useForm';
 import { authValidation } from '../../utils/validation';
 import Alert from '../ui/Alert';
+import api, { endpoints } from '../../config/api';
 
 const LoginForm = ({ onSubmit, loading = false }) => {
   const [showAlert, setShowAlert] = useState(false);
@@ -37,9 +38,23 @@ const LoginForm = ({ onSubmit, loading = false }) => {
     }
   };
 
+  // Handler untuk Google Login
+  const handleGoogleLogin = async () => {
+    try {
+      const response = await api.get(endpoints.googleRedirect);
+      if (response.data?.url) {
+        window.location.href = response.data.url;
+      }
+    } catch (error) {
+      setAlertType('error');
+      setAlertMessage('Gagal menghubungkan ke Google. Silakan coba lagi.');
+      setShowAlert(true);
+    }
+  };
+
   return (
     <motion.div
-      className="w-full"
+      className="w-full relative z-50" // Tambah z-50 biar di depan
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
@@ -64,7 +79,7 @@ const LoginForm = ({ onSubmit, loading = false }) => {
         className="space-y-6"
       >
         {/* EMAIL FIELDSET */}
-        <fieldset className="relative border-2 border-gray-200 rounded-[30px] px-4 pb-2 pt-0 focus-within:border-[#0091FF] transition-all shadow-sm">
+        <fieldset className="relative border-2 border-gray-200 rounded-[25px] px-4 pb-2 pt-0 focus-within:border-[#0091FF] transition-all shadow-sm">
           <legend className="text-gray-400 text-sm font-medium px-2 ml-4 mb-0">
             Email
           </legend>
@@ -74,10 +89,11 @@ const LoginForm = ({ onSubmit, loading = false }) => {
             onChange={(e) => handleChange('email', e.target.value)}
             onBlur={() => handleBlur('email')}
             className="w-full bg-transparent px-3 py-2 text-gray-700 focus:outline-none text-lg"
+            placeholder="example@mail.com"
             required
           />
           {touched.email && errors.email && (
-            <p className="absolute -bottom-6 left-4 text-[10px] text-red-500">{errors.email}</p>
+            <p className="absolute -bottom-6 left-4 text-[10px] text-red-500 font-bold">{errors.email}</p>
           )}
         </fieldset>
 
@@ -93,12 +109,13 @@ const LoginForm = ({ onSubmit, loading = false }) => {
               onChange={(e) => handleChange('password', e.target.value)}
               onBlur={() => handleBlur('password')}
               className="w-full bg-transparent px-3 py-2 text-gray-700 focus:outline-none text-lg"
+              placeholder="••••••••"
               required
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="text-gray-400 hover:text-gray-600 px-2"
+              className="text-gray-400 hover:text-gray-600 px-2 cursor-pointer z-[60]"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -107,30 +124,32 @@ const LoginForm = ({ onSubmit, loading = false }) => {
             </button>
           </div>
           {touched.password && errors.password && (
-            <p className="absolute -bottom-6 left-4 text-[10px] text-red-500">{errors.password}</p>
+            <p className="absolute -bottom-6 left-4 text-[10px] text-red-500 font-bold">{errors.password}</p>
           )}
         </fieldset>
 
         {/* Forgot Password Link */}
         <div className="flex justify-end pr-2 -mt-2">
-          <Link to="/forgot-password" size="sm" className="text-sm text-gray-400 hover:text-gray-600">
+          <Link to="/forgot-password" size="sm" className="text-sm text-gray-400 hover:text-gray-600 font-medium">
             forgot password?
           </Link>
         </div>
 
         {/* Action Buttons */}
-        <div className="space-y-4 pt-4">
+        <div className="space-y-4 pt-4 relative">
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 text-white text-xl font-bold bg-[#0091FF] rounded-full shadow-lg hover:bg-[#007acc] active:scale-95 transition-all disabled:opacity-50"
+            className="w-full py-4 text-white text-xl font-bold bg-[#0091FF] rounded-full shadow-lg shadow-blue-100 hover:bg-[#007acc] active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer"
           >
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
 
+          {/* FIX: Tambah onClick, z-index, dan cursor-pointer */}
           <button
             type="button"
-            className="w-full py-4 text-gray-700 text-base font-semibold bg-white border-2 border-[#0091FF] rounded-full shadow-sm hover:bg-gray-50 transition-all flex items-center justify-center gap-3"
+            onClick={handleGoogleLogin}
+            className="w-full py-4 text-gray-700 text-base font-semibold bg-white border-2 border-[#0091FF] rounded-full shadow-sm hover:bg-gray-50 active:scale-[0.98] transition-all flex items-center justify-center gap-3 cursor-pointer relative z-[60]"
           >
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
             Sign in with Google
