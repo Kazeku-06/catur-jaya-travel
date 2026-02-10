@@ -2,16 +2,13 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from '../../hooks/useForm';
 import { authValidation } from '../../utils/validation';
-import Input from '../ui/Input';
-import Button from '../ui/Button';
-import GoogleButton from '../ui/GoogleButton';
 import Alert from '../ui/Alert';
 
 const RegisterForm = ({ onSubmit, loading = false }) => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState('error');
-  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     values,
@@ -36,7 +33,7 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
     try {
       await onSubmit(formData);
       setAlertType('success');
-      setAlertMessage('Registrasi berhasil! Mengalihkan ke halaman login...');
+      setAlertMessage('Registrasi berhasil! Mengalihkan...');
       setShowAlert(true);
     } catch (error) {
       setAlertType('error');
@@ -45,14 +42,49 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
     }
   };
 
+  // Helper untuk render input dengan gaya Legend (Identik dengan Login)
+  const renderFieldset = (id, label, type, placeholder, value, error, isTouched) => (
+    <fieldset className={`relative border-2 ${isTouched && error ? 'border-red-500' : 'border-gray-200'} rounded-[25px] px-4 pb-2 pt-0 focus-within:border-[#0091FF] transition-all shadow-sm`}>
+      <legend className="text-gray-400 text-sm font-medium px-2 ml-4 mb-0">
+        {label}
+      </legend>
+      <div className="flex items-center">
+        <input
+          id={id}
+          type={type === 'password' && showPassword ? 'text' : type}
+          value={value}
+          onChange={(e) => handleChange(id, e.target.value)}
+          onBlur={() => handleBlur(id)}
+          className="w-full bg-transparent px-3 py-2 text-gray-700 focus:outline-none text-lg placeholder-gray-300"
+          placeholder={placeholder}
+          required
+        />
+        {type === 'password' && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="text-gray-400 hover:text-gray-600 px-2"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          </button>
+        )}
+      </div>
+      {isTouched && error && (
+        <p className="absolute -bottom-5 left-4 text-[10px] text-red-500">{error}</p>
+      )}
+    </fieldset>
+  );
+
   return (
     <motion.div
-      className="w-full max-w-md mx-auto"
+      className="w-full"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      {/* Alert */}
       {showAlert && (
         <div className="mb-6">
           <Alert
@@ -65,162 +97,46 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
         </div>
       )}
 
-      <form onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit(handleFormSubmit);
-      }} className="space-y-6">
-        {/* Name */}
-        <Input
-          label="Nama Lengkap"
-          type="text"
-          placeholder="Masukkan nama lengkap Anda"
-          value={values.name}
-          onChange={(e) => handleChange('name', e.target.value)}
-          onBlur={() => handleBlur('name')}
-          error={touched.name ? errors.name : ''}
-          required
-          leftIcon={
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-          }
-        />
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit(handleFormSubmit);
+        }}
+        className="space-y-6"
+      >
+        {/* Name Input */}
+        {renderFieldset('name', 'Full Name', 'text', 'Your Name', values.name, errors.name, touched.name)}
 
-        {/* Email */}
-        <Input
-          label="Email"
-          type="email"
-          placeholder="Masukkan email Anda"
-          value={values.email}
-          onChange={(e) => handleChange('email', e.target.value)}
-          onBlur={() => handleBlur('email')}
-          error={touched.email ? errors.email : ''}
-          required
-          leftIcon={
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-            </svg>
-          }
-        />
+        {/* Email Input */}
+        {renderFieldset('email', 'Email', 'email', 'example@mail.com', values.email, errors.email, touched.email)}
 
-        {/* Phone */}
-        <Input
-          label="Nomor Telepon"
-          type="tel"
-          placeholder="Masukkan nomor telepon Anda"
-          value={values.phone}
-          onChange={(e) => handleChange('phone', e.target.value)}
-          onBlur={() => handleBlur('phone')}
-          error={touched.phone ? errors.phone : ''}
-          required
-          leftIcon={
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-            </svg>
-          }
-        />
+        {/* Phone Input */}
+        {renderFieldset('phone', 'Phone Number', 'tel', '0812xxxx', values.phone, errors.phone, touched.phone)}
 
-        {/* Password */}
-        <Input
-          label="Password"
-          type="password"
-          placeholder="Masukkan password Anda"
-          value={values.password}
-          onChange={(e) => handleChange('password', e.target.value)}
-          onBlur={() => handleBlur('password')}
-          error={touched.password ? errors.password : ''}
-          required
-          leftIcon={
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-          }
-        />
+        {/* Password Input */}
+        {renderFieldset('password', 'Password', 'password', '••••••••', values.password, errors.password, touched.password)}
 
-        {/* Confirm Password */}
-        <Input
-          label="Konfirmasi Password"
-          type="password"
-          placeholder="Konfirmasi password Anda"
-          value={values.password_confirmation}
-          onChange={(e) => handleChange('password_confirmation', e.target.value)}
-          onBlur={() => handleBlur('password_confirmation')}
-          error={touched.password_confirmation ? errors.password_confirmation : ''}
-          required
-          leftIcon={
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          }
-        />
+        {/* Confirmation Password Input */}
+        {renderFieldset('password_confirmation', 'Confirm Password', 'password', '••••••••', values.password_confirmation, errors.password_confirmation, touched.password_confirmation)}
 
-        {/* Terms and Conditions */}
-        <div className="flex items-center">
-          <input
-            id="terms"
-            name="terms"
-            type="checkbox"
-            checked={termsAccepted}
-            onChange={(e) => setTermsAccepted(e.target.checked)}
-            className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-          />
-          <label htmlFor="terms" className="ml-2 block text-sm text-gray-900">
-            Saya setuju dengan{' '}
-            <a href="#" className="text-primary-600 hover:text-primary-500">
-              Syarat dan Ketentuan
-            </a>{' '}
-            serta{' '}
-            <a href="#" className="text-primary-600 hover:text-primary-500">
-              Kebijakan Privasi
-            </a>
-          </label>
-        </div>
-
-        {/* Submit Button */}
-        <Button
-          type="submit"
-          variant="primary"
-          size="lg"
-          fullWidth
-          loading={loading}
-          disabled={!isValid || !termsAccepted || loading}
-        >
-          {loading ? 'Mendaftar...' : 'Daftar'}
-        </Button>
-
-        {/* Divider */}
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">Atau</span>
-          </div>
-        </div>
-
-        {/* Social Register */}
-        <div className="space-y-3">
-          <GoogleButton
-            variant="outline"
-            size="md"
-            fullWidth
+        {/* Submit Button - Solid Blue (Sesuai Gambar Login) */}
+        <div className="pt-4 space-y-4">
+          <button
+            type="submit"
+            disabled={!isValid || loading}
+            className="w-full py-4 text-white text-xl font-bold bg-[#0091FF] rounded-full shadow-lg shadow-blue-200 hover:bg-[#007acc] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Daftar dengan Google
-          </GoogleButton>
+            {loading ? 'Registering...' : 'Sign up'}
+          </button>
 
-          <Button
+          {/* Google Button - Outlined (Sesuai Gambar Login) */}
+          <button
             type="button"
-            variant="outline"
-            size="md"
-            fullWidth
-            leftIcon={
-              <svg className="w-5 h-5" fill="#1877F2" viewBox="0 0 24 24">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-              </svg>
-            }
+            className="w-full py-4 text-gray-700 text-base font-semibold bg-white border-2 border-[#0091FF] rounded-full shadow-sm hover:bg-gray-50 transition-all flex items-center justify-center gap-3"
           >
-            Daftar dengan Facebook
-          </Button>
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+            Sign up with Google
+          </button>
         </div>
       </form>
     </motion.div>

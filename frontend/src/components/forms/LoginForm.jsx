@@ -3,15 +3,13 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useForm } from '../../hooks/useForm';
 import { authValidation } from '../../utils/validation';
-import Input from '../ui/Input';
-import Button from '../ui/Button';
-import GoogleButton from '../ui/GoogleButton';
 import Alert from '../ui/Alert';
 
 const LoginForm = ({ onSubmit, loading = false }) => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState('error');
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     values,
@@ -22,10 +20,7 @@ const LoginForm = ({ onSubmit, loading = false }) => {
     handleSubmit,
     isValid,
   } = useForm(
-    {
-      email: '',
-      password: '',
-    },
+    { email: '', password: '' },
     authValidation.login
   );
 
@@ -44,12 +39,11 @@ const LoginForm = ({ onSubmit, loading = false }) => {
 
   return (
     <motion.div
-      className="w-full max-w-md mx-auto"
+      className="w-full"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      {/* Alert */}
       {showAlert && (
         <div className="mb-6">
           <Alert
@@ -62,86 +56,85 @@ const LoginForm = ({ onSubmit, loading = false }) => {
         </div>
       )}
 
-      <form onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit(handleFormSubmit);
-      }} className="space-y-6">
-        {/* Email */}
-        <Input
-          label="Email"
-          type="email"
-          placeholder="Masukkan email Anda"
-          value={values.email}
-          onChange={(e) => handleChange('email', e.target.value)}
-          onBlur={() => handleBlur('email')}
-          error={touched.email ? errors.email : ''}
-          required
-          leftIcon={
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-            </svg>
-          }
-        />
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit(handleFormSubmit);
+        }}
+        className="space-y-6"
+      >
+        {/* EMAIL FIELDSET */}
+        <fieldset className="relative border-2 border-gray-200 rounded-[30px] px-4 pb-2 pt-0 focus-within:border-[#0091FF] transition-all shadow-sm">
+          <legend className="text-gray-400 text-sm font-medium px-2 ml-4 mb-0">
+            Email
+          </legend>
+          <input
+            type="email"
+            value={values.email}
+            onChange={(e) => handleChange('email', e.target.value)}
+            onBlur={() => handleBlur('email')}
+            className="w-full bg-transparent px-3 py-2 text-gray-700 focus:outline-none text-lg"
+            required
+          />
+          {touched.email && errors.email && (
+            <p className="absolute -bottom-6 left-4 text-[10px] text-red-500">{errors.email}</p>
+          )}
+        </fieldset>
 
-        {/* Password */}
-        <Input
-          label="Password"
-          type="password"
-          placeholder="Masukkan password Anda"
-          value={values.password}
-          onChange={(e) => handleChange('password', e.target.value)}
-          onBlur={() => handleBlur('password')}
-          error={touched.password ? errors.password : ''}
-          required
-          leftIcon={
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-          }
-        />
-
-        <div className="flex items-center justify-between">
-          <div className="text-sm">
-            <Link 
-              to="/forgot-password" 
-              className="font-medium text-primary-600 hover:text-primary-500"
+        {/* PASSWORD FIELDSET */}
+        <fieldset className="relative border-2 border-gray-200 rounded-[25px] px-4 pb-2 pt-0 focus-within:border-[#0091FF] transition-all shadow-sm">
+          <legend className="text-gray-400 text-sm font-medium px-2 ml-4 mb-0">
+            Password
+          </legend>
+          <div className="flex items-center">
+            <input
+              type={showPassword ? "text" : "password"}
+              value={values.password}
+              onChange={(e) => handleChange('password', e.target.value)}
+              onBlur={() => handleBlur('password')}
+              className="w-full bg-transparent px-3 py-2 text-gray-700 focus:outline-none text-lg"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="text-gray-400 hover:text-gray-600 px-2"
             >
-              Lupa password?
-            </Link>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
           </div>
+          {touched.password && errors.password && (
+            <p className="absolute -bottom-6 left-4 text-[10px] text-red-500">{errors.password}</p>
+          )}
+        </fieldset>
+
+        {/* Forgot Password Link */}
+        <div className="flex justify-end pr-2 -mt-2">
+          <Link to="/forgot-password" size="sm" className="text-sm text-gray-400 hover:text-gray-600">
+            forgot password?
+          </Link>
         </div>
 
-        {/* Submit Button */}
-        <Button
-          type="submit"
-          variant="primary"
-          size="lg"
-          fullWidth
-          loading={loading}
-          disabled={!isValid || loading}
-        >
-          {loading ? 'Masuk...' : 'Masuk'}
-        </Button>
-
-        {/* Divider */}
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">Atau</span>
-          </div>
-        </div>
-
-        {/* Social Login */}
-        <div className="space-y-3">
-          <GoogleButton
-            variant="outline"
-            size="md"
-            fullWidth
+        {/* Action Buttons */}
+        <div className="space-y-4 pt-4">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-4 text-white text-xl font-bold bg-[#0091FF] rounded-full shadow-lg hover:bg-[#007acc] active:scale-95 transition-all disabled:opacity-50"
           >
-            Masuk dengan Google
-          </GoogleButton> 
+            {loading ? 'Signing in...' : 'Sign in'}
+          </button>
+
+          <button
+            type="button"
+            className="w-full py-4 text-gray-700 text-base font-semibold bg-white border-2 border-[#0091FF] rounded-full shadow-sm hover:bg-gray-50 transition-all flex items-center justify-center gap-3"
+          >
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+            Sign in with Google
+          </button>
         </div>
       </form>
     </motion.div>

@@ -95,50 +95,65 @@ export default api;
 // API endpoints based on backend documentation
 export const endpoints = {
   // Auth endpoints
-  login: '/auth/login',
-  register: '/auth/register',
-  logout: '/auth/logout',
-  profile: '/auth/me',
-  forgotPassword: '/auth/forgot-password',
-  resetPassword: '/auth/reset-password',
+  login: 'auth/login',
+  register: 'auth/register',
+  logout: 'auth/logout',
+  profile: 'auth/me',
+  forgotPassword: 'auth/forgot-password',
+  resetPassword: 'auth/reset-password',
   
   // Google OAuth endpoints
-  googleRedirect: '/auth/google/redirect',
-  googleCallback: '/auth/google/callback',
+  googleRedirect: 'auth/google/redirect',
+  googleCallback: 'auth/google/callback',
 
   // Public catalog endpoints (guest access)
-  trips: '/trips',
-  tripDetail: (id) => `/trips/${id}`,
+  trips: 'trips',
+  tripDetail: (id) => `trips/${id}`,
 
-  travels: '/travels',
-  travelDetail: (id) => `/travels/${id}`,
+  travels: 'travels',
+  travelDetail: (id) => `travels/${id}`,
 
   // Transaction endpoints (requires authentication)
-  createTripTransaction: (tripId) => `/transactions/trip/${tripId}`,
-  createTravelTransaction: (travelId) => `/transactions/travel/${travelId}`,
-  userBookings: '/transactions/my-bookings',
-  transactionDetail: (id) => `/transactions/${id}`,
-  testAuth: '/test-auth',
+  createTripTransaction: (tripId) => `transactions/trip/${tripId}`,
+  createTravelTransaction: (travelId) => `transactions/travel/${travelId}`,
+  userBookings: 'transactions/my-bookings',
+  transactionDetail: (id) => `transactions/${id}`,
+  testAuth: 'test-auth',
 
   // Payment endpoints
-  midtransConfig: '/payments/midtrans',
-  midtransCallback: '/payments/midtrans/callback',
+  midtransConfig: 'payments/midtrans',
+  midtransCallback: 'payments/midtrans/callback',
+
+  // Booking endpoints
+  createTripBooking: (tripId) => `bookings/trip/${tripId}`,
+  createTravelBooking: (travelId) => `bookings/travel/${travelId}`,
+  myBookings: 'bookings/my',
+  bookingDetail: (id) => `bookings/${id}`,
+  uploadPaymentProof: (id) => `bookings/${id}/payment-proof`,
+  downloadTicket: (id) => `bookings/${id}/download-ticket`,
 
   // Admin endpoints (requires admin role)
   admin: {
-    trips: '/admin/trips',
-    tripDetail: (id) => `/admin/trips/${id}`,
-    travels: '/admin/travels',
-    travelDetail: (id) => `/admin/travels/${id}`,
-    transactions: '/admin/transactions',
-    transactionDetail: (id) => `/admin/transactions/${id}`,
-    transactionStats: '/admin/transactions/statistics',
+    trips: 'admin/trips',
+    tripDetail: (id) => `admin/trips/${id}`,
+    travels: 'admin/travels',
+    travelDetail: (id) => `admin/travels/${id}`,
+    transactions: 'admin/transactions',
+    transactionDetail: (id) => `admin/transactions/${id}`,
+    transactionStats: 'admin/transactions/statistics',
+
+    // Booking endpoints
+    bookings: 'admin/bookings',
+    bookingDetail: (id) => `admin/bookings/${id}`,
+    bookingStats: 'admin/bookings/statistics',
+    approveBooking: (id) => `admin/bookings/${id}/approve`,
+    rejectBooking: (id) => `admin/bookings/${id}/reject`,
 
     // Notification endpoints
-    notifications: '/admin/notifications',
-    notificationUnreadCount: '/admin/notifications/unread-count',
-    notificationStats: '/admin/notifications/statistics',
-    markNotificationRead: (id) => `/admin/notifications/${id}/read`,
-    markAllNotificationsRead: '/admin/notifications/mark-all-read',
+    notifications: 'admin/notifications',
+    notificationUnreadCount: 'admin/notifications/unread-count',
+    notificationStats: 'admin/notifications/statistics',
+    markNotificationRead: (id) => `admin/notifications/${id}/read`,
+    markAllNotificationsRead: 'admin/notifications/mark-all-read',
   }
 };

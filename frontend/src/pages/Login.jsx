@@ -15,7 +15,6 @@ const Login = () => {
   const from = location.state?.from || '/';
 
   useEffect(() => {
-    // Redirect if already logged in
     if (authToken) {
       navigate(from, { replace: true });
     }
@@ -24,18 +23,11 @@ const Login = () => {
   const handleLogin = async (formData) => {
     try {
       const response = await api.post(endpoints.login, formData);
-      
-      // Backend response structure: { message: "Login successful", user: {...}, access_token: "...", token_type: "Bearer" }
       const { user, access_token } = response.data;
-      
       setAuthToken(access_token);
       setUserData(user);
-      
-      // Redirect to intended page or home
       navigate(from, { replace: true });
-      
     } catch (error) {
-      // Backend error structure: { message: "...", errors: {...} }
       const message = error.response?.data?.message || 'Login gagal. Silakan coba lagi.';
       throw new Error(message);
     }
@@ -43,131 +35,89 @@ const Login = () => {
 
   return (
     <Layout showHeader={false} showFooter={false}>
-      <div className="min-h-screen flex bg-gray-50">
-        {/* Left Side - Login Form */}
-        <div className="flex-1 flex items-center justify-center px-6 sm:px-12 lg:px-20 bg-white">
-          <motion.div
-            className="max-w-md w-full"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+      <div className="min-h-screen bg-white flex flex-col items-center overflow-x-hidden font-sans">
+        
+        {/* HEADER SECTION: Background Biru + Double Wave */}
+        <div className="relative w-full h-[38vh] bg-gradient-to-tr from-[#60EFFF] to-[#0072FF] flex flex-col items-center justify-center shrink-0">
+          
+          {/* LOGO SECTION */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="z-30 flex flex-col items-center -mt-8"
           >
-            {/* Logo & Brand */}
-            <div className="mb-10 text-center lg:text-left">
-              <Link to="/" className="inline-flex items-center space-x-3 group">
-                <div className="w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-200 group-hover:bg-primary-700 transition-colors">
-                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <span className="text-2xl font-extrabold text-gray-900 tracking-tight">Catur Jaya Mandiri Travel</span>
-              </Link>
-            </div>
-
-            {/* Welcome Text */}
-            <div className="mb-8 text-center lg:text-left">
-              <h2 className="text-3xl font-bold text-gray-900 tracking-tight mb-3">
-                Selamat Datang Kembali
-              </h2>
-              <p className="text-gray-500 text-lg">
-                Masuk ke akun Anda untuk melanjutkan petualangan
-              </p>
-            </div>
-
-            {/* Form Container */}
-            <div className="bg-white rounded-2xl">
-              <LoginForm onSubmit={handleLogin} />
-            </div>
-
-            {/* Footer Links */}
-            <div className="mt-10 space-y-4">
-              <div className="text-center">
-                <p className="text-gray-600">
-                  Belum punya akun?{' '}
-                  <Link
-                    to="/register"
-                    state={{ from }}
-                    className="font-semibold text-primary-600 hover:text-primary-700 transition-colors underline-offset-4 hover:underline"
-                  >
-                    Daftar sekarang
-                  </Link>
-                </p>
-              </div>
-
-              <div className="text-center">
-                <Link
-                  to="/"
-                  className="inline-flex items-center text-sm font-medium text-gray-400 hover:text-gray-600 transition-colors duration-200 group"
-                >
-                  <svg className="w-4 h-4 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                  </svg>
-                  Kembali ke Beranda
-                </Link>
-              </div>
-            </div>
+            <img 
+              src="/logo_1.jpg-removebg-preview (1).png" 
+              alt="Logo Catur Jaya Mandiri" 
+              className="w-44 sm:w-52 drop-shadow-xl"
+            />
           </motion.div>
+
+          {/* WAVE CONTAINER: Ini kunci lekukannya bro */}
+          <div className="absolute bottom-0 w-full leading-[0] z-20">
+            <svg 
+              viewBox="0 0 500 150" 
+              preserveAspectRatio="none" 
+              className="relative block w-full h-[80px] sm:h-[120px]"
+            >
+              {/* Layer 1: Ungu (Aksen Bawah) */}
+              <path 
+                d="M0,180 C100,150 400,-45 550, C150 120 L500,80 L0,150 Z" 
+                fill="#4A3AFF" 
+              />
+              {/* Layer 2: Putih (Background Bawah) */}
+              <path 
+                d="M0,80 C150,170 350,-30 500,80 L500,150 L0,150 Z" 
+                fill="#ffffff" 
+              />
+            </svg>
+          </div>
         </div>
 
-        {/* Right Side - Visual Section */}
-        <motion.div
-          className="hidden lg:block lg:flex-[1.2] relative overflow-hidden"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
-        >
-          {/* Decorative Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary-600/90 via-primary-700/85 to-primary-900/95 z-10"></div>
+        {/* FORM SECTION */}
+        <div className="w-full max-w-md px-8 flex flex-col items-center -mt-2 z-30">
           
-          <img
-            src="/images/login-bg.jpg"
-            alt="Beautiful Indonesia"
-            className="absolute inset-0 w-full h-full object-cover scale-105"
-          />
-          
-          {/* Floating Content */}
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-16 text-white">
-            <motion.div 
-              className="text-center"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-            >
-              <h3 className="text-5xl font-extrabold mb-6 leading-tight">
-                Jelajahi Keindahan <br /> Indonesia
-              </h3>
-              <p className="text-xl text-primary-100 mb-12 max-w-lg mx-auto leading-relaxed opacity-90">
-                Temukan destinasi wisata menakjubkan dan buat kenangan tak terlupakan bersama kami.
+          {/* Judul & Subjudul - Font Fix */}
+            <div className="text-center mt-4 mb-8">
+              <h1 className="text-3xl font-[900] text-[#333333] tracking-tight font-sans">
+                hello!
+              </h1>
+              <p className="text-gray-400 font-medium text-[15px] mt-1 tracking-wide">
+                Sign in to continue.
               </p>
-
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 gap-10 max-w-md mx-auto bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20">
-                <div className="space-y-1">
-                  <div className="text-3xl font-bold">500+</div>
-                  <div className="text-primary-200 text-sm uppercase tracking-wider font-medium">Destinasi</div>
-                </div>
-                <div className="space-y-1">
-                  <div className="text-3xl font-bold">10K+</div>
-                  <div className="text-primary-200 text-sm uppercase tracking-wider font-medium">Pelanggan</div>
-                </div>
-                <div className="space-y-1">
-                  <div className="text-3xl font-bold">50+</div>
-                  <div className="text-primary-200 text-sm uppercase tracking-wider font-medium">Kota</div>
-                </div>
-                <div className="space-y-1">
-                  <div className="text-3xl font-bold">5</div>
-                  <div className="text-primary-200 text-sm uppercase tracking-wider font-medium">Tahun</div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Bottom Credit */}
-            <div className="absolute bottom-10 text-primary-200/60 text-sm">
-              © 2024 Catur Jaya Travel. All rights reserved.
             </div>
+
+          {/* Login Form Component */}
+          <div className="w-full">
+            <LoginForm onSubmit={handleLogin} />
           </div>
-        </motion.div>
+
+          {/* FOOTER SECTION */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="mt-8 w-full flex flex-col items-center pb-10"
+          >
+            <p className="text-gray-400 text-sm mb-6">
+              Don't have an account?{' '}
+              <Link to="/register" className="text-[#4A3AFF] font-bold hover:underline">
+                Sign Up
+              </Link>
+            </p>
+
+            {/* Tombol Back to Home */}
+            <Link
+              to="/"
+              className="flex items-center text-[10px] font-bold text-gray-300 hover:text-blue-500 transition-all uppercase tracking-[0.2em]"
+            >
+              <svg className="w-3 h-3 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to Home
+            </Link>
+          </motion.div>
+        </div>
       </div>
     </Layout>
   );
