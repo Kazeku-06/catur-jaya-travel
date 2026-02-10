@@ -172,7 +172,6 @@ const ForgotPassword = () => {
                   <li>Link reset password berlaku selama 5 menit</li>
                   <li>Link hanya dapat digunakan sekali</li>
                   <li>Periksa folder spam jika email tidak diterima</li>
-                  <li>Hubungi customer service jika mengalami kesulitan</li>
                 </ul>
               </div>
             </div>
