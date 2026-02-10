@@ -417,13 +417,24 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-primary-600 text-white text-center">
+      <section className="py-16 bg-[#2563EB] text-white text-center">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold mb-4">Siap Memulai Petualangan Anda?</h2>
           <p className="mb-8 opacity-90">Pilih paket wisata impian Anda dan buat kenangan tak terlupakan.</p>
-          <div className="flex justify-center gap-4">
-            <Link to="/trips"><Button variant="secondary" className="px-8">Pilih Paket Trip</Button></Link>
-            <Link to="/travels"><Button variant="outline" className="border-white text-white px-8 hover:bg-white/10">Lihat Travel</Button></Link>
+          
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+            <Link to="/trips">
+              <button className="!bg-[#FFB800] hover:bg-[#e6a600] text-white-900 font-bold py-3 px-10 rounded-full transition-all duration-300 shadow-lg transform hover:scale-105 active:scale-95">
+                Pilih Paket Trip
+              </button>
+            </Link>
+
+            {/* Tombol Travel (Outline) */}
+            <Link to="/travels">
+              <button className="bg-transparent border-2 border-white text-white font-bold py-3 px-10 rounded-full hover:bg-white/10 transition-all duration-300">
+                Lihat Travel
+              </button>
+            </Link>
           </div>
         </div>
       </section>
