@@ -12,6 +12,7 @@ const TripDetail = lazy(() => import('./pages/TripDetail'));
 const Travels = lazy(() => import('./pages/Travels'));
 const TravelDetail = lazy(() => import('./pages/TravelDetail'));
 const Login = lazy(() => import('./pages/Login'));
+const AdminLogin = lazy(() => import('./pages/AdminLogin'));
 const Register = lazy(() => import('./pages/Register'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
@@ -51,7 +52,7 @@ const AdminRoute = ({ children }) => {
   const [userData] = useLocalStorage('user_data', null);
   
   if (!authToken) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/veteran" replace />;
   }
   
   if (!userData || userData.role !== 'admin') {
@@ -127,6 +128,14 @@ function App() {
                   element={
                     <PublicRoute>
                       <Login />
+                    </PublicRoute>
+                  } 
+                />
+                <Route 
+                  path="/veteran" 
+                  element={
+                    <PublicRoute>
+                      <AdminLogin />
                     </PublicRoute>
                   } 
                 />

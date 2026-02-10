@@ -24,12 +24,19 @@ const Login = () => {
     try {
       const response = await api.post(endpoints.login, formData);
       const { user, access_token } = response.data;
+      
+      // Validasi: admin tidak bisa login di halaman user
+      if (user.role === 'admin') {
+        throw new Error('Akun admin tidak dapat login di sini. Silakan gunakan halaman login admin.');
+      }
+      
       setAuthToken(access_token);
       setUserData(user);
       navigate(from, { replace: true });
     } catch (error) {
       const message =
         error.response?.data?.message ||
+        error.message ||
         'Login gagal. Silakan coba lagi.';
       throw new Error(message);
     }
