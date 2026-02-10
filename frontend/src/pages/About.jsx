@@ -59,26 +59,35 @@ const About = () => {
           <Breadcrumb items={breadcrumbItems} />
         </div>
       </div>
+        {/* Hero Section */}
+        <section className="relative py-20 md:py-28 bg-[#2563EB] text-white overflow-hidden">
+          
+          
 
-      {/* Hero Section */}
-      <section className="relative py-16 md:py-24 bg-gradient-to-br from-primary-600 to-primary-800 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black/30" />
-        <div className="relative container mx-auto px-4 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold mb-4 md:mb-6">
-              Tentang Global Internindo
-            </h1>
-            <p className="text-base md:text-lg lg:text-2xl opacity-90 max-w-3xl mx-auto px-4">
-              Dari komunitas driver online menjadi penyedia jasa wisata terpercaya
-              di Malang dan sekitarnya
-            </p>
-          </motion.div>
-        </div>
-      </section>
+          {/* Dekorasi Cahaya (Supaya tampilan lebih premium) */}
+          <div className="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-80 h-80 bg-blue-400/20 rounded-full blur-3xl" />
+
+          <div className="relative container mx-auto px-4 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold mb-4 md:mb-6 tracking-tight">
+                Tentang Catur Jaya Mandiri
+              </h1>
+              
+              {/* Garis dekorasi bawah judul */}
+              <div className="w-24 h-1.5 bg-white mx-auto mb-8 rounded-full" />
+
+              <p className="text-lg md:text-xl lg:text-2xl opacity-90 max-w-3xl mx-auto px-4 leading-relaxed font-medium">
+                Dari komunitas driver online menjadi penyedia jasa wisata terpercaya
+                di Malang dan sekitarnya.
+              </p>
+            </motion.div>
+          </div>
+        </section>
 
       {/* Company Story Section */}
       <section className="py-12 md:py-20">
