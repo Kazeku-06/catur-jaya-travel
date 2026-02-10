@@ -358,13 +358,13 @@ const TripBooking = () => {
                           <td className="py-4 px-4 text-gray-900 font-bold">{bookingData.participants} orang</td>
                         </tr>
                         <tr>
-                          <td className="py-4 px-4 text-gray-500 text-sm md:text-base">Harga per Orang</td>
+                          <td className="py-4 px-4 text-gray-500 text-sm md:text-base">Harga per Trip</td>
                           <td className="py-4 px-4 text-gray-900 font-bold">{formatCurrency(trip.price)}</td>
                         </tr>
                         <tr className="bg-gray-50/50">
                           <td className="py-4 px-4 text-gray-900 font-bold text-sm md:text-base">Total Harga</td>
                           <td className="py-4 px-4 text-primary-600 font-black text-lg">
-                            {formatCurrency(totalPrice * bookingData.participants)}
+                            {formatCurrency(totalPrice)}
                           </td>
                         </tr>
                       </tbody>
@@ -377,7 +377,7 @@ const TripBooking = () => {
                   <div className="flex flex-col">
                     <span className="text-[10px] md:text-xs text-primary-600 font-bold uppercase tracking-wider">Total Pembayaran</span>
                     <span className="text-xl md:text-2xl font-black text-gray-900">
-                      {formatCurrency(totalPrice * bookingData.participants)}
+                      {formatCurrency(totalPrice)}
                     </span>
                   </div>
                   <Button
