@@ -8,6 +8,10 @@ export default defineConfig({
     port: 3000,
     host: true,
     cors: true,
+    // Uncomment and configure HMR for production/remote development
+    // hmr: {
+    //   host: "your-server-ip-here",
+    // },
   },
   build: {
     outDir: 'dist',

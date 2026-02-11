@@ -38,36 +38,20 @@ const Home = () => {
         api.get(endpoints.travels),
       ]);
 
-      const trips = tripsRes.data.data?.slice(0, 3) || [];
-      const travels = travelsRes.data.data?.slice(0, 3) || [];
+      const trips = tripsRes.data.data || [];
+      const travels = travelsRes.data.data || [];
 
-      setFeaturedTrips(trips);
-      setFeaturedTravels(travels);
+      setFeaturedTrips(trips.slice(0, 3));
+      setFeaturedTravels(travels.slice(0, 3));
       
-      // Generate daily randomized content
-      const randomContent = getDailyRandomizedContent(trips, travels, 2);
+      // Ambil 3 konten acak (untuk Desktop butuh 3, untuk Mobile kita ambil 2 saja nanti)
+      const randomContent = getDailyRandomizedContent(trips, travels, 3);
       const finalContent = randomContent.length > 0 ? randomContent : getFallbackContent();
       
-      // Debug logging to verify links
-      console.log('Daily content generated:', finalContent.map(item => ({
-        type: item.type,
-        name: item.displayName,
-        link: item.detailLink,
-        id: item.id
-      })));
-      
       setDailyContent(finalContent);
-      
     } catch (error) {
       console.error('Error fetching home data:', error);
-      // Use fallback content if API fails
-      const fallbackContent = getFallbackContent();
-      console.log('Using fallback content:', fallbackContent.map(item => ({
-        type: item.type,
-        name: item.displayName,
-        link: item.detailLink
-      })));
-      setDailyContent(fallbackContent);
+      setDailyContent(getFallbackContent());
     }
   };
 
@@ -254,7 +238,6 @@ const Home = () => {
               )}
             </div>
 
-
             <Button
               onClick={handleSearch}
               disabled={isSearching || !!dateError || !searchData.destination.trim() || !searchData.travelDates}
@@ -294,46 +277,40 @@ const Home = () => {
             </p>
           </div>
 
-          <div className="flex flex-col gap-6 max-w-xl mx-auto">
+          <div className="flex flex-col md:flex-row gap-6 max-w-6xl mx-auto justify-center items-stretch">
+            {/* LOGIKA KARTU ACAK:
+              - Di Desktop (md): Muncul 3 kartu (index 0, 1, 2)
+              - Di Mobile: Muncul 2 kartu (index 0, 1) dan kartu ke-3 di-hidden
+            */}
             {dailyContent.map((item, index) => (
               <motion.div
                 key={`${item.type}-${item.id || index}`}
-                className="relative h-64 overflow-hidden rounded-2xl shadow-md group cursor-pointer"
+                // md:flex = tampil di desktop, ${index === 2 ? 'hidden md:flex' : 'flex'} = kartu ke-3 sembunyi di mobile
+                className={`relative h-72 w-full md:w-1/3 overflow-hidden rounded-2xl shadow-md group cursor-pointer ${
+                  index === 2 ? 'hidden md:flex' : 'flex'
+                }`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <Link 
-                  to={item.detailLink}
-                  className="block w-full h-full"
-                  onClick={() => {
-                    console.log(`Navigating to: ${item.detailLink} for ${item.displayName}`);
-                  }}
-                >
+                <Link to={item.detailLink} className="block w-full h-full">
                   <img
                     src={item.image}
                     alt={item.displayName}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    onError={(e) => {
-                      e.target.src = item.type === 'trip' 
-                        ? 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-                        : 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
-                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                   <div className="absolute bottom-6 left-6 text-white text-left">
                     <div className="flex items-center mb-2">
                       <span className={`px-2 py-1 text-xs font-bold rounded-full ${
-                        item.type === 'trip' 
-                          ? 'bg-blue-500 text-white' 
-                          : 'bg-green-500 text-white'
+                        item.type === 'trip' ? 'bg-blue-500 text-white' : 'bg-green-500 text-white'
                       }`}>
                         {item.type === 'trip' ? 'TRIP' : 'TRAVEL'}
                       </span>
                     </div>
-                    <h3 className="text-2xl font-bold mb-1">{item.displayName}</h3>
+                    <h3 className="text-xl font-bold mb-1">{item.displayName}</h3>
                     <div className="w-12 h-1 bg-[#00a3ff] my-2"></div>
-                    <p className="text-sm opacity-90 mb-1">{item.displayLocation}</p>
+                    <p className="text-xs opacity-90 mb-1">{item.displayLocation}</p>
                     <p className="text-lg font-bold text-[#00a3ff]">
                       {formatCurrency(item.displayPrice)}
                     </p>
@@ -342,16 +319,23 @@ const Home = () => {
               </motion.div>
             ))}
 
-            <div className="bg-[#b3b3b3] rounded-2xl p-8 text-white relative overflow-hidden shadow-md text-left">
-              <span className="bg-[#ff8a00] text-[10px] uppercase font-bold px-3 py-1 rounded-md mb-4 inline-block tracking-tighter">
-                Travel Services
-              </span>
-              <h3 className="text-3xl font-bold mb-3 leading-tight">Plan Your<br />Next Journey!</h3>
-              <p className="text-xs opacity-90 mb-6 max-w-[230px] leading-relaxed">
-                Intercity travel service with door-to-door pickup, comfortable and practical for daily trips.
-              </p>
-              <Link to="/travels">
-                <Button className="bg-[#00a3ff] hover:bg-[#008ce6] border-none text-white px-8 rounded-lg font-bold">
+            {/* KARTU PLAN YOUR NEXT JOURNEY:
+              - md:hidden = Sembunyi di Desktop
+              - block = Muncul di Mobile
+            */}
+            <div className="md:hidden bg-[#b3b3b3] rounded-2xl p-6 text-white relative overflow-hidden shadow-md text-left w-full h-72 flex flex-col justify-between">
+              <div>
+                <span className="bg-[#ff8a00] text-[10px] uppercase font-bold px-3 py-1 rounded-md mb-3 inline-block tracking-tighter w-fit">
+                  Travel Services
+                </span>
+                <h3 className="text-2xl font-bold mb-2 leading-tight">Plan Your<br />Next Journey!</h3>
+                <p className="text-[11px] opacity-90 max-w-[200px] leading-relaxed">
+                  Intercity travel service with door-to-door pickup, comfortable and practical for daily trips.
+                </p>
+              </div>
+              
+              <Link to="/travels" className="block w-full">
+                <Button className="bg-[#00a3ff] hover:bg-[#008ce6] border-none text-white w-full py-2 rounded-lg font-bold text-sm">
                   Book Now
                 </Button>
               </Link>
@@ -361,40 +345,80 @@ const Home = () => {
       </section>
 
       {/* Featured Trips Section */}
-      {featuredTrips.length > 0 && (
-        <section className="py-20 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between mb-12">
-              <div className="text-left">
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">Paket Trip Populer</h2>
-                <p className="text-gray-600">Destinasi wisata favorit pilihan traveler</p>
+        {featuredTrips.length > 0 && (
+          <section className="py-12 md:py-20 bg-white">
+            <div className="container mx-auto px-4">
+              {/* Header Section: Stacked on mobile, side-by-side on desktop */}
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 md:mb-12">
+                <div className="text-left">
+                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                    Paket Trip Populer
+                  </h2>
+                  <p className="text-sm md:text-base text-gray-600">
+                    Destinasi wisata favorit pilihan traveler
+                  </p>
+                </div>
+                
+                {/* Button: Full width on mobile, auto width on desktop */}
+                <div className="w-full md:w-auto">
+                  <Link to="/trips">
+                    <Button 
+                      variant="outline" 
+                      className="w-full md:w-auto border-blue-500 text-blue-500 hover:bg-blue-50 rounded-xl py-2.5 md:py-2 text-sm font-medium"
+                    >
+                      Lihat Semua
+                    </Button>
+                  </Link>
+                </div>
               </div>
-              <Link to="/trips"><Button variant="outline">Lihat Semua</Button></Link>
+
+              {/* Grid: 1 column on mobile, 3 on desktop */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                {featuredTrips.map((trip) => (
+                  <TripCard key={trip.id} trip={trip} />
+                ))}
+              </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-              {featuredTrips.map((trip) => <TripCard key={trip.id} trip={trip} />)}
-            </div>
-          </div>
-        </section>
-      )}
+          </section>
+        )}
 
       {/* Featured Travels Section */}
-      {featuredTravels.length > 0 && (
-        <section className="py-20 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between mb-12">
-              <div className="text-left">
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">Layanan Travel Terpercaya</h2>
-                <p className="text-gray-600">Perjalanan antar kota yang nyaman dan aman</p>
+        {featuredTravels.length > 0 && (
+          <section className="py-12 md:py-20 bg-gray-50">
+            <div className="container mx-auto px-4">
+              {/* Header Section: Stacked on mobile, side-by-side on desktop */}
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 md:mb-12">
+                <div className="text-left">
+                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                    Layanan Travel Terpercaya
+                  </h2>
+                  <p className="text-sm md:text-base text-gray-600">
+                    Perjalanan antar kota yang nyaman dan aman
+                  </p>
+                </div>
+                
+                {/* Button: Full width on mobile, auto width on desktop */}
+                <div className="w-full md:w-auto">
+                  <Link to="/travels">
+                    <Button 
+                      variant="outline" 
+                      className="w-full md:w-auto border-blue-500 text-blue-500 hover:bg-blue-50 rounded-xl py-2.5 md:py-2 text-sm font-medium"
+                    >
+                      Lihat Semua
+                    </Button>
+                  </Link>
+                </div>
               </div>
-              <Link to="/travels"><Button variant="outline">Lihat Semua</Button></Link>
+
+              {/* Grid: 1 column on mobile, 3 on desktop */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 text-left">
+                {featuredTravels.map((travel) => (
+                  <TravelCard key={travel.id} travel={travel} />
+                ))}
+              </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-              {featuredTravels.map((travel) => <TravelCard key={travel.id} travel={travel} />)}
-            </div>
-          </div>
-        </section>
-      )}
+          </section>
+        )}
 
       {/* Why Choose Us */}
       <section className="py-20">
@@ -442,4 +466,4 @@ const Home = () => {
   );
 };
 
-export default Home;  
+export default Home;
