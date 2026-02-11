@@ -1,52 +1,52 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import Layout from '../components/Layout/Layout';
-import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
-import Alert from '../components/ui/Alert';
-import { authService } from '../services/authService';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import Layout from "../components/Layout/Layout";
+import Button from "../components/ui/Button";
+import Input from "../components/ui/Input";
+import Alert from "../components/ui/Alert";
+import { authService } from "../services/authService";
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!email) {
-      setError('Email wajib diisi');
+      setError("Email wajib diisi");
       return;
     }
 
     try {
       setLoading(true);
-      setError('');
-      setMessage('');
+      setError("");
+      setMessage("");
 
-      console.log('Sending forgot password request for:', email);
+      console.log("Sending forgot password request for:", email);
       const response = await authService.forgotPassword(email);
-      console.log('Forgot password response:', response);
+      console.log("Forgot password response:", response);
 
       setMessage(
-        'Jika email terdaftar, link reset password telah dikirim ke email Anda. Silakan periksa inbox dan folder spam.'
+        "Jika email terdaftar, link reset password telah dikirim ke email Anda. Silakan periksa inbox dan folder spam.",
       );
-      setEmail('');
+      setEmail("");
     } catch (error) {
-      console.error('Forgot password error:', error);
-      console.error('Error response:', error.response);
+      console.error("Forgot password error:", error);
+      console.error("Error response:", error.response);
 
       // Handle specific Google user error
-      if (error.response?.data?.error === 'GOOGLE_USER_RESET_NOT_ALLOWED') {
+      if (error.response?.data?.error === "GOOGLE_USER_RESET_NOT_ALLOWED") {
         setError(
-          'Akun ini menggunakan login Google. Silakan login menggunakan Google atau hubungi customer service.'
+          "Akun ini menggunakan login Google. Silakan login menggunakan Google atau hubungi customer service.",
         );
       } else if (error.response?.data?.message) {
         setError(error.response.data.message);
       } else {
-        setError('Terjadi kesalahan: ' + (error.message || 'Unknown error'));
+        setError("Terjadi kesalahan: " + (error.message || "Unknown error"));
       }
     } finally {
       setLoading(false);
@@ -57,7 +57,6 @@ const ForgotPassword = () => {
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md space-y-8">
-
           {/* Header */}
           <motion.div
             className="text-center"
@@ -65,9 +64,7 @@ const ForgotPassword = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <h2 className="text-3xl font-bold text-gray-900">
-              Lupa Password
-            </h2>
+            <h2 className="text-3xl font-bold text-gray-900">Lupa Password</h2>
             <p className="mt-2 text-sm text-gray-600">
               Masukkan email Anda untuk menerima link reset password
             </p>
@@ -112,7 +109,7 @@ const ForgotPassword = () => {
                 loading={loading}
                 disabled={loading}
               >
-                {loading ? 'Mengirim...' : 'Kirim Link Reset Password'}
+                {loading ? "Mengirim..." : "Kirim Link Reset Password"}
               </Button>
             </form>
 
@@ -133,7 +130,7 @@ const ForgotPassword = () => {
               </Link>
 
               <span className="text-gray-600">
-                Belum punya akun?{' '}
+                Belum punya akun?{" "}
                 <Link
                   to="/register"
                   className="font-medium text-primary-600 hover:text-primary-500"
@@ -176,7 +173,6 @@ const ForgotPassword = () => {
               </div>
             </div>
           </motion.div>
-
         </div>
       </div>
     </Layout>
