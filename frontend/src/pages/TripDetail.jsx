@@ -74,7 +74,7 @@ const TripDetail = () => {
         const allTrips = relatedRes.data.data || [];
         const related = allTrips
           .filter(t => t.id !== id)
-          .slice(0, 4)
+          .slice(0, 3) // Kita ambil 3 saja supaya pas satu baris
           .map(t => ({
             ...t,
             name: t.title || 'Trip Tidak Diketahui',
@@ -142,10 +142,11 @@ const TripDetail = () => {
           </div>
         </div>
 
-        {/* CONTENT CONTAINER */}
+        {/* CONTENT CONTAINER UTAMA */}
         <div className="container mx-auto px-4 -mt-16 relative z-10 pb-20">
+          
+          {/* SECTION DETAIL (DIBATASI LEBARNYA) */}
           <div className="max-w-4xl mx-auto">
-            
             {/* CARD 1: Judul & Lokasi */}
             <motion.div 
               initial={{ y: 20, opacity: 0 }}
@@ -188,7 +189,6 @@ const TripDetail = () => {
               
               <hr className="my-6 border-gray-100" />
 
-              {/* BAGIAN FASILITAS (Layout Ke Samping) */}
               <h3 className="text-lg font-bold text-gray-900 mb-5">Fasilitas</h3>
               {trip?.facilities && trip.facilities.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
@@ -209,7 +209,6 @@ const TripDetail = () => {
                 <p className="text-gray-400 text-sm italic mb-8">Fasilitas tidak dicantumkan.</p>
               )}
 
-              {/* BAGIAN RUNDOWN / ITINERARY */}
               {trip?.itinerary && trip.itinerary.length > 0 && (
                 <>
                   <h3 className="text-lg font-bold text-gray-900 mb-5">Rencana Perjalanan</h3>
@@ -229,7 +228,6 @@ const TripDetail = () => {
                 </>
               )}
 
-              {/* Bantuan Section */}
               <div className="mt-6 pt-6 border-t border-gray-100">
                 <p className="text-xs text-gray-400 font-medium mb-2 uppercase tracking-wider">Butuh bantuan?</p>
                 <div className="flex items-center text-blue-600 font-bold text-sm">
@@ -263,22 +261,33 @@ const TripDetail = () => {
                 {trip?.is_quota_full ? 'Kuota Habis' : 'Booking Sekarang'}
               </Button>
             </div>
+          </div> {/* <--- BATAS max-w-4xl BERAKHIR DI SINI */}
 
-            {/* REKOMENDASI TRIP LAINNYA */}
-            {relatedTrips.length > 0 && (
-              <div className="mt-16">
-                <div className="flex justify-between items-end mb-6 px-2">
-                  <h2 className="text-xl font-bold text-gray-900">Rekomendasi Trip</h2>
-                  <button onClick={() => navigate('/trips')} className="text-blue-500 font-semibold text-sm hover:underline">Lihat Semua</button>
+          {/* SECTION REKOMENDASI (DI LUAR max-w-4xl AGAR FULL SEJAJAR GAMBAR) */}
+          {relatedTrips.length > 0 && (
+            <div className="mt-20 w-full"> 
+              <div className="flex justify-between items-end mb-8 px-2">
+                <div className="text-left">
+                  <h2 className="text-2xl font-bold text-gray-900">Rekomendasi Trip Lainnya</h2>
+                  <div className="w-12 h-1 bg-blue-500 mt-2"></div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  {relatedTrips.map((relatedTrip) => (
-                    <TripCard key={relatedTrip.id} trip={relatedTrip} />
-                  ))}
-                </div>
+                <button 
+                  onClick={() => navigate('/trips')} 
+                  className="text-blue-600 font-bold text-sm hover:underline"
+                >
+                  Lihat Semua
+                </button>
               </div>
-            )}
-          </div>
+
+              {/* Grid 3 Kolom - Lurus dengan Hero Image di atas */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {relatedTrips.map((relatedTrip) => (
+                  <TripCard key={relatedTrip.id} trip={relatedTrip} />
+                ))}
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </Layout>
