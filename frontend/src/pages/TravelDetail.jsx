@@ -286,7 +286,7 @@ const TravelDetail = () => {
                   onClick={() => navigate('/travels')} 
                   className="text-blue-600 font-black text-sm hover:underline"
                 >
-                  Lihat Semua
+                  Lihat Semua   
                 </button>
               </div>
               

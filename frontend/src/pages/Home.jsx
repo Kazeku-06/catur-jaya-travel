@@ -90,11 +90,9 @@ const Home = () => {
             params.set('q', data.destination.trim());
         
 
-
         if (data.travelDates) 
             params.set('date', data.travelDates);
         
-
 
         setSearchParams(params);
     };
@@ -112,7 +110,6 @@ const Home = () => {
             return;
         
 
-
         setIsSearching(true);
         try {
             const params = new URLSearchParams();
@@ -120,11 +117,9 @@ const Home = () => {
                 params.append('q', searchData.destination.trim());
             
 
-
             if (searchData.travelDates) 
                 params.append('date', searchData.travelDates);
             
-
 
             navigate(`/trips?${
                 params.toString()
@@ -267,9 +262,7 @@ const Home = () => {
                     </p>
                 </div>
 
-                {/* Grid Container */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full items-stretch">
-
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full items-stretch">
                     {
                     dailyContent.map((item, index) => (
                         <motion.div key={
@@ -279,9 +272,8 @@ const Home = () => {
                                     item.id || index
                                 }`
                             }
-                            // LOGIKA: Index ke-3 (item ke-3) disembunyikan di mobile (hidden), muncul di desktop (lg:block)
                             className={
-                                `relative h-80 w-full overflow-hidden rounded-3xl shadow-lg group cursor-pointer flex ${
+                                `relative h-64 md:h-80 w-full max-w-[320px] md:max-w-none mx-auto overflow-hidden rounded-2xl md:rounded-3xl shadow-lg group cursor-pointer flex ${
                                     index === 2 ? 'hidden lg:flex' : 'flex'
                                 }`
                             }
@@ -318,8 +310,8 @@ const Home = () => {
                                     }
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"/>
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
-                                <div className="absolute bottom-8 left-8 right-8 text-white text-left">
-                                    <div className="flex items-center mb-3">
+                                <div className="absolute bottom-5 left-5 right-5 md:bottom-8 md:left-8 md:right-8 text-white text-left">
+                                    <div className="flex items-center mb-2 md:mb-3">
                                         <span className={
                                             `px-3 py-1 text-[10px] tracking-widest font-black rounded-lg ${
                                                 item.type === 'trip' ? 'bg-blue-600' : 'bg-orange-500'
@@ -329,16 +321,16 @@ const Home = () => {
                                             item.type === 'trip' ? 'TRIP' : 'TRAVEL'
                                         } </span>
                                     </div>
-                                    <h3 className="text-xl font-extrabold mb-1 group-hover:text-blue-400 transition-colors">
+                                    <h3 className="text-lg md:text-xl font-extrabold mb-1 group-hover:text-blue-400 transition-colors">
                                         {
                                         item.displayName
                                     }</h3>
-                                    <div className="w-10 h-1 bg-blue-500 my-3 transition-all group-hover:w-20"></div>
-                                    <p className="text-xs opacity-80 mb-1 font-medium">
+                                    <div className="w-8 h-1 md:w-10 md:h-1 bg-blue-500 my-2 md:my-3 transition-all group-hover:w-20"></div>
+                                    <p className="text-[10px] md:text-xs opacity-80 mb-1 font-medium">
                                         {
                                         item.displayLocation
                                     }</p>
-                                    <p className="text-xl font-black text-white">
+                                    <p className="text-lg md:text-xl font-black text-white">
                                         {
                                         formatCurrency(item.displayPrice)
                                     }</p>
@@ -348,8 +340,8 @@ const Home = () => {
                     ))
                 }
 
-                    {/* Plan Your Next Journey - LOGIKA: Muncul di Mobile/Tablet (flex), Hilang di Desktop (lg:hidden) */}
-                    <motion.div className="relative min-h-[20rem] w-full overflow-hidden rounded-3xl shadow-lg flex lg:hidden bg-[#A3A3A3] p-8 md:p-10 flex-col justify-start items-start text-left"
+                    {/* Plan Your Next Journey Card - Mobile Only */}
+                    <motion.div className="relative min-h-[16rem] md:min-h-[20rem] w-full max-w-[320px] md:max-w-none mx-auto overflow-hidden rounded-2xl md:rounded-3xl shadow-lg flex lg:hidden bg-[#A3A3A3] p-8 md:p-10 flex-col justify-start items-start text-left"
                         initial={
                             {
                                 opacity: 0,
@@ -371,35 +363,24 @@ const Home = () => {
                                 delay: 0.3
                             }
                     }>
-                        <div className="bg-[#FF8A00] text-white text-[10px] font-bold px-4 py-1.5 rounded-lg uppercase tracking-wider mb-5">
-                            Travel Services
-                        </div>
-
-                        <h3 className="text-2xl md:text-3xl font-bold text-white leading-tight mb-3">
-                            Plan Your<br/>Next Journey!
-                        </h3>
-
-                        <p className="text-white/90 text-xs md:text-sm leading-relaxed mb-6">
-                            Intercity travel service with door-to-door pickup, comfortable and practical for daily trips.
-                        </p>
-
+                        <div className="bg-[#FF8A00] text-white text-[10px] font-bold px-4 py-1.5 rounded-lg uppercase tracking-wider mb-5">Travel Services</div>
+                        <h3 className="text-2xl md:text-3xl font-bold text-white leading-tight mb-3">Plan Your<br/>Next Journey!</h3>
+                        <p className="text-white/90 text-xs md:text-sm leading-relaxed mb-6">Intercity travel service with door-to-door pickup, comfortable and practical for daily trips.</p>
                         <Link to="/travels" className="mt-auto w-full">
-                            <button className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 shadow-lg active:scale-95 text-sm md:text-base">
-                                Book Now
-                            </button>
+                            <button className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 shadow-lg active:scale-95 text-sm md:text-base">Book Now</button>
                         </Link>
                     </motion.div>
                 </div>
             </div>
         </section>
 
-
         {/* Featured Travels Section */}
         {
         featuredTravels.length > 0 && (
             <section className="py-12 md:py-20 bg-gray-50">
                 <div className="container mx-auto px-4">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 md:mb-12">
+                    {/* PERBAIKAN: Header Section disesuaikan dengan lebar card mobile */}
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 md:mb-12 max-w-[300px] md:max-w-none mx-auto">
                         <div className="text-left">
                             <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Layanan Travel Terpercaya</h2>
                             <p className="text-sm md:text-base text-gray-600">Perjalanan antar kota yang nyaman dan aman</p>
@@ -410,13 +391,15 @@ const Home = () => {
                             </Link>
                         </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 text-left">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
                         {
                         featuredTravels.map((travel) => (
-                            <TravelCard key={
+                            <div key={
                                     travel.id
                                 }
-                                travel={travel}/>
+                                className="w-full max-w-[300px] md:max-w-none mx-auto">
+                                <TravelCard travel={travel}/>
+                            </div>
                         ))
                     } </div>
                 </div>
@@ -429,7 +412,8 @@ const Home = () => {
         featuredTrips.length > 0 && (
             <section className="py-12 md:py-20 bg-white">
                 <div className="container mx-auto px-4">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 md:mb-12">
+                    {/* PERBAIKAN: Header Section disesuaikan dengan lebar card mobile */}
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 md:mb-12 max-w-[300px] md:max-w-none mx-auto">
                         <div className="text-left">
                             <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Paket Trip Terpopuler</h2>
                             <p className="text-sm md:text-base text-gray-600">Pilihan paket wisata favorit untuk petualangan Anda</p>
@@ -440,13 +424,15 @@ const Home = () => {
                             </Link>
                         </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 text-left">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
                         {
                         featuredTrips.map((trip) => (
-                            <TripCard key={
+                            <div key={
                                     trip.id
                                 }
-                                trip={trip}/>
+                                className="w-full max-w-[300px] md:max-w-none mx-auto">
+                                <TripCard trip={trip}/>
+                            </div>
                         ))
                     } </div>
                 </div>
