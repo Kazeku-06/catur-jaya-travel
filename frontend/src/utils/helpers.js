@@ -28,7 +28,7 @@ export const formatDate = (date, options = {}) => {
   
   try {
     return new Intl.DateTimeFormat('id-ID', defaultOptions).format(dateObj);
-  } catch (error) {
+  } catch {
     console.warn('Invalid date format:', date);
     return '-';
   }
@@ -173,7 +173,7 @@ export const copyToClipboard = async (text) => {
   try {
     await navigator.clipboard.writeText(text);
     return true;
-  } catch (err) {
+  } catch {
     // Fallback for older browsers
     const textArea = document.createElement('textarea');
     textArea.value = text;
@@ -183,7 +183,7 @@ export const copyToClipboard = async (text) => {
     try {
       document.execCommand('copy');
       return true;
-    } catch (err) {
+    } catch {
       return false;
     } finally {
       document.body.removeChild(textArea);

@@ -29,10 +29,11 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close menus when location changes
   useEffect(() => {
     setIsMenuOpen(false);
     setShowProfileMenu(false);
-  }, [location]);
+  }, [location.pathname]); // Only trigger on pathname change
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem('auth_token');
@@ -83,13 +84,13 @@ const Header = () => {
         <div className="flex items-center justify-between h-16 lg:h-20">
           
           {/* Logo Section */}
-          <Link to="/" className="flex items-center space-x-3 group">
+          <Link to="/" className="flex items-center space-x-2 lg:space-x-3 group min-w-0">
             <Logo size="medium" />
-            <div className="flex flex-col">
-              <span className="text-lg lg:text-xl font-bold text-gray-900 leading-tight">
+            <div className="flex flex-col min-w-0">
+              <span className="text-base lg:text-xl font-bold text-gray-900 leading-tight truncate">
                 Catur Jaya Mandiri
               </span>
-              <span className="text-xs lg:text-sm font-semibold text-gray-600 tracking-wider -mt-1">
+              <span className="text-[10px] lg:text-sm font-semibold text-gray-600 tracking-wider truncate">
                 Tour & Travel
               </span>
             </div>
@@ -231,11 +232,24 @@ const Header = () => {
           </button>
         </div>
 
+        {/* Backdrop for Mobile Menu */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={closeMenus}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[-1] lg:hidden"
+            />
+          )}
+        </AnimatePresence>
+
         {/* Mobile Menu */}
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
-              className="lg:hidden bg-white border-t border-gray-200 shadow-xl overflow-hidden"
+              className="lg:hidden bg-white border-t border-gray-200 shadow-2xl overflow-y-auto max-h-[calc(100vh-4rem)]"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}

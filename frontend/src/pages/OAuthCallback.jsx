@@ -16,6 +16,18 @@ const OAuthCallback = () => {
   const [status, setStatus] = useState('processing'); // processing, success, error
   const [message, setMessage] = useState('Memproses login Google...');
 
+  const getErrorMessage = (errorCode, errorMessage) => {
+    const errorMessages = {
+      'INVALID_STATE': 'Sesi login Google tidak valid. Silakan coba lagi.',
+      'DATA_INCOMPLETE': 'Data dari Google tidak lengkap. Pastikan Anda memberikan izin email dan profil.',
+      'OAUTH_ERROR': 'Terjadi kesalahan saat login dengan Google. Silakan coba lagi.',
+      'ADMIN_NOT_ALLOWED': 'Admin tidak dapat login menggunakan Google. Silakan gunakan email dan password.',
+      'GOOGLE_USER_RESET_NOT_ALLOWED': 'Akun ini menggunakan login Google. Reset password tidak tersedia.'
+    };
+
+    return errorMessages[errorCode] || errorMessage || 'Terjadi kesalahan yang tidak diketahui.';
+  };
+
   useEffect(() => {
     const processCallback = async () => {
       // Prevent multiple simultaneous processing
@@ -122,18 +134,6 @@ const OAuthCallback = () => {
       processCallback();
     }
   }, [searchParams, navigate, handleGoogleCallback]);
-
-  const getErrorMessage = (errorCode, errorMessage) => {
-    const errorMessages = {
-      'INVALID_STATE': 'Sesi login Google tidak valid. Silakan coba lagi.',
-      'DATA_INCOMPLETE': 'Data dari Google tidak lengkap. Pastikan Anda memberikan izin email dan profil.',
-      'OAUTH_ERROR': 'Terjadi kesalahan saat login dengan Google. Silakan coba lagi.',
-      'ADMIN_NOT_ALLOWED': 'Admin tidak dapat login menggunakan Google. Silakan gunakan email dan password.',
-      'GOOGLE_USER_RESET_NOT_ALLOWED': 'Akun ini menggunakan login Google. Reset password tidak tersedia.'
-    };
-
-    return errorMessages[errorCode] || errorMessage || 'Terjadi kesalahan yang tidak diketahui.';
-  };
 
   const handleRetry = () => {
     navigate('/login', { replace: true });

@@ -49,14 +49,15 @@ const AdminTravels = () => {
   const handleDelete = async (id) => {
     if (!confirm('Yakin ingin menghapus travel ini?')) return;
 
-    try {
-      await adminService.travels.delete(id);
-      loadTravels();
-      showAlert('success', 'Travel berhasil dihapus');
-    } catch (error) {
-      console.error('Error deleting travel:', error);
-      showAlert('error', 'Gagal menghapus travel');
-    }
+    adminService.travels.delete(id)
+      .then(() => {
+        showAlert('success', 'Travel berhasil dihapus');
+        loadTravels();
+      })
+      .catch(error => {
+        console.error('Error deleting travel:', error);
+        showAlert('error', 'Gagal menghapus travel');
+      });
   };
 
   // Handle edit

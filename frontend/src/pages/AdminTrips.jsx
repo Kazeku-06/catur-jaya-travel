@@ -38,7 +38,7 @@ const AdminTrips = () => {
   }, []);
 
   // Handle form success
-  const handleFormSuccess = (data) => {
+  const handleFormSuccess = () => {
     showAlert('success', 'Trip berhasil disimpan');
     setShowForm(false);
     setEditTrip(null);
