@@ -394,8 +394,6 @@ const TripBooking = () => {
 
                 {/* Space for fixed bottom bar on mobile */}
                 <div className="h-20 md:hidden"></div>
-
-               
               </form>
             </motion.div>
           </div>
