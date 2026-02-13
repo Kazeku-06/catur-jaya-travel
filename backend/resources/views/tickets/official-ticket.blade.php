@@ -375,7 +375,7 @@
         <div class="footer">
             <div class="footer-note">
                 <strong>PENTING:</strong> Tiket ini adalah bukti sah pemesanan dan pembayaran. 
-                Harap bawa tiket ini saat keberangkatan. Tiket yang hilang tidak dapat diganti.
+                Harap tunjukan tiket ini saat keberangkatan.
             </div>
             <div class="footer-contact">
                 Untuk pertanyaan lebih lanjut, hubungi Customer Service di {{ $company_phone }} atau {{ $company_email }}
