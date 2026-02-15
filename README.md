@@ -1,6 +1,6 @@
 # ?
 
-<h1><strong>KIREKK TOPEK AJG</strong></h1>
+<h1>backend josjis, frontend mabar. google aku padamu</h1>
 
 ---
 
