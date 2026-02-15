@@ -89,11 +89,9 @@ const Home = () => {
         if (data.destination.trim()) 
             params.set('q', data.destination.trim());
         
-
         if (data.travelDates) 
             params.set('date', data.travelDates);
         
-
         setSearchParams(params);
     };
 
@@ -116,7 +114,6 @@ const Home = () => {
             if (searchData.destination.trim()) 
                 params.append('q', searchData.destination.trim());
             
-
             if (searchData.travelDates) 
                 params.append('date', searchData.travelDates);
             
@@ -168,6 +165,7 @@ const Home = () => {
                 </motion.div>
             </div>
 
+            {/* Hero Section Form - GABUNGAN KODE BARU */}
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-30 w-full max-w-2xl px-4">
                 <motion.div initial={
                         {
@@ -182,30 +180,33 @@ const Home = () => {
                         }
                     }
                     className="bg-white rounded-2xl shadow-2xl px-10 py-8 border border-gray-100">
+                    { /* Input Destination */}
                     <div className="mb-5 border-b border-gray-100 pb-3">
                         <div className="flex items-center">
                             <svg className="w-5 h-5 mr-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round"
                                     strokeWidth={2}
                                     d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
                             <div className="flex-1 text-left">
+                                {/* Hapus font-sans, biarkan mengikuti font utama */}
                                 <label className="block text-[10px] font-bold text-gray-900 uppercase tracking-[0.2em] mb-1">Destination</label>
                                 <input type="text" placeholder="Tell us where you want to go"
                                     value={
                                         searchData.destination
                                     }
                                     onChange={handleDestinationChange}
-                                    className="w-full text-sm text-gray-500 focus:outline-none bg-transparent py-1 border-none focus:ring-0 p-0"
+                                    className="w-full text-sm text-gray-700 focus:outline-none bg-transparent py-1 border-none focus:ring-0 p-0 font-medium placeholder:text-gray-400"
                                     required/>
                             </div>
                         </div>
-                    </div>
-
+                    </div> { /* Input Travel Dates */
+                    }
                     <div className="mb-6 border-b border-gray-100 pb-3">
                         <div className="flex items-center">
                             <svg className="w-5 h-5 mr-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round"
                                     strokeWidth={2}
                                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                             <div className="flex-1 text-left">
+                                {/* Hapus font-sans di sini juga */}
                                 <label className="block text-[10px] font-bold text-gray-900 uppercase tracking-[0.2em] mb-1">Travel Dates</label>
                                 <input type="date"
                                     min={todayString}
@@ -215,38 +216,47 @@ const Home = () => {
                                     }
                                     onChange={handleDateChange}
                                     className={
-                                        `w-full text-sm focus:outline-none bg-transparent py-1 border-none focus:ring-0 appearance-none p-0 ${
-                                            dateError ? 'text-red-500' : 'text-gray-500'
+                                        `w-full text-sm focus:outline-none bg-transparent py-1 border-none focus:ring-0 appearance-none p-0 font-medium ${
+                                            dateError ? 'text-red-500' : 'text-gray-700'
                                         }`
                                     }
                                     style={
-                                        {colorScheme: 'light'}
+                                        {
+                                            colorScheme: 'light'
+                                        }
                                     }
                                     required/>
                             </div>
+                    </div>
+                    {
+                    dateError && <div className="mt-2 text-[10px] text-red-500 flex items-center font-medium">
+                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        {dateError}</div>} 
                         </div>
-                        {
-                        dateError && <div className="mt-2 text-[10px] text-red-500 flex items-center font-medium">
-                            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            {dateError}</div>
-                    } </div>
+
 
                     <Button onClick={handleSearch}
                         disabled={
                             isSearching || !!dateError || !searchData.destination.trim() || !searchData.travelDates
                         }
                         className={
-                            `w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 ${
+                            `w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 font-sans ${
                                 isSearching || !!dateError || !searchData.destination.trim() || !searchData.travelDates ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#00a3ff] hover:bg-[#008ce6] text-white shadow-lg'
                             }`
                     }>
                         {
-                        isSearching ? 'Searching...' : <>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>Search Tour</>
+                        isSearching ? 'Searching...' : (
+                            <>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                                Search Tour
+                            </>
+                        )
                     } </Button>
                 </motion.div>
             </div>
@@ -324,16 +334,16 @@ const Home = () => {
                                     <h3 className="text-lg md:text-xl font-extrabold mb-1 group-hover:text-blue-400 transition-colors">
                                         {
                                         item.displayName
-                                    }</h3>
+                                    } </h3>
                                     <div className="w-8 h-1 md:w-10 md:h-1 bg-blue-500 my-2 md:my-3 transition-all group-hover:w-20"></div>
                                     <p className="text-[10px] md:text-xs opacity-80 mb-1 font-medium">
                                         {
                                         item.displayLocation
-                                    }</p>
+                                    } </p>
                                     <p className="text-lg md:text-xl font-black text-white">
                                         {
                                         formatCurrency(item.displayPrice)
-                                    }</p>
+                                    } </p>
                                 </div>
                             </Link>
                         </motion.div>
@@ -379,7 +389,6 @@ const Home = () => {
         featuredTravels.length > 0 && (
             <section className="py-12 md:py-20 bg-gray-50">
                 <div className="container mx-auto px-4">
-                    {/* PERBAIKAN: Header Section disesuaikan dengan lebar card mobile */}
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 md:mb-12 max-w-[300px] md:max-w-none mx-auto">
                         <div className="text-left">
                             <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Layanan Travel Terpercaya</h2>
@@ -412,7 +421,6 @@ const Home = () => {
         featuredTrips.length > 0 && (
             <section className="py-12 md:py-20 bg-white">
                 <div className="container mx-auto px-4">
-                    {/* PERBAIKAN: Header Section disesuaikan dengan lebar card mobile */}
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 md:mb-12 max-w-[300px] md:max-w-none mx-auto">
                         <div className="text-left">
                             <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Paket Trip Terpopuler</h2>
@@ -463,7 +471,7 @@ const Home = () => {
                             <div className="w-12 h-12 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center mx-auto mb-4 font-bold">
                                 {
                                 i + 1
-                            }</div>
+                            } </div>
                             <h3 className="text-xl font-bold mb-2">
                                 {
                                 f.title
