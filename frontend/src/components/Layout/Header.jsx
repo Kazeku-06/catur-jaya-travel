@@ -1,32 +1,32 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { generateWhatsAppUrl } from '../../utils/helpers';
-import Logo from '../ui/Logo';
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
+import { generateWhatsAppUrl } from "../../utils/helpers";
+import Logo from "../ui/Logo";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [authToken] = useLocalStorage('auth_token', '');
-  const [userData] = useLocalStorage('user_data', {});
-  
+  const [authToken] = useLocalStorage("auth_token", "");
+  const [userData] = useLocalStorage("user_data", {});
+
   const location = useLocation();
   const navigate = useNavigate();
 
   // Memoize user state to prevent unnecessary re-renders
   const isLoggedIn = Boolean(authToken && authToken.trim());
-  const isAdmin = Boolean(isLoggedIn && userData?.role === 'admin');
-  const userName = userData?.name || '';
-  const userInitial = userName ? userName.charAt(0).toUpperCase() : '?';
+  const isAdmin = Boolean(isLoggedIn && userData?.role === "admin");
+  const userName = userData?.name || "";
+  const userInitial = userName ? userName.charAt(0).toUpperCase() : "?";
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Close menus when location changes
@@ -36,9 +36,9 @@ const Header = () => {
   }, [location.pathname]); // Only trigger on pathname change
 
   const handleLogout = useCallback(() => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_data');
-    navigate('/');
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("user_data");
+    navigate("/");
     setShowProfileMenu(false);
     setIsMenuOpen(false);
     // Reload opsional jika state localstorage tidak auto-update di komponen lain
@@ -46,7 +46,7 @@ const Header = () => {
   }, [navigate]);
 
   const toggleProfileMenu = useCallback(() => {
-    setShowProfileMenu(prev => !prev);
+    setShowProfileMenu((prev) => !prev);
   }, []);
 
   const closeMenus = useCallback(() => {
@@ -55,26 +55,32 @@ const Header = () => {
   }, []);
 
   const toggleMobileMenu = useCallback(() => {
-    setIsMenuOpen(prev => !prev);
+    setIsMenuOpen((prev) => !prev);
   }, []);
 
-  const navigation = useMemo(() => [
-    { name: 'Beranda', href: '/' },
-    { name: 'Paket Trip', href: '/trips' },
-    { name: 'Travel', href: '/travels' },
-  ], []);
+  const navigation = useMemo(
+    () => [
+      { name: "Beranda", href: "/" },
+      { name: "Paket Trip", href: "/trips" },
+      { name: "Travel", href: "/travels" },
+    ],
+    [],
+  );
 
-  const isActive = useCallback((path) => {
-    if (path === '/') return location.pathname === '/';
-    return location.pathname.startsWith(path);
-  }, [location.pathname]);
+  const isActive = useCallback(
+    (path) => {
+      if (path === "/") return location.pathname === "/";
+      return location.pathname.startsWith(path);
+    },
+    [location.pathname],
+  );
 
   return (
     <motion.header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-white/95 backdrop-blur-md shadow-lg' 
-          : 'bg-white shadow-md'
+        isScrolled
+          ? "bg-white/95 backdrop-blur-md shadow-lg"
+          : "bg-white shadow-md"
       }`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
@@ -82,9 +88,11 @@ const Header = () => {
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          
           {/* Logo Section */}
-          <Link to="/" className="flex items-center space-x-2 lg:space-x-3 group min-w-0">
+          <Link
+            to="/"
+            className="flex items-center space-x-2 lg:space-x-3 group min-w-0"
+          >
             <Logo size="medium" />
             <div className="flex flex-col min-w-0">
               <span className="text-base lg:text-xl font-bold text-gray-900 leading-tight truncate">
@@ -103,7 +111,9 @@ const Header = () => {
                 key={item.name}
                 to={item.href}
                 className={`font-medium transition-colors duration-200 ${
-                  isActive(item.href) ? 'text-primary-600' : 'text-gray-700 hover:text-primary-600'
+                  isActive(item.href)
+                    ? "text-primary-600"
+                    : "text-gray-700 hover:text-primary-600"
                 }`}
               >
                 {item.name}
@@ -124,10 +134,20 @@ const Header = () => {
                   </span>
                 </div>
                 <span className="text-gray-700 font-medium">
-                  {isLoggedIn ? userName || 'User' : 'Menu'}
+                  {isLoggedIn ? userName || "User" : "Menu"}
                 </span>
-                <svg className={`w-4 h-4 transition-transform duration-200 ${showProfileMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <svg
+                  className={`w-4 h-4 transition-transform duration-200 ${showProfileMenu ? "rotate-180" : ""}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </button>
 
@@ -142,16 +162,24 @@ const Header = () => {
                   >
                     <div className="bg-[#0095f6] p-4 flex items-center space-x-3">
                       <div className="w-12 h-12 bg-gray-300 rounded-full border-2 border-white/50 flex items-center justify-center overflow-hidden">
-                        <svg className="w-8 h-8 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                        <svg
+                          className="w-8 h-8 text-gray-500"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
                           <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                         </svg>
                       </div>
                       <div className="overflow-hidden">
                         <h4 className="text-white font-bold leading-tight truncate">
-                          {isLoggedIn ? userName || 'User' : 'Anonymous'}
+                          {isLoggedIn ? userName || "User" : "Anonymous"}
                         </h4>
                         <p className="text-blue-100 text-[10px] font-bold uppercase tracking-widest">
-                          {!isLoggedIn ? 'Guest' : isAdmin ? 'ADMIN' : 'CUSTOMER'}
+                          {!isLoggedIn
+                            ? "Guest"
+                            : isAdmin
+                              ? "ADMIN"
+                              : "CUSTOMER"}
                         </p>
                       </div>
                     </div>
@@ -159,9 +187,23 @@ const Header = () => {
                     <div className="bg-white">
                       {/* JIKA ADMIN: Hanya Admin Dashboard yang muncul */}
                       {isAdmin ? (
-                        <Link to="/admin" onClick={closeMenus} className="flex items-center space-x-4 px-5 py-4 text-primary-600 hover:bg-primary-50 border-b border-gray-100 transition-colors">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <Link
+                          to="/admin"
+                          onClick={closeMenus}
+                          className="flex items-center space-x-4 px-5 py-4 text-primary-600 hover:bg-primary-50 border-b border-gray-100 transition-colors"
+                        >
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                            />
                           </svg>
                           <span className="font-bold">Admin Dashboard</span>
                         </Link>
@@ -169,25 +211,64 @@ const Header = () => {
                         /* JIKA BUKAN ADMIN (USER ATAU GUEST): Tampil Booking (jika login), Contact, dan About */
                         <>
                           {isLoggedIn && (
-                            <Link to="/my-bookings" onClick={closeMenus} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
-                              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            <Link
+                              to="/my-bookings"
+                              onClick={closeMenus}
+                              className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100"
+                            >
+                              <svg
+                                className="w-5 h-5 text-gray-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                />
+                              </svg>
                               <span className="font-medium">My Bookings</span>
                             </Link>
                           )}
-                          <a 
-                            href={generateWhatsAppUrl('081346474165', 'Halo, saya ingin bertanya tentang paket wisata')}
+                          <a
+                            href={generateWhatsAppUrl(
+                              "081346474165",
+                              "Halo, saya ingin bertanya tentang paket wisata",
+                            )}
                             target="_blank"
                             rel="noopener noreferrer"
-                            onClick={closeMenus} 
+                            onClick={closeMenus}
                             className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100"
                           >
-                            <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
+                            <svg
+                              className="w-5 h-5 text-gray-400"
+                              fill="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488" />
                             </svg>
                             <span className="font-medium">WhatsApp</span>
                           </a>
-                          <Link to="/about" onClick={closeMenus} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
-                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                          <Link
+                            to="/about"
+                            onClick={closeMenus}
+                            className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100"
+                          >
+                            <svg
+                              className="w-5 h-5 text-gray-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
                             <span className="font-medium">About Us</span>
                           </Link>
                         </>
@@ -200,7 +281,19 @@ const Header = () => {
                           onClick={handleLogout}
                           className="w-full bg-[#0095f6] hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center space-x-2"
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                            />
+                          </svg>
                           <span>Keluar</span>
                         </button>
                       ) : (
@@ -222,11 +315,26 @@ const Header = () => {
             onClick={toggleMobileMenu}
             className="lg:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors duration-200"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               {isMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               )}
             </svg>
           </button>
@@ -240,7 +348,7 @@ const Header = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={closeMenus}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[-1] lg:hidden"
+              className="fixed inset-0 z-[-1] lg:hidden"
             />
           )}
         </AnimatePresence>
@@ -249,96 +357,232 @@ const Header = () => {
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
-              className="lg:hidden bg-white border-t border-gray-200 shadow-2xl overflow-y-auto max-h-[calc(100vh-4rem)]"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
+              className="lg:hidden absolute top-full left-4 right-4 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden max-h-[calc(100vh-6rem)] flex flex-col"
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
             >
-              <div className="py-4 space-y-1 px-4">
-                {navigation.map((item) => (
-                  <Link 
-                    key={item.name} 
-                    to={item.href} 
-                    className={`block px-4 py-2 text-base font-medium rounded-lg transition-colors ${
-                      isActive(item.href) ? 'text-primary-600 bg-primary-50' : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
-
-                <div className="mt-6 rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-                  <div className="bg-[#0095f6] p-4 flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gray-300 rounded-full border-2 border-white/50 flex items-center justify-center overflow-hidden">
-                      <svg className="w-6 h-6 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                      </svg>
-                    </div>
-                    <div className="overflow-hidden">
-                      <h4 className="text-white font-bold leading-tight truncate">
-                        {isLoggedIn ? userName || 'User' : 'Anonymous'}
-                      </h4>
-                      <p className="text-blue-100 text-[10px] font-bold uppercase tracking-widest">
-                        {!isLoggedIn ? 'Guest' : isAdmin ? 'ADMIN' : 'CUSTOMER'}
-                      </p>
-                    </div>
+              {/* Header Profile Section - Always visible at top */}
+              <div className="bg-[#0095f6] p-4 text-white">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-white border-2 border-white/30">
+                    <span className="text-xl font-bold">
+                      {isLoggedIn && userName
+                        ? userName.charAt(0).toUpperCase()
+                        : "?"}
+                    </span>
                   </div>
-
-                  <div className="bg-white">
-                    {/* LOGIKA MOBILE SAMA DENGAN DESKTOP */}
-                    {isAdmin ? (
-                      <Link to="/admin" onClick={closeMenus} className="flex items-center space-x-4 px-5 py-4 text-primary-600 hover:bg-primary-50 border-b border-gray-100 transition-colors">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        </svg>
-                        <span className="font-bold">Admin Dashboard</span>
-                      </Link>
-                    ) : (
-                      <>
-                        {isLoggedIn && (
-                          <Link to="/my-bookings" onClick={closeMenus} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
-                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                            <span className="font-medium">My Bookings</span>
-                          </Link>
-                        )}
-                        <a 
-                          href={generateWhatsAppUrl('081346474165', 'Halo, saya ingin bertanya tentang paket wisata')}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={closeMenus} 
-                          className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100"
-                        >
-                          <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
-                          </svg>
-                          <span className="font-medium">WhatsApp</span>
-                        </a>
-                        <Link to="/about" onClick={closeMenus} className="flex items-center space-x-4 px-5 py-3 text-gray-600 hover:bg-gray-50 border-b border-gray-100">
-                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                          <span className="font-medium">About Us</span>
-                        </Link>
-                      </>
-                    )}
-                  </div>
-
-                  <div className="p-4 bg-gray-50/50">
-                    {isLoggedIn ? (
-                      <button
-                        onClick={handleLogout}
-                        className="w-full bg-[#0095f6] hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center space-x-2"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                        <span>Keluar</span>
-                      </button>
-                    ) : (
-                      <Link to="/login" className="block">
-                        <button className="w-full bg-[#0095f6] hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl transition-all shadow-md active:scale-95">
-                          Masuk
-                        </button>
-                      </Link>
-                    )}
+                  <div>
+                    <h3 className="text-lg font-bold leading-tight">
+                      {isLoggedIn ? userName : "Guest"}
+                    </h3>
+                    <p className="text-blue-100 text-xs font-medium">
+                      {isLoggedIn
+                        ? isAdmin
+                          ? "Administrator"
+                          : "Customer"
+                        : "Welcome to Catur Jaya"}
+                    </p>
                   </div>
                 </div>
+              </div>
+
+              {/* Navigation List - Scrollable area */}
+              <div className="flex-1 overflow-y-auto py-1">
+                <nav className="flex flex-col">
+                  {/* Home */}
+                  <Link
+                    to="/"
+                    onClick={closeMenus}
+                    className="flex items-center space-x-3 px-5 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                  >
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                      />
+                    </svg>
+                    <span className="text-gray-600 font-medium text-base">
+                      Beranda
+                    </span>
+                  </Link>
+
+                  {/* Trips */}
+                  <Link
+                    to="/trips"
+                    onClick={closeMenus}
+                    className="flex items-center space-x-3 px-5 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                  >
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <span className="text-gray-600 font-medium text-base">
+                      Paket Trip
+                    </span>
+                  </Link>
+
+                  {/* Travel */}
+                  <Link
+                    to="/travels"
+                    onClick={closeMenus}
+                    className="flex items-center space-x-3 px-5 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                  >
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                      />
+                    </svg>
+                    <span className="text-gray-600 font-medium text-base">
+                      Travel
+                    </span>
+                  </Link>
+
+                  {/* My Bookings (If Logged In) */}
+                  {isLoggedIn && (
+                    <Link
+                      to="/my-bookings"
+                      onClick={closeMenus}
+                      className="flex items-center space-x-3 px-5 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                    >
+                      <svg
+                        className="w-5 h-5 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                        />
+                      </svg>
+                      <span className="text-gray-600 font-medium text-base">
+                        My Bookings
+                      </span>
+                    </Link>
+                  )}
+
+                  {/* WhatsApp */}
+                  <a
+                    href={generateWhatsAppUrl(
+                      "081346474165",
+                      "Halo, saya ingin bertanya tentang paket wisata",
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={closeMenus}
+                    className="flex items-center space-x-3 px-5 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                  >
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488" />
+                    </svg>
+                    <span className="text-gray-600 font-medium text-base">
+                      WhatsApp
+                    </span>
+                  </a>
+
+                  {/* About Us */}
+                  <Link
+                    to="/about"
+                    onClick={closeMenus}
+                    className="flex items-center space-x-3 px-5 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                  >
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span className="text-gray-600 font-medium text-base">
+                      About Us
+                    </span>
+                  </Link>
+
+                  {/* Admin Dashboard (If Admin) */}
+                  {isAdmin && (
+                    <Link
+                      to="/admin"
+                      onClick={closeMenus}
+                      className="flex items-center space-x-3 px-5 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors text-primary-600"
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                        />
+                      </svg>
+                      <span className="font-bold text-base">
+                        Admin Dashboard
+                      </span>
+                    </Link>
+                  )}
+                </nav>
+              </div>
+
+              {/* Action Button - Login or Logout */}
+              <div className="p-4 bg-white border-t border-gray-100">
+                {isLoggedIn ? (
+                  <button
+                    onClick={handleLogout}
+                    className="w-full bg-[#0095f6] hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl shadow-lg active:scale-95 transition-all text-base"
+                  >
+                    Keluar
+                  </button>
+                ) : (
+                  <Link
+                    to="/login"
+                    onClick={closeMenus}
+                    className="block w-full"
+                  >
+                    <button className="w-full bg-[#0095f6] hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl shadow-lg active:scale-95 transition-all text-base">
+                      Masuk
+                    </button>
+                  </Link>
+                )}
               </div>
             </motion.div>
           )}
