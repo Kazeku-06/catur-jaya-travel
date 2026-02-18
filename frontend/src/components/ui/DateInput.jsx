@@ -27,14 +27,17 @@ const DateInput = ({
   useEffect(() => {
     if (touched && value) {
       const validation = validateTravelDate(value);
-      setError(validation.isValid ? '' : validation.error);
+      const newError = validation.isValid ? '' : validation.error;
+      if (error !== newError) {
+        setError(newError);
+      }
       
       // Call parent validation callback if provided
       if (onValidation) {
         onValidation(validation);
       }
     }
-  }, [value, touched, onValidation]);
+  }, [value, touched, onValidation, error]);
 
   const handleChange = (e) => {
     const selectedDate = e.target.value;

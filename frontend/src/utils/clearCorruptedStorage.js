@@ -20,9 +20,9 @@ export const clearCorruptedStorage = () => {
             // For other keys, try to parse as JSON
             try {
               JSON.parse(item);
-            } catch (parseError) {
-              console.log(`Removing corrupted ${key}:`, item);
-              localStorage.removeItem(key);
+            } catch {
+              console.warn('Failed to parse and clear corrupted state for: ' + key + '. Attempting full clear.');
+              localStorage.clear();
             }
           }
         }

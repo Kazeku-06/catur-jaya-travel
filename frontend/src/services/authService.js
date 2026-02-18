@@ -1,5 +1,8 @@
 import api from './api';
 
+// Request deduplication for getProfile
+let profileRequest = null;
+
 export const authService = {
   // Register new user
   register: async (userData) => {
@@ -84,11 +87,31 @@ export const authService = {
     }
   },
 
-  // Get current user profile
+  // Get current user profile with proper deduplication
   getProfile: async () => {
-    console.log('authService.getProfile called from:', new Error().stack);
-    const response = await api.get('/auth/me');
-    return response.data;
+    if (profileRequest) {
+      // console.log('Returning existing profile request');
+      return profileRequest;
+    }
+
+    // Create new request
+    profileRequest = api.get('/auth/me')
+      .then(response => {
+        // Update stored user data on success
+        if (response.data?.user) {
+          localStorage.setItem('user_data', JSON.stringify(response.data.user));
+        }
+        return response.data;
+      })
+      .finally(() => {
+        // Clear variables after a short delay to allow immediate subsequent calls to share the result
+        // but eventually allow new fresh requests
+        setTimeout(() => {
+          profileRequest = null;
+        }, 500); 
+      });
+
+    return profileRequest;
   },
 
   // Forgot password - send reset email

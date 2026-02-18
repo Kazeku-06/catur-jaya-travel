@@ -10,20 +10,17 @@ const Image = ({
   onLoad,
   ...props 
 }) => {
-  const [imageSrc, setImageSrc] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [imageSrc, setImageSrc] = useState(() => src ? getImageUrl(src, fallback) : fallback);
+  const [isLoading, setIsLoading] = useState(!!src);
   const [hasError, setHasError] = useState(false);
-
+  
   useEffect(() => {
-    if (!src) {
-      setImageSrc(fallback);
-      setIsLoading(false);
-      return;
+    const processedUrl = src ? getImageUrl(src, fallback) : fallback;
+    if (imageSrc !== processedUrl) {
+      setImageSrc(processedUrl);
+      setIsLoading(!!src);
     }
-
-    const processedUrl = getImageUrl(src, fallback);
-    setImageSrc(processedUrl);
-  }, [src, fallback]);
+  }, [src, fallback, imageSrc]);
 
   const handleLoad = (e) => {
     setIsLoading(false);

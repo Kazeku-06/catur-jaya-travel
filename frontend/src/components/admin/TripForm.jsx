@@ -95,9 +95,10 @@ const TripForm = ({ trip = null, onSuccess, onCancel }) => {
     e.preventDefault();
     setLoading(true);
 
+    let tripData = null;
     try {
       // Prepare data for JSON-only API
-      const tripData = await imageHelpers.prepareTripData(
+      tripData = await imageHelpers.prepareTripData(
         formData,
         imageMethod === 'file' ? imageFile : null,
         imageMethod === 'url' ? imageUrl : null

@@ -27,10 +27,6 @@ const AdminNotifications = () => {
     per_page: 5
   });
 
-  useEffect(() => {
-    loadNotifications(1);
-  }, []);
-
   const loadNotifications = async (page = 1) => {
     try {
       const response = await fetchNotifications(page, 5);
@@ -40,6 +36,10 @@ const AdminNotifications = () => {
       console.error('Error loading notifications:', error);
     }
   };
+
+  useEffect(() => {
+    loadNotifications(1);
+  }, []);
 
   const handlePageChange = (page) => {
     loadNotifications(page);

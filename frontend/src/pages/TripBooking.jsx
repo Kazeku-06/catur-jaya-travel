@@ -1,159 +1,189 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import Layout from '../components/Layout/Layout';
-import Button from '../components/ui/Button';
-import Badge from '../components/ui/Badge';
-import Breadcrumb from '../components/navigation/Breadcrumb';
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import { authService } from '../services/authService';
-import { transactionService } from '../services/transactionService';
-import api, { endpoints } from '../config/api';
-import { formatCurrency, formatDate, getImageUrl } from '../utils/helpers';
+import { useState, useEffect, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import Layout from "../components/Layout/Layout";
+import Button from "../components/ui/Button";
+import Badge from "../components/ui/Badge";
+import Alert from "../components/ui/Alert";
+import Breadcrumb from "../components/navigation/Breadcrumb";
+import { useLocalStorage } from "../hooks/useLocalStorage";
+import { authService } from "../services/authService";
+import { transactionService } from "../services/transactionService";
+import api, { endpoints } from "../config/api";
+import { formatCurrency, getImageUrl } from "../utils/helpers";
 
 const TripBooking = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [authToken] = useLocalStorage('auth_token', null);
-  const [userData] = useLocalStorage('user_data', null);
-  
+  const [authToken] = useLocalStorage("auth_token", null);
+  const [userData] = useLocalStorage("user_data", null);
+
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingData, setBookingData] = useState({
-    nama_pemesan: userData?.name || '',
-    nomor_hp: userData?.phone || '',
+    nama_pemesan: userData?.name || "",
+    nomor_hp: userData?.phone || "",
     participants: 1,
-    tanggal_keberangkatan: '',
-    catatan_tambahan: '',
+    tanggal_keberangkatan: "",
+    catatan_tambahan: "",
   });
 
-  useEffect(() => {
-    if (!authToken) {
-      navigate('/login', { state: { from: `/trips/${id}/booking` } });
-      return;
-    }
-    
-    // Check if user is admin and redirect to detail page
-    if (authService.isAdmin()) {
-      alert('Admin tidak dapat melakukan booking. Anda akan diarahkan ke halaman detail.');
-      navigate(`/trips/${id}`);
-      return;
-    }
-    
-    fetchTripDetail();
-  }, [id, authToken, navigate]);
+  // Alert State
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("error");
 
-  const fetchTripDetail = async () => {
+  const showNotification = (message, type = "error") => {
+    setAlertMessage(message);
+    setAlertType(type);
+    setShowAlert(true);
+  };
+
+  const fetchTripDetail = useCallback(async () => {
     try {
       setLoading(true);
       const tripRes = await api.get(endpoints.tripDetail(id));
       const tripData = tripRes.data.data;
-      
+
       if (!tripData) {
-        navigate('/trips');
+        navigate("/trips");
         return;
       }
-      
+
       const mappedTrip = {
         id: tripData.id,
-        name: tripData.title || 'Trip Tidak Diketahui',
-        title: tripData.title || 'Trip Tidak Diketahui',
-        description: tripData.description || 'Deskripsi tidak tersedia',
+        name: tripData.title || "Trip Tidak Diketahui",
+        title: tripData.title || "Trip Tidak Diketahui",
+        description: tripData.description || "Deskripsi tidak tersedia",
         price: tripData.price || 0,
-        duration: tripData.duration || 'Durasi tidak diketahui',
-        location: tripData.location || 'Lokasi tidak diketahui',
+        duration: tripData.duration || "Durasi tidak diketahui",
+        location: tripData.location || "Lokasi tidak diketahui",
         quota: tripData.quota || 0,
         capacity: tripData.capacity || 1,
-        remaining_quota: tripData.remaining_quota !== undefined ? tripData.remaining_quota : tripData.quota || 0,
-        is_available: tripData.is_active !== undefined ? tripData.is_active : true,
-        is_available_for_booking: tripData.is_available_for_booking !== undefined ? tripData.is_available_for_booking : tripData.is_active,
-        is_quota_full: tripData.is_quota_full !== undefined ? tripData.is_quota_full : false,
-        image: tripData.image || '/images/trip-placeholder.jpg',
+        remaining_quota:
+          tripData.remaining_quota !== undefined
+            ? tripData.remaining_quota
+            : tripData.quota || 0,
+        is_available:
+          tripData.is_active !== undefined ? tripData.is_active : true,
+        is_available_for_booking:
+          tripData.is_available_for_booking !== undefined
+            ? tripData.is_available_for_booking
+            : tripData.is_active,
+        is_quota_full:
+          tripData.is_quota_full !== undefined ? tripData.is_quota_full : false,
+        image: tripData.image || "/images/trip-placeholder.jpg",
         image_url: tripData.image_url || null,
       };
-      
+
       // If trip is not available for booking, redirect back to detail page
       if (!mappedTrip.is_available_for_booking) {
         if (mappedTrip.is_quota_full) {
-          alert('Maaf, kuota trip ini sudah penuh. Anda akan diarahkan ke halaman detail.');
+          alert(
+            "Maaf, kuota trip ini sudah penuh. Anda akan diarahkan ke halaman detail.",
+          );
         } else {
-          alert('Trip ini tidak tersedia untuk booking. Anda akan diarahkan ke halaman detail.');
+          alert(
+            "Trip ini tidak tersedia untuk booking. Anda akan diarahkan ke halaman detail.",
+          );
         }
         navigate(`/trips/${id}`);
         return;
       }
-      
+
       setTrip(mappedTrip);
     } catch (error) {
-      console.error('Error fetching trip detail:', error);
-      navigate('/trips');
+      console.error("Error fetching trip detail:", error);
+      navigate("/trips");
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, navigate]);
+
+  useEffect(() => {
+    if (!authToken) {
+      navigate("/login", { state: { from: `/trips/${id}/booking` } });
+      return;
+    }
+
+    // Check if user is admin and redirect to detail page
+    if (authService.isAdmin()) {
+      alert(
+        "Admin tidak dapat melakukan booking. Anda akan diarahkan ke halaman detail.",
+      );
+      navigate(`/trips/${id}`);
+      return;
+    }
+
+    fetchTripDetail();
+  }, [id, authToken, navigate, fetchTripDetail]);
 
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Check if trip is available for booking
     if (!trip.is_available_for_booking) {
       if (trip.is_quota_full) {
-        alert('Maaf, kuota trip ini sudah penuh');
+        showNotification("Maaf, kuota trip ini sudah penuh", "error");
       } else {
-        alert('Trip ini tidak tersedia untuk booking');
+        showNotification("Trip ini tidak tersedia untuk booking", "error");
       }
       return;
     }
-    
+
     // Validate required fields
     if (!bookingData.nama_pemesan) {
-      alert('Silakan masukkan nama pemesan');
+      showNotification("Silakan masukkan nama pemesan", "error");
       return;
     }
-    
+
     if (!bookingData.nomor_hp) {
-      alert('Silakan masukkan nomor HP');
+      showNotification("Silakan masukkan nomor HP", "error");
       return;
     }
-    
+
     if (!bookingData.tanggal_keberangkatan) {
-      alert('Silakan pilih tanggal keberangkatan');
+      showNotification("Silakan pilih tanggal keberangkatan", "error");
       return;
     }
 
     try {
       setBookingLoading(true);
-      
-      const response = await transactionService.createTripTransaction(id, bookingData);
+
+      const response = await transactionService.createTripTransaction(
+        id,
+        bookingData,
+      );
       const bookingResult = response.data;
-      
+
       // Redirect to payment page with booking data
       navigate(`/payment/${bookingResult.booking_id}`, {
         state: {
           booking: bookingResult,
           catalog: trip,
-          bookingData: bookingData
-        }
+          bookingData: bookingData,
+        },
       });
-      
     } catch (error) {
-      console.error('Error creating booking:', error);
-      const errorMessage = error.response?.data?.message || 'Gagal membuat booking. Silakan coba lagi.';
-      alert(errorMessage);
+      console.error("Error creating booking:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        "Gagal membuat booking. Silakan coba lagi.";
+      showNotification(errorMessage, "error");
     } finally {
       setBookingLoading(false);
     }
   };
 
   const breadcrumbItems = [
-    { label: 'Beranda', href: '/' },
-    { label: 'Paket Trip', href: '/trips' },
-    { label: trip?.name || 'Trip', href: `/trips/${id}` },
-    { label: 'Booking' }
+    { label: "Beranda", href: "/" },
+    { label: "Paket Trip", href: "/trips" },
+    { label: trip?.name || "Trip", href: `/trips/${id}` },
+    { label: "Booking" },
   ];
 
-  const totalPrice = trip?.price || 0;
+  const totalPrice = (trip?.price || 0) * (bookingData.participants || 1);
 
   if (loading) {
     return (
@@ -176,8 +206,10 @@ const TripBooking = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Trip tidak ditemukan</h1>
-          <Button onClick={() => navigate('/trips')}>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            Trip tidak ditemukan
+          </h1>
+          <Button onClick={() => navigate("/trips")}>
             Kembali ke Daftar Trip
           </Button>
         </div>
@@ -197,6 +229,15 @@ const TripBooking = () => {
 
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
+            {/* Alert Component */}
+            <Alert
+              type={alertType}
+              message={alertMessage}
+              isVisible={showAlert}
+              onClose={() => setShowAlert(false)}
+              autoClose={alertType === "success"}
+            />
+
             {/* Trip Summary */}
             <motion.div
               className="bg-white rounded-xl p-6 shadow-sm mb-8"
@@ -204,32 +245,49 @@ const TripBooking = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h1 className="text-2xl font-bold text-gray-900 mb-6">Form Pemesanan Trip</h1>
-              
+              <h1 className="text-2xl font-bold text-gray-900 mb-6">
+                Form Pemesanan Trip
+              </h1>
+
               <div className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg">
                 <img
                   src={getImageUrl(trip.image_url || trip.image)}
                   alt={trip.name}
                   className="w-20 h-20 object-cover rounded-lg"
                   onError={(e) => {
-                    e.target.src = '/images/trip-placeholder.jpg';
+                    e.target.src = "/images/trip-placeholder.jpg";
                   }}
                 />
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-900">{trip.name}</h3>
                   <p className="text-sm text-gray-600 mb-2">{trip.location}</p>
                   <p className="text-sm text-gray-600 mb-2">{trip.duration}</p>
-                  {trip.quota !== undefined && trip.remaining_quota !== undefined && (
-                    <p className={`text-sm mb-2 ${trip.is_quota_full ? 'text-red-600' : trip.remaining_quota <= 2 ? 'text-orange-600' : 'text-green-600'}`}>
-                      Sisa kuota: {trip.remaining_quota} dari {trip.quota}
-                    </p>
-                  )}
+                  {trip.quota !== undefined &&
+                    trip.remaining_quota !== undefined && (
+                      <p
+                        className={`text-sm mb-2 ${trip.is_quota_full ? "text-red-600" : trip.remaining_quota <= 2 ? "text-orange-600" : "text-green-600"}`}
+                      >
+                        Sisa kuota: {trip.remaining_quota} dari {trip.quota}
+                      </p>
+                    )}
                   <div className="flex items-center justify-between">
                     <span className="text-lg font-bold text-primary-600">
                       {formatCurrency(trip.price)}
                     </span>
-                    <Badge variant={trip.is_quota_full ? 'warning' : trip.is_available_for_booking ? 'success' : 'error'}>
-                      {trip.is_quota_full ? 'Kuota Penuh' : trip.is_available_for_booking ? 'Tersedia' : 'Tidak Tersedia'}
+                    <Badge
+                      variant={
+                        trip.is_quota_full
+                          ? "warning"
+                          : trip.is_available_for_booking
+                            ? "success"
+                            : "error"
+                      }
+                    >
+                      {trip.is_quota_full
+                        ? "Kuota Penuh"
+                        : trip.is_available_for_booking
+                          ? "Tersedia"
+                          : "Tidak Tersedia"}
                     </Badge>
                   </div>
                 </div>
@@ -253,10 +311,12 @@ const TripBooking = () => {
                     <input
                       type="text"
                       value={bookingData.nama_pemesan}
-                      onChange={(e) => setBookingData({
-                        ...bookingData,
-                        nama_pemesan: e.target.value
-                      })}
+                      onChange={(e) =>
+                        setBookingData({
+                          ...bookingData,
+                          nama_pemesan: e.target.value,
+                        })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       required
                     />
@@ -270,10 +330,12 @@ const TripBooking = () => {
                     <input
                       type="tel"
                       value={bookingData.nomor_hp}
-                      onChange={(e) => setBookingData({
-                        ...bookingData,
-                        nomor_hp: e.target.value
-                      })}
+                      onChange={(e) =>
+                        setBookingData({
+                          ...bookingData,
+                          nomor_hp: e.target.value,
+                        })
+                      }
                       placeholder="+62812345678"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       required
@@ -287,10 +349,12 @@ const TripBooking = () => {
                     </label>
                     <select
                       value={bookingData.participants}
-                      onChange={(e) => setBookingData({
-                        ...bookingData,
-                        participants: parseInt(e.target.value)
-                      })}
+                      onChange={(e) =>
+                        setBookingData({
+                          ...bookingData,
+                          participants: parseInt(e.target.value),
+                        })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       required
                     >
@@ -313,11 +377,13 @@ const TripBooking = () => {
                     <input
                       type="date"
                       value={bookingData.tanggal_keberangkatan}
-                      onChange={(e) => setBookingData({
-                        ...bookingData,
-                        tanggal_keberangkatan: e.target.value
-                      })}
-                      min={new Date().toISOString().split('T')[0]}
+                      onChange={(e) =>
+                        setBookingData({
+                          ...bookingData,
+                          tanggal_keberangkatan: e.target.value,
+                        })
+                      }
+                      min={new Date().toISOString().split("T")[0]}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       required
                     />
@@ -331,10 +397,12 @@ const TripBooking = () => {
                   </label>
                   <textarea
                     value={bookingData.catatan_tambahan}
-                    onChange={(e) => setBookingData({
-                      ...bookingData,
-                      catatan_tambahan: e.target.value
-                    })}
+                    onChange={(e) =>
+                      setBookingData({
+                        ...bookingData,
+                        catatan_tambahan: e.target.value,
+                      })
+                    }
                     rows={4}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     placeholder="Masukkan catatan tambahan jika ada (makanan vegetarian, alergi, dll.)"
@@ -343,26 +411,42 @@ const TripBooking = () => {
 
                 {/* Price Summary - UPDATED TO TABLE */}
                 <div className="border-t border-gray-200 pt-8">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">Ringkasan Harga</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">
+                    Ringkasan Harga
+                  </h3>
                   <div className="overflow-hidden border border-gray-200 rounded-xl shadow-sm">
                     <table className="w-full text-left border-collapse">
                       <thead>
                         <tr>
-                          <th className="bg-blue-100/50 py-3 px-4 text-primary-700 font-bold border-b border-gray-200 w-1/3">Trip</th>
-                          <th className="bg-blue-50/50 py-3 px-4 text-primary-600 font-medium border-b border-gray-200">{trip.name}</th>
+                          <th className="bg-blue-100/50 py-3 px-4 text-primary-700 font-bold border-b border-gray-200 w-1/3">
+                            Trip
+                          </th>
+                          <th className="bg-blue-50/50 py-3 px-4 text-primary-600 font-medium border-b border-gray-200">
+                            {trip.name}
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100">
                         <tr>
-                          <td className="py-4 px-4 text-gray-500 text-sm md:text-base">Jumlah Peserta</td>
-                          <td className="py-4 px-4 text-gray-900 font-bold">{bookingData.participants} orang</td>
+                          <td className="py-4 px-4 text-gray-500 text-sm md:text-base">
+                            Jumlah Peserta
+                          </td>
+                          <td className="py-4 px-4 text-gray-900 font-bold">
+                            {bookingData.participants} orang
+                          </td>
                         </tr>
                         <tr>
-                          <td className="py-4 px-4 text-gray-500 text-sm md:text-base">Harga per Trip</td>
-                          <td className="py-4 px-4 text-gray-900 font-bold">{formatCurrency(trip.price)}</td>
+                          <td className="py-4 px-4 text-gray-500 text-sm md:text-base">
+                            Harga per Trip
+                          </td>
+                          <td className="py-4 px-4 text-gray-900 font-bold">
+                            {formatCurrency(trip.price)}
+                          </td>
                         </tr>
                         <tr className="bg-gray-50/50">
-                          <td className="py-4 px-4 text-gray-900 font-bold text-sm md:text-base">Total Harga</td>
+                          <td className="py-4 px-4 text-gray-900 font-bold text-sm md:text-base">
+                            Total Harga
+                          </td>
                           <td className="py-4 px-4 text-primary-600 font-black text-lg">
                             {formatCurrency(totalPrice)}
                           </td>
@@ -375,7 +459,9 @@ const TripBooking = () => {
                 {/* Bottom Total Bar (Mobile Optimized like image) */}
                 <div className="fixed bottom-0 left-0 right-0 bg-blue-50 border-t border-blue-100 p-4 md:relative md:bg-blue-50 md:rounded-xl md:mt-6 md:border-none flex items-center justify-between z-50">
                   <div className="flex flex-col">
-                    <span className="text-[10px] md:text-xs text-primary-600 font-bold uppercase tracking-wider">Total Pembayaran</span>
+                    <span className="text-[10px] md:text-xs text-primary-600 font-bold uppercase tracking-wider">
+                      Total Pembayaran
+                    </span>
                     <span className="text-xl md:text-2xl font-black text-gray-900">
                       {formatCurrency(totalPrice)}
                     </span>
@@ -388,7 +474,7 @@ const TripBooking = () => {
                     disabled={!trip.is_available_for_booking}
                     className="px-6 md:px-10 rounded-xl shadow-lg shadow-primary-200"
                   >
-                    {trip.is_quota_full ? 'Kuota Penuh' : 'Lanjutkan Booking'}
+                    {trip.is_quota_full ? "Kuota Penuh" : "Lanjutkan Booking"}
                   </Button>
                 </div>
 

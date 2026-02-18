@@ -1,13 +1,8 @@
 import axios from 'axios';
 
-// Global flag to prevent multiple simultaneous /auth/me requests
-let isAuthMeInProgress = false;
-let lastAuthMeRequest = 0;
-const AUTH_ME_DEBOUNCE_TIME = 5000; // 5 seconds
-
 // Base API configuration
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1',
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 30000, // Increase timeout to 30 seconds to match config/api.js
   headers: {
     'Content-Type': 'application/json',
@@ -18,35 +13,6 @@ const api = axios.create({
 // Request interceptor for adding auth token
 api.interceptors.request.use(
   (config) => {
-    // Prevent multiple simultaneous /auth/me requests with debouncing
-    if (config.url?.includes('/auth/me')) {
-      const now = Date.now();
-      
-      if (isAuthMeInProgress) {
-        console.log('=== BLOCKING DUPLICATE /auth/me REQUEST (IN PROGRESS) ===');
-        console.log('Timestamp:', new Date().toISOString());
-        console.log('========================================================');
-        return Promise.reject(new Error('Duplicate /auth/me request blocked - in progress'));
-      }
-      
-      if (now - lastAuthMeRequest < AUTH_ME_DEBOUNCE_TIME) {
-        console.log('=== BLOCKING /auth/me REQUEST (DEBOUNCE) ===');
-        console.log('Time since last request:', now - lastAuthMeRequest, 'ms');
-        console.log('Debounce time:', AUTH_ME_DEBOUNCE_TIME, 'ms');
-        console.log('Timestamp:', new Date().toISOString());
-        console.log('===========================================');
-        return Promise.reject(new Error('Duplicate /auth/me request blocked - debounce'));
-      }
-      
-      isAuthMeInProgress = true;
-      lastAuthMeRequest = now;
-      console.log('=== MAKING /auth/me REQUEST ===');
-      console.log('URL:', config.url);
-      console.log('Timestamp:', new Date().toISOString());
-      console.log('Stack trace:', new Error().stack);
-      console.log('================================');
-    }
-    
     // List of endpoints that don't require authentication
     const publicEndpoints = [
       '/auth/login',
@@ -89,21 +55,9 @@ api.interceptors.request.use(
 // Response interceptor for handling errors
 api.interceptors.response.use(
   (response) => {
-    // Reset flag when /auth/me request completes successfully
-    if (response.config?.url?.includes('/auth/me')) {
-      isAuthMeInProgress = false;
-      console.log('=== /auth/me REQUEST COMPLETED SUCCESSFULLY ===');
-    }
     return response;
   },
   (error) => {
-    // Reset flag when /auth/me request fails
-    if (error.config?.url?.includes('/auth/me')) {
-      isAuthMeInProgress = false;
-      console.log('=== /auth/me REQUEST FAILED ===');
-      console.log('Error:', error.message);
-    }
-    
     // Only redirect to login if we're not already on login/oauth pages
     if (error.response?.status === 401) {
       const currentPath = window.location.pathname;

@@ -16,6 +16,11 @@ const AdminLayout = ({ children }) => {
     logout();
   };
 
+  // Close sidebar when location changes (on mobile)
+  React.useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
   const sidebarItems = [
     {
       name: 'Dashboard',
@@ -78,7 +83,7 @@ const AdminLayout = ({ children }) => {
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
