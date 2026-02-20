@@ -31,9 +31,12 @@ const Header = () => {
 
   // Close menus when location changes
   useEffect(() => {
-    setIsMenuOpen(false);
-    setShowProfileMenu(false);
-  }, [location.pathname]); // Only trigger on pathname change
+    const timer = setTimeout(() => {
+      setIsMenuOpen(false);
+      setShowProfileMenu(false);
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem("auth_token");

@@ -77,7 +77,13 @@ class AuthController extends Controller
             }
 
             $user = User::where('email', $request->email)->firstOrFail();
-            $token = $user->createToken('auth_token')->plainTextToken;
+            
+            // Set expiration to 3 hours for admin
+            if ($user->role === 'admin') {
+                $token = $user->createToken('auth_token', ['*'], now()->addHours(3))->plainTextToken;
+            } else {
+                $token = $user->createToken('auth_token')->plainTextToken;
+            }
 
             return response()->json([
                 'message' => 'Login successful',
