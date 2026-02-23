@@ -14,7 +14,7 @@ const About = () => {
 
   const teamMembers = [
     {
-      name: 'Edison',
+      name: 'Sulton',
       position: 'Founder & CEO',
       image: 'Screenshot 2026-02-04 092125.png',
       description:
@@ -28,7 +28,7 @@ const About = () => {
         'Salah satu pendiri yang berpengalaman dalam industri transportasi dan pariwisata.'
     },
     {
-      name: 'Sulton',
+      name: 'Rohim',
       position: 'Operations Manager',
       image: 'Screenshot 2026-02-04 092121.png',
       description:
