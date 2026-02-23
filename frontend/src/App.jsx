@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { useLocalStorage } from "./hooks/useLocalStorage";
+import ScrollToTop from "./components/ScrollToTop";
 
 // Lazy load pages for code splitting
 const Home = lazy(() => import("./pages/Home"));
@@ -93,6 +94,7 @@ function App() {
 
   return (
     <ErrorBoundary>
+      <ScrollToTop />
       <div className="App">
         <AnimatePresence mode="wait">
           <Suspense fallback={<LoadingSpinner />}>
