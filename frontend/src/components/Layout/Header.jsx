@@ -486,7 +486,7 @@ const Header = () => {
                         />
                       </svg>
                       <span className="text-gray-600 font-medium text-base">
-                        My Bookings
+                        Booking saya
                       </span>
                     </Link>
                   )}
@@ -534,7 +534,7 @@ const Header = () => {
                       />
                     </svg>
                     <span className="text-gray-600 font-medium text-base">
-                      About Us
+                      Tentang Kami
                     </span>
                   </Link>
 

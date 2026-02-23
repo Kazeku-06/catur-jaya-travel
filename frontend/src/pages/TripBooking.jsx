@@ -336,7 +336,7 @@ const TripBooking = () => {
                           nomor_hp: e.target.value,
                         })
                       }
-                      placeholder="+62812345678"
+                      placeholder="+6281346474165"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       required
                     />

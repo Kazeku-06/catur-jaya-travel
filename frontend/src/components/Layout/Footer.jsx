@@ -11,14 +11,12 @@ const Footer = () => {
       links: [
         { name: 'Tentang Kami', href: '/about' },
         { name: 'Hubungi Kami', href: generateWhatsAppUrl('081346474165', 'Halo, saya ingin bertanya tentang paket wisata'), external: true },
-        { name: 'Syarat & Ketentuan', href: '#' },
       ]
     },
     services: {
       title: 'Layanan Populer',
       links: [
         { name: 'Paket Trip Wisata', href: '/trips' },
-        { name: 'City Tour Malang', href: '/trips' },
         { name: 'Travel Antar Kota', href: '/travels' },
       ]
     },
