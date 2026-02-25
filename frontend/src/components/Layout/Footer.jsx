@@ -134,10 +134,11 @@ const Footer = () => {
             <h3 className="text-white font-semibold text-base mb-5 lg:mb-6">Kantor Pusat</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 text-[15px]">
               <div className="flex items-start space-x-3">
-                <svg className="w-5 h-5 text-blue-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <svg className="w-5 h-5 text-blue-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 13a3 3 0 100-6 3 3 0 000 6z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L12 21l-5.657-5.657a8 8 0 1111.314 0z" />
                 </svg>
-                <span className="leading-snug text-gray-400">Jl. Lesti Utara No.6, Bunulrejo, Blimbing, Kota Malang</span>
+                <span className="leading-snug= text-gray-400">Jl. Lesti Utara No.6, Bunulrejo, Blimbing, Kota Malang</span>
               </div>
               <div className="flex items-center space-x-3">
                 <svg className="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

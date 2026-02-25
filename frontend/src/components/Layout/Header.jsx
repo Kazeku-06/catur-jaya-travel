@@ -164,26 +164,30 @@ const Header = () => {
                     transition={{ duration: 0.2 }}
                   >
                     <div className="bg-[#0095f6] p-4 flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-gray-500 border-2 border-white/30">
-                        <span className="text-xl font-bold">
-                          {isLoggedIn && userName
-                            ? userName.charAt(0).toUpperCase()
-                            : "?"}
-                        </span>
-                      </div>
-                      <div className="overflow-hidden">
-                        <h4 className="text-white font-bold leading-tight truncate">
-                          {isLoggedIn ? userName || "User" : "Anonymous"}
-                        </h4>
-                        <p className="text-blue-100 text-[10px] font-bold uppercase tracking-widest">
-                          {!isLoggedIn
-                            ? "Welcome to Catur Jaya"
-                            : isAdmin
-                              ? "Administrator"
-                              : "Customer"}
-                        </p>
-                      </div>
-                    </div>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-12 h-12 bg-[#1a66ff] rounded-full flex items-center justify-center text-white border-2 border-white/30 shadow-sm">
+                          <span className="text-xl font-bold">
+                            {isLoggedIn && userName ? userName.charAt(0).toUpperCase() : "T"}
+                          </span>
+                        </div>
+
+                        <div className="overflow-hidden flex flex-col justify-center">
+                          {/* Nama User */}
+                          <h4 className="text-white font-extrabold text-base leading-tight truncate tracking-wide">
+                            {isLoggedIn ? userName || "User" : "Anonymous"}
+                          </h4>
+
+                          {/* Status - Menggunakan biru yang selaras dengan icon */}
+                          <p className="text-blue-200/90 text-[10px] font-bold uppercase tracking-[0.15em] mt-0.5">
+                            {!isLoggedIn
+                              ? "Welcome to Catur Jaya"
+                              : isAdmin
+                                ? "Administrator"
+                                : "Customer"}
+                          </p>
+                        </div>
+                       </div> 
+                      </div> 
 
                     <div className="bg-white py-1">
                       {!isAdmin && (
@@ -438,11 +442,9 @@ const Header = () => {
               {/* Header Profile Section - Always visible at top */}
               <div className="bg-[#0095f6] p-4 text-white">
                 <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-white border-2 border-white/30">
+                  <div className="w-12 h-12 bg-[#1a66ff] rounded-full flex items-center justify-center text-white border-2 border-white/30 shadow-sm">
                     <span className="text-xl font-bold">
-                      {isLoggedIn && userName
-                        ? userName.charAt(0).toUpperCase()
-                        : "?"}
+                      {isLoggedIn && userName ? userName.charAt(0).toUpperCase() : "T"}
                     </span>
                   </div>
                   <div>
