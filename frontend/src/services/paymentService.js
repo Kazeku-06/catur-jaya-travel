@@ -6,13 +6,13 @@ export const paymentService = {
     return {
       bca: {
         bank: 'BCA',
-        accountNumber: '1234567890',
-        accountName: 'PT Travel Indonesia',
+        accountNumber: '0620708682',
+        accountName: 'Deriawan',
       },
       mandiri: {
         bank: 'Mandiri',
-        accountNumber: '0987654321',
-        accountName: 'PT Travel Indonesia',
+        accountNumber: '1480005349959 ',
+        accountName: 'Deriawan',
       }
     };
   },

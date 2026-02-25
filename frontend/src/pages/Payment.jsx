@@ -219,10 +219,26 @@ const Payment = () => {
                   {/* Transfer Bank Option */}
                   <div className="border-2 border-blue-100 bg-blue-50 rounded-2xl p-4">
                     <div className="flex items-start space-x-3">
-                      <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                        </svg>
+                      <div className="flex items-center justify-center">
+                        <div className="w-10 h-10 flex items-center justify-center transition-transform hover:scale-105">
+                          <svg
+                            className="w-8 h-8 text-black"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            {/* Atap Segitiga */}
+                            <path d="M12 2L1 8V10H23V8L12 2Z" />
+
+                            {/* 3 Pilar Utama yang Simetris */}
+                            <path d="M4 11H7V18H4V11Z" />
+                            <path d="M10.5 11H13.5V18H10.5V11Z" />
+                            <path d="M17 11H20V18H17V11Z" />
+
+                            {/* Dasar / Lantai Bawah */}
+                            <path d="M2 19V21H22V19H2Z" />
+                          </svg>
+                        </div>
                       </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-900 mb-1">Transfer Bank</h3>
