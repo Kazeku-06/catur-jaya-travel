@@ -181,15 +181,15 @@ const Trips = () => {
             <Breadcrumb items={breadcrumbItems} />
             
             <motion.div
-              className="mt-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+              className="mt-6"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
             >
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                Paket Trip Wisata
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
+                Paket Trip <span className="text-blue-600">Wisata</span>
               </h1>
-              <p className="text-base sm:text-lg text-gray-600">
+              <p className="mt-4 text-lg text-gray-500 max-w-2xl leading-relaxed">
                 Temukan paket wisata terbaik untuk liburan impian Anda
               </p>
             </motion.div>

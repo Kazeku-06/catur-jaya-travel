@@ -178,8 +178,8 @@ const Travels = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                Travel Antar Kota
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
+                Travel <span className="text-blue-600">Antar</span> Kota
               </h1>
               <p className="text-base sm:text-lg text-gray-600">
                 Perjalanan nyaman dan aman ke berbagai kota di Indonesia
