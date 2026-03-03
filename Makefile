@@ -13,12 +13,18 @@ clean-ports:
 	@npx -y kill-port 8000 3000 5173 2>/dev/null || true
 
 dev: clean-ports
-	@echo "=== 🚀 Starting Papal Application (Laravel + Vite)... ==="
-	@npx -y concurrently \
+	@echo "=== 🚀 Starting Papal Application (Laravel + Vite) with FIXED PORTS... ==="
+	@BACKEND_PORT=8000 ; \
+	FRONTEND_PORT=5173 ; \
+	IP_ADDRESS="103.144.209.103" ; \
+	echo "Backend will run on port $$BACKEND_PORT" ; \
+	echo "Frontend will run on port $$FRONTEND_PORT" ; \
+	echo "HINT: Open http://$$IP_ADDRESS:$$FRONTEND_PORT in your browser." ; \
+	npx -y concurrently \
 		--names "BACKEND,FRONTEND" \
 		--prefix-colors "green,cyan" \
-		"cd backend && php artisan serve --host=0.0.0.0 --port=8000" \
-		"cd frontend && npm run dev -- --host 0.0.0.0"
+		"cd backend && php artisan serve --host=0.0.0.0 --port=$$BACKEND_PORT" \
+		"cd frontend && VITE_API_BASE_URL=http://$$IP_ADDRESS:$$BACKEND_PORT/api/v1 npm run dev -- --host 0.0.0.0 --port $$FRONTEND_PORT"
 
 backend:
 	@echo "Starting Backend on http://0.0.0.0:8000..."

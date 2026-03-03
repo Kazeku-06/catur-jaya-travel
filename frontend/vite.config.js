@@ -8,6 +8,9 @@ export default defineConfig({
     port: 3000,
     host: true,
     cors: true,
+    hmr: {
+      host: '103.144.209.103',
+    },
   },
   build: {
     outDir: 'dist',
