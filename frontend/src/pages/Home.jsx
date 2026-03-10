@@ -167,12 +167,7 @@ const Home = () => {
                             className="relative aspect-square w-full max-w-[310px] md:max-w-full overflow-hidden rounded-3xl shadow-lg group cursor-pointer bg-white flex border border-gray-100"
                             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
                             <Link to="/trips/tumpak-sewu" className="block w-full h-full p-3">
-                                <img
-                                    src="privat_trip_tumpak_sewu (1).jpeg"
-                                    alt="Private Trip Tumpak Sewu"
-                                    className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
-                                    onError={handleImageError}
-                                />
+                                
                             </Link>
                         </motion.div>
 
@@ -181,12 +176,7 @@ const Home = () => {
                             className="relative aspect-square w-full max-w-[310px] md:max-w-full overflow-hidden rounded-3xl shadow-lg group cursor-pointer bg-[#2D2D2D] flex border border-gray-800"
                             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
                             <Link to="/trips/bromo" className="block w-full h-full p-3">
-                                <img
-                                    src="privat_trip_bromo (1).jpeg"
-                                    alt="Private Trip Bromo"
-                                    className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
-                                    onError={handleImageError}
-                                />
+                                
                             </Link>
                         </motion.div>
 

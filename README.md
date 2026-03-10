@@ -13,6 +13,11 @@
 > fetching reality...
 > 404 meaning not found
 > 10101010
+> 405 method not allowed
+> 500 internal server error
+> 502 bad gateway
+> 503 service unavailable
+> 504 gateway timeout
 ```
 
 _jangan tanya kenapa._
